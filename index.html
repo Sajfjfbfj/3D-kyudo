@@ -367,11 +367,7 @@
       padding: 24px;
     }
 
-    /* 縦向き時に表示（JSで補助的に非表示制御を行う） */
-    @media screen and (orientation: portrait) {
-      #orientation-overlay { display: flex; }
-    }
-    body.is-landscape #orientation-overlay { display: none !important; }
+    /* JSで制御するため、CSSでの強制表示は削除 */
 
     .rotate-hint {
       width: 80px;
@@ -1041,19 +1037,40 @@
 
     // 画面サイズ・向きの更新処理を共通化
     function handleResize() {
+      const overlay = document.getElementById('orientation-overlay');
+      
+      // 実際のウィンドウサイズを比較して向きを判定
+      const isLandscape = window.innerWidth > window.innerHeight;
+
+      // オーバーレイの表示制御（CSSに頼らずJSで直接操作）
+      if (overlay) {
+        if (isLandscape) {
+          overlay.style.display = 'none';
+          document.body.classList.add('is-landscape');
+        } else {
+          overlay.style.display = 'flex';
+          document.body.classList.remove('is-landscape');
+        }
+      }
+
+      if (!container) return;
       const width = container.clientWidth;
       const height = container.clientHeight;
-      
-      // JSで実際の解像度を比較し、横長なら is-landscape クラスを付与して警告を強制非表示にする
-      const isLandscape = window.innerWidth > window.innerHeight;
-      document.body.classList.toggle('is-landscape', isLandscape);
 
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     }
 
+    // 各種イベントで向きを再チェック
     window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', () => {
+      // 回転時は少し遅延させて判定すると安定する（iOS対策）
+      setTimeout(handleResize, 200);
+    });
+
+    // 初回実行
+    handleResize();
 
     animate();
 
