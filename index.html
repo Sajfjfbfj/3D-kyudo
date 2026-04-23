@@ -4,6 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>弓道 射法八節 3D筋肉</title>
+  <meta name="description" content="弓道・射法八節の動作と筋肉の動きを3Dで視覚的に学べる教材アプリです。全日本弓道連盟の資料に基づいた詳細な解説を掲載。" />
+  <meta name="keywords" content="弓道, 射法八節, 3D, 筋肉, 解剖学, 教材, PWA" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="弓道 射法八節 3D解説" />
+  <meta property="og:description" content="射法八節の動作を3Dモデルで全方位から確認。筋肉の動きを可視化した弓道学習ツール。" />
+  <meta property="og:image" content="android-icon-192x192.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:title" content="弓道 射法八節 3D解説" />
+
   <!-- PWA Settings & Icons -->
   <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
@@ -24,6 +37,23 @@
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Structured Data for Google -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "弓道 射法八節 3D解説",
+      "description": "弓道・射法八節の動作と筋肉の動きを3Dで視覚的に学べる教育用アプリケーション。",
+      "genre": "EducationalApplication",
+      "applicationCategory": "Education",
+      "operatingSystem": "Web, Android, iOS",
+      "offers": {
+        "@type": "Offer",
+        "price": "0"
+      }
+    }
+  </script>
   <style>
     :root {
       --bg: #0b1220;
@@ -448,7 +478,7 @@
       <div class="header">
         <div class="eyebrow">射法八節</div>
         <h1>節を選んで動作を確認</h1>
-        <p class="sub"><a href="https://www.kyudo.jp/howto/syaho.html" target="_blank" rel="noreferrer">全日本弓道連盟</a>資料および研究論文を基に構成。</p>
+        <p class="sub">全日本弓道連盟資料および研究論文を基に構成。</p>
       </div>
 
       <div class="stage-grid" id="stageGrid"></div>
