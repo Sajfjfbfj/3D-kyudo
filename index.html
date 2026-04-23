@@ -368,6 +368,9 @@
     }
 
     /* JSで制御するため、CSSでの強制表示は削除 */
+    body.is-landscape #orientation-overlay {
+      display: none !important;
+    }
 
     .rotate-hint {
       width: 80px;
@@ -1039,13 +1042,23 @@
     function handleResize() {
       const overlay = document.getElementById('orientation-overlay');
       
-      // 実際のウィンドウサイズを比較して向きを判定
-      const isLandscape = window.innerWidth > window.innerHeight;
+      // 向きの判定ロジックを強化
+      // 1. window.orientation (古いiOS)
+      // 2. screen.orientation (モダンブラウザ)
+      // 3. ウィンドウサイズ比較 (フォールバック)
+      let isLandscape = false;
+      if (window.screen && window.screen.orientation && window.screen.orientation.type) {
+        isLandscape = window.screen.orientation.type.includes('landscape');
+      } else if (typeof window.orientation !== 'undefined') {
+        isLandscape = Math.abs(window.orientation) === 90;
+      } else {
+        isLandscape = window.innerWidth > window.innerHeight;
+      }
 
-      // オーバーレイの表示制御（CSSに頼らずJSで直接操作）
+      // オーバーレイの表示制御
       if (overlay) {
         if (isLandscape) {
-          overlay.style.display = 'none';
+          overlay.style.setProperty('display', 'none', 'important');
           document.body.classList.add('is-landscape');
         } else {
           overlay.style.display = 'flex';
