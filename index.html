@@ -338,6 +338,73 @@
       font-size: 12px;
       line-height: 1.8;
     }
+    .tenouchi-section {
+      margin-top: 12px;
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+    .tenouchi-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .tenouchi-header-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #a78bfa;
+    }
+    .tenouchi-toggle {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    .tenouchi-toggle.open { transform: rotate(180deg); }
+    .tenouchi-body { display: none; }
+    .tenouchi-body.open { display: block; }
+    .tenouchi-point {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .tenouchi-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(167,139,250,0.15);
+      border: 1px solid rgba(167,139,250,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-top: 1px;
+    }
+    .tenouchi-point-text { color: #e2d9f7; }
+    .tenouchi-point-text strong { color: #c4b5fd; }
+    .tenouchi-warning {
+      background: rgba(251,191,36,0.08);
+      border-left: 3px solid #fbbf24;
+      padding: 6px 10px;
+      margin-top: 8px;
+      font-size: 11px;
+      border-radius: 0 6px 6px 0;
+      color: #fde68a;
+      line-height: 1.5;
+    }
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      .tenouchi-point { font-size: 10px; margin-bottom: 4px; }
+      .tenouchi-icon { width: 16px; height: 16px; font-size: 9px; }
+      .tenouchi-warning { font-size: 10px; }
+    }
     /* 横画面時のレイアウト（デスクトップ or 横向きモバイル） */
     @media (min-width: 1100px), (orientation: landscape) {
       .wrap {
@@ -540,6 +607,18 @@
             <div class="muscle-section-label secondary">補助・安定筋（Secondary）</div>
             <div class="tags" id="secondaryTags"></div>
           </div>
+
+          <!-- 手の内セクション -->
+          <div class="tenouchi-section" id="tenouchiSection">
+            <div class="tenouchi-header" id="tenouchiToggle">
+              <span>🤚</span>
+              <span class="tenouchi-header-label">手の内チェックポイント</span>
+              <span class="tenouchi-toggle" id="tenouchiArrow">▼</span>
+            </div>
+            <div class="tenouchi-body" id="tenouchiBody">
+              <div id="tenouchiPoints"></div>
+            </div>
+          </div>
         </section>
       </div>
     </aside>
@@ -613,6 +692,11 @@
         muscleNote: "下肢の等尺性収縮と体幹深層筋（腹横筋・多裂筋）による軸安定が核心。",
         primary:   ['大腿四頭筋', 'ハムストリングス', '大殿筋', '脊柱起立筋'],
         secondary: ['内転筋', '腸腰筋', '腹横筋', '多裂筋'],
+        tenouchi: [
+          { icon: '👁', text: '<strong>確認のみ</strong>：足踏みの段階では弓を持つだけ。手の内はまだ作らず、余計な力を入れない。' },
+          { icon: '✋', text: '<strong>弛緩した状態</strong>で弓を軽く持ち、指に無駄な力が入っていないことを意識する。' },
+        ],
+        tenouchiWarning: null,
       },
       {
         name: "胴作り", en: "Dozukuri", frame: 10, range: "10-19",
@@ -622,6 +706,11 @@
         muscleNote: "深層体幹筋が腰椎を安定。脊柱起立筋が伸展方向に働き、腹圧を高めます。",
         primary:   ['脊柱起立筋', '多裂筋'],
         secondary: ['腹横筋', '腹直筋', '外腹斜筋', '大腿四頭筋', 'ハムストリングス'],
+        tenouchi: [
+          { icon: '🤲', text: '<strong>弓を軽く持つ</strong>：胴作りでは弓を左膝に置くか軽く持つ程度。手の内の形作りはまだ行わない。' },
+          { icon: '💡', text: '<strong>準備の意識</strong>：この段階で左手首を折ったり力んだりしないよう注意。弓構えへの準備として自然に脱力しておく。' },
+        ],
+        tenouchiWarning: null,
       },
       {
         name: "弓構え", en: "Yugamae", frame: 20, range: "20-29",
@@ -631,6 +720,14 @@
         muscleNote: "肩甲骨の安定化が重要。棘下筋などの旋回筋が肩関節を中心位に保持します。",
         primary:   ['棘上筋', '棘下筋', '肩甲下筋'],
         secondary: ['僧帽筋上部', '菱形筋', '三角筋', '前鋸筋', '腕橈骨筋'],
+        tenouchi: [
+          { icon: '①', text: '<strong>天文筋</strong>を弓の外竹左角に当てる。天文筋とは小指付け根から人差し指付け根へ走る手相の感情線のこと。' },
+          { icon: '②', text: '<strong>虎口（こうこう）</strong>を弓に深く巻き込む。親指と人差し指の水かき部分で弓をしっかり受け、虎口の下に空洞を作る。' },
+          { icon: '③', text: '<strong>小指を締め</strong>、薬指・中指を弓に沿わせる（紅葉重ね）。この3本は握り込まず「ふわりと添える」程度でよい。' },
+          { icon: '④', text: '<strong>親指はまっすぐ伸ばし</strong>、爪を上に向ける（鵜の首）。角見（親指付け根）を弓の右角に当てる位置を確認。' },
+          { icon: '⑤', text: '<strong>握卵（あくらん）</strong>：卵を落とさない程度の力加減。指先が白くなるほど握り込むのはNG。' },
+        ],
+        tenouchiWarning: '⚠ べた握り厳禁：手のひら全体を握革につけると角見が利かず弓返りしない。虎口の下に空洞を作ること。',
       },
       {
         name: "打ち起こし", en: "Uchiokoshi", frame: 30, range: "30-39",
@@ -640,6 +737,11 @@
         muscleNote: "三角筋が腕を挙上。脊柱起立筋が増大（早稲田大研究）し、姿勢を維持します。",
         primary:   ['三角筋', '前鋸筋', '脊柱起立筋'],
         secondary: ['僧帽筋上部', '棘上筋', '上腕三頭筋', '腹横筋', '多裂筋'],
+        tenouchi: [
+          { icon: '🔒', text: '<strong>弓構えの形を崩さない</strong>：天文筋・虎口・角見の位置を維持したまま腕を上げる。手首を折ってはいけない。' },
+          { icon: '💧', text: '<strong>手先の力を抜く</strong>：上腕から動かし、手先はただ付いてくるイメージ。指先に力が入ると肩が上がりやすい。' },
+        ],
+        tenouchiWarning: null,
       },
       {
         name: "引き分け", en: "Hikiwake", frame: 40, range: "40-49",
@@ -649,6 +751,13 @@
         muscleNote: "広背筋・大円筋が主動。僧帽筋中下部が肩甲骨を後退させ、肘を伸展させます。",
         primary:   ['広背筋', '大円筋', '僧帽筋中下部', '上腕三頭筋'],
         secondary: ['三角筋', '棘下筋', '菱形筋', '大胸筋', '前鋸筋', '腕橈骨筋'],
+        tenouchi: [
+          { icon: '🌀', text: '<strong>大三で手の皮が巻き込まれる</strong>感覚を確認。弓が手の中に深く入り、天文筋が外竹左角に吸い付くように密着する。' },
+          { icon: '🔑', text: '<strong>角見（つのみ）を効かせ始める</strong>：大三以降、親指付け根で弓の右角を押し、弓を時計回りに捻る力を徐々に高める。' },
+          { icon: '✋', text: '<strong>中指・薬指・小指は添えるだけ</strong>：3本の指先が白くなるほど握ると弓返りにブレーキがかかる。前腕の筋肉ではなく体幹で引く。' },
+          { icon: '📐', text: '<strong>中押しを維持</strong>：上押し（親指中心）でも下押し（ベタ押し）でもなく、弓の真ん中を均等に押す中押しが基本。' },
+        ],
+        tenouchiWarning: '⚠ 親指が曲がると弓を捻る力がゼロになる。人差し指が突っ張ってもNG。引き分けで手の内が崩れたら一度やり直すことも選択肢。',
       },
       {
         name: "会", en: "Kai", frame: 50, range: "50-59",
@@ -658,6 +767,12 @@
         muscleNote: "腹横筋・内腹斜筋が安定化に主導的役割（trunk module研究）を果たします。",
         primary:   ['広背筋', '僧帽筋中下部', '大胸筋', '上腕三頭筋'],
         secondary: ['腹横筋', '多裂筋', '三角筋', '大円筋', '棘下筋', '前鋸筋'],
+        tenouchi: [
+          { icon: '🎯', text: '<strong>五重十文字の完成</strong>：「弓と弓手の手の内」が十字に交わる正しい位置を保つ。角見・脈所・肩が一直線になるのが理想。' },
+          { icon: '🌊', text: '<strong>伸合いの中でも角見を押し続ける</strong>：止まっているのではなく、親指付け根で弓を的方向へ押し続けることで弓への捻り力を蓄積する。' },
+          { icon: '🧘', text: '<strong>手先を緩めない</strong>：緩めると弓返りが起きず矢勢が落ちる。しかし力みすぎると離れで手の内が崩れる。「保つ」と「握る」は違う。' },
+        ],
+        tenouchiWarning: '⚠ 会で手の内を意識しすぎると「縮み」につながる。体幹の伸合いを主役に、手の内はその結果として自然に維持されるのが理想。',
       },
       {
         name: "離れ", en: "Hanare", frame: 60, range: "60-69",
@@ -667,6 +782,12 @@
         muscleNote: "弓手側の大胸筋・前鋸筋が急速に収縮。前腕筋群が手の内の弛緩を制御します。",
         primary:   ['大胸筋', '前鋸筋', '広背筋'],
         secondary: ['僧帽筋中下部', '上腕三頭筋', '腕橈骨筋', '三角筋', '腹横筋'],
+        tenouchi: [
+          { icon: '🔄', text: '<strong>弓返りは結果</strong>：手の内を握り込まなければ、弓は自然に時計回りに回転（弓返り）する。意図的に回そうとしない。' },
+          { icon: '↗', text: '<strong>弓手を的に向かって押し切る</strong>：離れで弓手を緩めず、親指を的に突き込む意識で押し続けることが弓返りの原動力。' },
+          { icon: '🚫', text: '<strong>手首をひねらない</strong>：意識的に弓を回転させようとして手首を捻ると悪い癖になる。弓は弦の復元力と角見の押しで自然に回る。' },
+        ],
+        tenouchiWarning: '⚠ 離れで弓手を緩めると「ゆるみ離れ」になり矢勢・的中が激減。弓を握り込んで止めようとすると弓返りしない。どちらでもなく「押したまま放たれる」が正解。',
       },
       {
         name: "残心", en: "Zanshin", frame: 70, range: "70-80",
@@ -676,6 +797,12 @@
         muscleNote: "脊柱起立筋・多裂筋が直立を維持。下肢は足踏みの等尺性収縮を継続します。",
         primary:   ['脊柱起立筋', '多裂筋', '腹横筋'],
         secondary: ['僧帽筋中下部', '広背筋', '大腿四頭筋', 'ハムストリングス', '大殿筋'],
+        tenouchi: [
+          { icon: '🔍', text: '<strong>手の内の検証タイム</strong>：残身での弓手の形が「手の内の通信簿」。天文筋がずれていないか、角見が効いているかチェック。' },
+          { icon: '✅', text: '<strong>弓返りの確認</strong>：弓が180度（弦が腕に向く）前後まで回転していれば角見が正しく働いた証拠。90度以下なら握り込みの可能性。' },
+          { icon: '📝', text: '<strong>射後の内省</strong>：「手の内10年」と言われるほど奥深い技術。毎射ごとに残身を確認し、弓構えからの形の変化を記憶する習慣をつける。' },
+        ],
+        tenouchiWarning: null,
       },
     ];
 
@@ -903,6 +1030,33 @@
     const resetBtn     = document.getElementById('resetBtn');
     const timeline     = document.getElementById('timeline');
     const timeLabel    = document.getElementById('timeLabel');
+    const tenouchiPoints = document.getElementById('tenouchiPoints');
+    const tenouchiToggle = document.getElementById('tenouchiToggle');
+    const tenouchiBody   = document.getElementById('tenouchiBody');
+    const tenouchiArrow  = document.getElementById('tenouchiArrow');
+
+    // 手の内セクションの折りたたみ
+    tenouchiToggle.addEventListener('click', () => {
+      const isOpen = tenouchiBody.classList.toggle('open');
+      tenouchiArrow.classList.toggle('open', isOpen);
+    });
+
+    function renderTenouchi(stage) {
+      tenouchiPoints.innerHTML = '';
+      if (!stage.tenouchi || stage.tenouchi.length === 0) return;
+      stage.tenouchi.forEach(pt => {
+        const div = document.createElement('div');
+        div.className = 'tenouchi-point';
+        div.innerHTML = `<div class="tenouchi-icon">${pt.icon}</div><div class="tenouchi-point-text">${pt.text}</div>`;
+        tenouchiPoints.appendChild(div);
+      });
+      if (stage.tenouchiWarning) {
+        const warn = document.createElement('div');
+        warn.className = 'tenouchi-warning';
+        warn.textContent = stage.tenouchiWarning;
+        tenouchiPoints.appendChild(warn);
+      }
+    }
 
     // ステージボタン生成
     stages.forEach((s, idx) => {
@@ -960,6 +1114,7 @@
       musNote.textContent   = s.muscleNote;
       makeTags(primaryTags,   s.primary,   'primary');
       makeTags(secondaryTags, s.secondary, 'secondary');
+      renderTenouchi(s);
 
       timeline.value = targetTime;
       timeLabel.textContent = `${targetTime.toFixed(2)}s`;
