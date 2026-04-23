@@ -97,7 +97,7 @@
     .viewer-panel {
       display: grid;
       grid-template-rows: auto 1fr auto;
-      min-height: 500px;
+      min-height: 450px;
     }
     .header {
       padding: 14px 16px 8px;
@@ -346,7 +346,7 @@
         padding: 8px;
         gap: 8px;
       }
-      .viewer-panel, .right-panel { height: 100%; }
+      .viewer-panel, .right-panel { height: 100%; min-height: 0; }
       .content { overflow-y: auto; }
     }
 
@@ -384,10 +384,11 @@
     }
 
     /* 横向きスマホ（高さが低い画面）専用の最適化 */
-    @media screen and (orientation: landscape) and (max-height: 500px) {
+    @media screen and (orientation: landscape) and (max-height: 600px) {
       .header { padding: 6px 12px 4px; }
-      .header h1 { font-size: 16px; margin: 0; }
-      .header .eyebrow, .header .sub { display: none; }
+      .header h1 { font-size: 15px; margin: 0; }
+      .header .eyebrow { display: none; }
+      .header .sub { font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .viewer-panel { min-height: 0; }
 
       /* 節ボタンを横スクロールの1列に変更して縦幅を節約 */
@@ -400,6 +401,7 @@
         border-bottom: 1px solid var(--line);
         -webkit-overflow-scrolling: touch;
       }
+      .right-panel { grid-template-rows: auto auto 1fr auto; }
       .stage-grid::-webkit-scrollbar { display: none; }
       
       .stage-btn {
@@ -413,13 +415,13 @@
 
       .content { padding: 8px 12px; }
       .card { padding: 10px; border-radius: 10px; margin-bottom: 6px; }
-      .stage-title { margin-bottom: 4px; }
+      .stage-title { margin-bottom: 2px; }
       .stage-title .jp { font-size: 18px; }
       .stage-title .en { font-size: 11px; }
-      .desc, .note, .analogy-box, .advice-box { font-size: 11px; margin: 4px 0; line-height: 1.4; }
-      .muscle-section { margin-top: 6px; }
+      .desc, .note, .analogy-box, .advice-box { font-size: 11px; margin: 2px 0; line-height: 1.4; }
+      .muscle-section { margin-top: 4px; }
       .muscle-section-label { font-size: 10px; margin-bottom: 4px; }
-      .tag { font-size: 10px; padding: 3px 8px; }
+      .tag { font-size: 10px; padding: 2px 6px; }
 
       .controls { padding: 4px 12px 6px; }
       .btn-row { gap: 6px; }
@@ -435,7 +437,7 @@
       .btn-row button { padding: 6px 10px; font-size: 11px; }
       h1 { font-size: 20px; }
       .header { padding: 10px 12px; }
-      .viewer-panel { min-height: 450px; }
+      .viewer-panel { min-height: 400px; }
     }
   </style>
 </head>
