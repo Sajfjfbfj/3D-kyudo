@@ -7,6 +7,9 @@
   <meta name="description" content="弓道・射法八節の動作と筋肉の動きを3Dで視覚的に学べる教材アプリです。全日本弓道連盟の資料に基づいた詳細な解説を掲載。" />
   <meta name="keywords" content="弓道, 射法八節, 3D, 筋肉, 解剖学, 教材, PWA" />
   
+  <!-- 巨大な3Dモデルファイルを最優先でダウンロード開始させる -->
+  <link rel="preload" href="弓道基礎１.glb" as="fetch" crossorigin="anonymous">
+
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="弓道 射法八節 3D解説" />
@@ -439,6 +442,33 @@
       .header { padding: 10px 12px; }
       .viewer-panel { min-height: 400px; }
     }
+
+    /* ローディング画面のスタイル */
+    #loading-screen {
+      position: absolute;
+      inset: 0;
+      background: var(--bg);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    .loader-bar-wrap {
+      width: 200px;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+    #loader-bar {
+      width: 0%;
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.3s;
+    }
   </style>
 </head>
 <body>
@@ -460,6 +490,14 @@
         <p class="sub">節ボタンで局面移動、筋肉タグクリックで特定部位の単独表示が可能です。</p>
       </div>
       <div id="viewer">
+        <!-- ローディング画面を追加 -->
+        <div id="loading-screen">
+          <div style="font-size: 14px; font-weight: bold; color: var(--accent);">3Dモデル読込中...</div>
+          <div class="loader-bar-wrap">
+            <div id="loader-bar"></div>
+          </div>
+          <div id="loader-text" style="font-size: 11px; color: var(--muted); margin-top: 8px;">0%</div>
+        </div>
       </div>
       <div class="controls">
         <div class="btn-row">
@@ -659,8 +697,10 @@
     camera.position.set(0, 1.0, 4.0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // 高解像度ディスプレイでの過剰な負荷を抑える（最大2倍まで）
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+    renderer.setPixelRatio(pixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -685,7 +725,26 @@
     // ================================================================
     // GLBロード
     // ================================================================
-    const loader = new GLTFLoader();
+    const loadingScreen = document.getElementById('loading-screen');
+    const loaderBar = document.getElementById('loader-bar');
+    const loaderText = document.getElementById('loader-text');
+
+    // LoadingManagerで進捗を管理
+    const manager = new THREE.LoadingManager();
+    manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      const progress = (itemsLoaded / itemsTotal) * 100;
+      loaderBar.style.width = progress + '%';
+      loaderText.textContent = Math.round(progress) + '%';
+    };
+    manager.onLoad = () => {
+      // 読み込み完了後、少し待ってからフェードアウト
+      setTimeout(() => {
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => loadingScreen.style.display = 'none', 500);
+      }, 200);
+    };
+
+    const loader = new GLTFLoader(manager);
     loader.load('弓道基礎１.glb', (gltf) => {
       const model = gltf.scene;
       model.rotation.x = Math.PI / 2;
