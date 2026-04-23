@@ -367,10 +367,7 @@
       padding: 24px;
     }
 
-    /* JSで制御するため、CSSでの強制表示は削除 */
-    body.is-landscape #orientation-overlay {
-      display: none !important;
-    }
+    /* 向きオーバーレイはJSのstyle属性で制御 */
 
     .rotate-hint {
       width: 80px;
@@ -1039,48 +1036,55 @@
     }
 
     // 画面サイズ・向きの更新処理を共通化
+    function isLandscapeMode() {
+      // screen.orientation API（モダンブラウザ・Android優先）
+      if (window.screen && window.screen.orientation && window.screen.orientation.type) {
+        return window.screen.orientation.type.startsWith('landscape');
+      }
+      // window.orientation（古いiOS: 90 or -90 = 横向き）
+      if (typeof window.orientation === 'number') {
+        return window.orientation === 90 || window.orientation === -90;
+      }
+      // フォールバック（デスクトップ等）
+      return window.innerWidth > window.innerHeight;
+    }
+
     function handleResize() {
       const overlay = document.getElementById('orientation-overlay');
-      
-      // 向きの判定ロジックを強化
-      // 1. window.orientation (古いiOS)
-      // 2. screen.orientation (モダンブラウザ)
-      // 3. ウィンドウサイズ比較 (フォールバック)
-      let isLandscape = false;
-      if (window.screen && window.screen.orientation && window.screen.orientation.type) {
-        isLandscape = window.screen.orientation.type.includes('landscape');
-      } else if (typeof window.orientation !== 'undefined') {
-        isLandscape = Math.abs(window.orientation) === 90;
-      } else {
-        isLandscape = window.innerWidth > window.innerHeight;
-      }
+      const landscape = isLandscapeMode();
 
-      // オーバーレイの表示制御
+      // オーバーレイの表示制御（style属性のみで統一、CSSクラスとの競合を排除）
       if (overlay) {
-        if (isLandscape) {
-          overlay.style.setProperty('display', 'none', 'important');
-          document.body.classList.add('is-landscape');
-        } else {
-          overlay.style.display = 'flex';
-          document.body.classList.remove('is-landscape');
-        }
+        overlay.style.display = landscape ? 'none' : 'flex';
       }
 
       if (!container) return;
-      const width = container.clientWidth;
+      // レンダラーのリサイズは常に実行（向きに関わらず）
+      const width  = container.clientWidth;
       const height = container.clientHeight;
-
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
+      if (width > 0 && height > 0) {
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      }
     }
 
-    // 各種イベントで向きを再チェック
+    // resizeは即時実行
     window.addEventListener('resize', handleResize);
+
+    // orientationchangeはiOS/Androidで反映が遅いため段階的にリトライ
     window.addEventListener('orientationchange', () => {
-      // 回転時は少し遅延させて判定すると安定する（iOS対策）
-      setTimeout(handleResize, 200);
+      setTimeout(handleResize, 100);
+      setTimeout(handleResize, 400);
+      setTimeout(handleResize, 800);
     });
+
+    // screen.orientation change（モダンブラウザ用）
+    if (window.screen && window.screen.orientation) {
+      window.screen.orientation.addEventListener('change', () => {
+        setTimeout(handleResize, 100);
+      });
+    }
 
     // 初回実行
     handleResize();
