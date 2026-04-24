@@ -370,7 +370,7 @@
     }
     .tag-location-icon { font-size: 11px; }
 
-    /* ===== 筋肉ポップアップ ===== */
+    /* ===== 筋肉ポップアップ（PC：hover浮き上がり） ===== */
     #muscle-popup {
       display: none;
       position: fixed;
@@ -385,6 +385,47 @@
       pointer-events: none;
     }
     #muscle-popup.show { display: block; }
+
+    /* ===== タグ内インラインドロップダウン（スマホ用） ===== */
+    .tag-dropdown {
+      display: none;
+      width: calc(100% + 22px);
+      margin: 6px -11px -7px;
+      padding: 10px 12px;
+      border-top: 1px solid rgba(148,163,184,0.15);
+      background: rgba(0,0,0,0.25);
+      border-radius: 0 0 12px 12px;
+      font-weight: 400;
+    }
+    .tag.open .tag-dropdown { display: block; }
+    .tag-dropdown-desc {
+      font-size: 11px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-bottom: 7px;
+    }
+    .tag-dropdown-row {
+      font-size: 10.5px;
+      line-height: 1.5;
+      display: flex;
+      gap: 5px;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+    .tag-dropdown-row-label {
+      flex-shrink: 0;
+      font-weight: 700;
+      opacity: 0.65;
+      min-width: 36px;
+    }
+    .tag-dropdown-tip {
+      font-size: 10.5px;
+      line-height: 1.5;
+      color: #86efac;
+      margin-top: 5px;
+      padding-top: 5px;
+      border-top: 1px solid rgba(148,163,184,0.1);
+    }
     .popup-header {
       display: flex;
       align-items: center;
@@ -1666,6 +1707,10 @@
     // 背景クリックでポップアップを閉じる
     document.addEventListener('click', () => hideMusclePopup());
 
+    // タッチ端末かどうかを判定（初回タッチで確定）
+    let isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    window.addEventListener('touchstart', () => { isTouch = true; }, { once: true });
+
     function makeTags(container, list, cls) {
       container.innerHTML = '';
       list.forEach(name => {
@@ -1677,6 +1722,22 @@
         const locationText = info ? info.location : '';
         const iconText = info ? info.icon : '💪';
 
+        // ドロップダウンHTML（スマホ用・最初は非表示）
+        const roleLabel = cls === 'primary' ? '🔴 メイン' : '🟡 サポート';
+        const dropdownHTML = info ? `
+          <div class="tag-dropdown">
+            <div class="tag-dropdown-desc">${info.desc}</div>
+            <div class="tag-dropdown-row">
+              <span class="tag-dropdown-row-label">場所</span>
+              <span>${info.location}</span>
+            </div>
+            <div class="tag-dropdown-row">
+              <span class="tag-dropdown-row-label">役割</span>
+              <span>${roleLabel}　${info.role}</span>
+            </div>
+            <div class="tag-dropdown-tip">💡 ${info.tip}</div>
+          </div>` : '';
+
         tag.innerHTML = `
           <div class="tag-top">
             <span class="dot"></span>
@@ -1685,27 +1746,47 @@
           <div class="tag-location">
             <span class="tag-location-icon">${iconText}</span>
             <span>${locationText}</span>
-          </div>`;
+          </div>
+          ${dropdownHTML}`;
 
         tag.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (currentSoloMuscle === name) {
-            currentSoloMuscle = null;
-            hideMusclePopup();
+
+          if (isTouch) {
+            // ── スマホ：ドロップダウン開閉 ＋ ソロ表示切替 ──
+            const isOpen = tag.classList.contains('open');
+            // 他の開いているタグを閉じる
+            container.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open'));
+            if (isOpen) {
+              currentSoloMuscle = null;
+            } else {
+              tag.classList.add('open');
+              currentSoloMuscle = name;
+            }
           } else {
-            currentSoloMuscle = name;
-            showMusclePopup(name, cls, e);
+            // ── PC：ポップアップ＋ソロ表示切替 ──
+            if (currentSoloMuscle === name) {
+              currentSoloMuscle = null;
+              hideMusclePopup();
+            } else {
+              currentSoloMuscle = name;
+              showMusclePopup(name, cls, e);
+            }
           }
+
           makeTags(primaryTags, stages[currentStageIdx].primary, 'primary');
           makeTags(secondaryTags, stages[currentStageIdx].secondary, 'secondary');
           updateMuscles(stages[currentStageIdx], currentSoloMuscle);
         });
 
+        // PC：hover でポップアップ
         tag.addEventListener('mouseenter', (e) => {
+          if (isTouch) return;
           clearTimeout(popupTimeout);
           showMusclePopup(name, cls, e);
         });
         tag.addEventListener('mouseleave', () => {
+          if (isTouch) return;
           popupTimeout = setTimeout(hideMusclePopup, 300);
         });
 
