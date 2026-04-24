@@ -1415,11 +1415,11 @@
       const center = box.getCenter(new THREE.Vector3());
       const size   = box.getSize(new THREE.Vector3());
       const targetY = box.min.y + size.y * 0.52;
-      controls.target.set(center.x, targetY, center.z);
+      controls.target.set(0, targetY, 0); // キャラクターの軸(X=0)を中心に固定してズレを防止
       const halfH  = size.y / 2.2;
       const fovRad = (camera.fov * Math.PI) / 180;
       const dist   = (halfH / Math.tan(fovRad / 2)) * 1.15;
-      camera.position.set(center.x, targetY, center.z + dist);
+      camera.position.set(0, targetY, dist); // カメラも正面に配置
       controls.update();
 
       const defaultCamPos    = camera.position.clone();
@@ -1867,8 +1867,10 @@
 
       if (!container) return;
       // レンダラーのリサイズは常に実行（向きに関わらず）
-      const width  = container.clientWidth;
-      const height = container.clientHeight;
+      // clientWidthよりも正確なgetBoundingClientRectを使用して、スマホでの微妙なズレを防止
+      const rect = container.getBoundingClientRect();
+      const width  = rect.width;
+      const height = rect.height;
       if (width > 0 && height > 0) {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
