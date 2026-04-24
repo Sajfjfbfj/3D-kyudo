@@ -1704,10 +1704,13 @@
       musclePopup.style.display = 'none';
     }
 
-    // 背景クリックでポップアップを閉じる
-    document.addEventListener('click', () => hideMusclePopup());
+    // 背景クリックでポップアップ＆ドロップダウンを閉じる
+    document.addEventListener('click', () => {
+      hideMusclePopup();
+      document.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open'));
+    });
 
-    // タッチ端末かどうかを判定（初回タッチで確定）
+    // タッチ端末かどうかを判定
     let isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     window.addEventListener('touchstart', () => { isTouch = true; }, { once: true });
 
@@ -1722,7 +1725,6 @@
         const locationText = info ? info.location : '';
         const iconText = info ? info.icon : '💪';
 
-        // ドロップダウンHTML（スマホ用・最初は非表示）
         const roleLabel = cls === 'primary' ? '🔴 メイン' : '🟡 サポート';
         const dropdownHTML = info ? `
           <div class="tag-dropdown">
@@ -1755,14 +1757,19 @@
           if (isTouch) {
             // ── スマホ：ドロップダウン開閉 ＋ ソロ表示切替 ──
             const isOpen = tag.classList.contains('open');
-            // 他の開いているタグを閉じる
-            container.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open'));
+            // 他を閉じる
+            document.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open'));
             if (isOpen) {
               currentSoloMuscle = null;
             } else {
               tag.classList.add('open');
               currentSoloMuscle = name;
             }
+            // solo 表示だけ更新（タグは再描画しない）
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('solo'));
+            if (currentSoloMuscle) tag.classList.add('solo');
+            updateMuscles(stages[currentStageIdx], currentSoloMuscle);
+
           } else {
             // ── PC：ポップアップ＋ソロ表示切替 ──
             if (currentSoloMuscle === name) {
@@ -1772,11 +1779,10 @@
               currentSoloMuscle = name;
               showMusclePopup(name, cls, e);
             }
+            makeTags(primaryTags, stages[currentStageIdx].primary, 'primary');
+            makeTags(secondaryTags, stages[currentStageIdx].secondary, 'secondary');
+            updateMuscles(stages[currentStageIdx], currentSoloMuscle);
           }
-
-          makeTags(primaryTags, stages[currentStageIdx].primary, 'primary');
-          makeTags(secondaryTags, stages[currentStageIdx].secondary, 'secondary');
-          updateMuscles(stages[currentStageIdx], currentSoloMuscle);
         });
 
         // PC：hover でポップアップ
