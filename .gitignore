@@ -1,0 +1,6 @@
+# Google Drive temporary files
+.tmp.driveupload/
+
+# OS generated files
+.DS_Store
+Thumbs.db
