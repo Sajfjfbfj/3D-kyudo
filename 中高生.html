@@ -72,6 +72,10 @@
       --shadow: 0 10px 30px rgba(0,0,0,.3);
     }
     * { box-sizing: border-box; }
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
     body {
       margin: 0;
       font-family: Inter, "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
@@ -96,15 +100,19 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(16px);
       overflow: hidden;
+      min-width: 0;
+      width: 100%;
     }
     .viewer-panel {
       display: grid;
       grid-template-rows: auto 1fr auto;
       min-height: 450px;
+      min-width: 0;
     }
     .header {
       padding: 14px 16px 8px;
       border-bottom: 1px solid var(--line);
+      min-width: 0;
     }
     .eyebrow {
       display: inline-flex;
@@ -123,21 +131,42 @@
       margin: 8px 0 6px;
       font-size: clamp(18px, 2vw, 26px);
       line-height: 1.2;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      max-width: 100%;
     }
     .sub {
       color: var(--muted);
       line-height: 1.5;
       font-size: 12.5px;
       margin: 0;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      max-width: 100%;
+      display: block;
     }
     #viewer {
       position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       flex: 1;
       background:
         radial-gradient(circle at 50% 15%, rgba(125, 211, 252, 0.13), transparent 32%),
         linear-gradient(180deg, rgba(15,23,42,.2), rgba(2,6,23,.88));
     }
-    canvas { display: block; width: 100%; height: 100%; }
+    canvas {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none;
+    }
     .viewer-overlay {
       position: absolute;
       inset: 16px 16px auto 16px;
@@ -528,12 +557,33 @@
       line-height: 1.6;
       margin: 8px 0 10px;
     }
-    .footer-note {
-      padding: 0 18px 18px;
-      color: var(--muted);
+    .footer-note { border-top: 1px solid var(--line); background: rgba(15, 23, 42, 0.4); }
+    .footer-note-header {
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
       font-size: 12px;
-      line-height: 1.8;
+      color: var(--accent);
+      font-weight: 700;
     }
+    .footer-note-toggle {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    .footer-note-toggle.open { transform: rotate(180deg); }
+    .footer-note-body {
+      display: none;
+      padding: 0 18px 16px;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.7;
+    }
+    .footer-note-body.open { display: block; }
     .tenouchi-section {
       margin-top: 12px;
       border-top: 1px solid var(--line);
@@ -650,7 +700,7 @@
       .header { padding: 6px 12px 4px; }
       .header h1 { font-size: 15px; margin: 0; }
       .header .eyebrow { display: none; }
-      .header .sub { font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .header .sub { font-size: 11px; margin: 0; overflow-wrap: anywhere; word-break: normal; }
       .viewer-panel { min-height: 0; }
 
       /* 節ボタンを横スクロールの1列に変更して縦幅を節約 */
@@ -698,8 +748,27 @@
       .stage-grid { grid-template-columns: repeat(2, 1fr); }
       .btn-row button { padding: 6px 10px; font-size: 11px; }
       h1 { font-size: 20px; }
-      .header { padding: 10px 12px; }
+      .header { padding: 12px 14px; }
+      /* スマホではヘッダー要素を縦に並べて横幅を確保 */
+      .header > div:first-child { flex-direction: column; align-items: stretch !important; gap: 10px !important; }
+      .header a { width: 100%; justify-content: center; padding: 10px !important; }
       .viewer-panel { min-height: 400px; }
+    }
+
+    /* iPhone SE等の極小〜標準スマホ画面向け調整 */
+    @media (max-width: 430px) {
+      .wrap { padding: 6px; gap: 8px; }
+      .header { padding: 10px 12px 8px; }
+      .header h1 { font-size: 19px; margin-top: 10px; line-height: 1.3; }
+      .header .sub { font-size: 12px; }
+      .header .eyebrow { font-size: 10px; padding: 4px 8px; }
+      .header a { 
+        padding: 8px 12px !important; 
+        width: 100%; 
+        justify-content: center;
+      }
+      .viewer-panel { min-height: 380px; }
+      .stage-btn strong { font-size: 13px; }
     }
 
     /* ローディング画面のスタイル */
@@ -930,9 +999,16 @@
         </section>
       </div>
       <div class="footer-note">
-        🏹 <strong>使い方</strong>：上の第○節ボタンで動作を選択 → 3Dモデルで筋肉の動きを確認 → タグをタップして特定の筋肉だけ表示！<br>
-        🔴 赤色＝メインで使う筋肉　🟡 黄色＝サポートする筋肉<br>
-        ※ 3Dモデルはドラッグで回転、ピンチで拡大縮小できます。
+        <div class="footer-note-header" id="footerToggle">
+          <span>🏹</span>
+          <span>使い方・凡例（タップで開閉）</span>
+          <span class="footer-note-toggle" id="footerArrow">▼</span>
+        </div>
+        <div class="footer-note-body" id="footerBody">
+          🏹 <strong>使い方</strong>：上の第○節ボタンで動作を選択 → 3Dモデルで筋肉の動きを確認 → タグをタップして特定の筋肉だけ表示！<br>
+          🔴 赤色＝メインで使う筋肉　🟡 黄色＝サポートする筋肉<br>
+          ※ 3Dモデルはドラッグで回転、ピンチで拡大縮小できます。
+        </div>
       </div>
     </aside>
   </div>
@@ -1395,7 +1471,11 @@
     // 高解像度ディスプレイでの過剰な負荷を抑える（最大2倍まで）
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
     renderer.setPixelRatio(pixelRatio);
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    // レイアウト確定前に clientWidth を読むとズレるため、getBoundingClientRect で正確なサイズを取得
+    const _initRect = container.getBoundingClientRect();
+    const initW = _initRect.width || window.innerWidth;
+    const initH = _initRect.height || 450;
+    renderer.setSize(initW, initH, false);
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -1461,16 +1541,29 @@
         });
       });
 
-      // バウンディングボックス → カメラ位置
+      // バウンディングボックスとキャラクターの中心位置の計算
       const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
       const size   = box.getSize(new THREE.Vector3());
+
+      // 素体（人間）のメッシュを探して水平方向の中心を正確に合わせる
+      let bodyCenterX = 0;
+      const bodyMesh = model.getObjectByName('kyudo_male_base');
+      if (bodyMesh) {
+        const bodyBox = new THREE.Box3().setFromObject(bodyMesh);
+        const bodyCenter = bodyBox.getCenter(new THREE.Vector3());
+        bodyCenterX = bodyCenter.x;
+      } else {
+        // 見つからない場合は全体のBoxから計算（弓の長さを考慮して背中側にオフセット）
+        bodyCenterX = box.max.x - (size.x * 0.2);
+      }
+
       const targetY = box.min.y + size.y * 0.52;
-      controls.target.set(0, targetY, 0); // キャラクターの軸(X=0)を中心に固定してズレを防止
+      controls.target.set(bodyCenterX, targetY, 0); 
+
       const halfH  = size.y / 2.2;
       const fovRad = (camera.fov * Math.PI) / 180;
       const dist   = (halfH / Math.tan(fovRad / 2)) * 1.15;
-      camera.position.set(0, targetY, dist); // カメラも正面に配置
+      camera.position.set(bodyCenterX, targetY, dist);
       controls.update();
 
       const defaultCamPos    = camera.position.clone();
@@ -1605,10 +1698,18 @@
     const missToggle  = document.getElementById('missToggle');
     const missBody    = document.getElementById('missBody');
     const missArrow   = document.getElementById('missArrow');
+    const footerToggle = document.getElementById('footerToggle');
+    const footerBody   = document.getElementById('footerBody');
+    const footerArrow  = document.getElementById('footerArrow');
 
     missToggle.addEventListener('click', () => {
       const isOpen = missBody.classList.toggle('open');
       missArrow.classList.toggle('open', isOpen);
+    });
+
+    footerToggle.addEventListener('click', () => {
+      const isOpen = footerBody.classList.toggle('open');
+      footerArrow.classList.toggle('open', isOpen);
     });
 
     function renderMissPoints(stage) {
@@ -1924,15 +2025,16 @@
       }
 
       if (!container) return;
-      // レンダラーのリサイズは常に実行（向きに関わらず）
-      // clientWidthよりも正確なgetBoundingClientRectを使用して、スマホでの微妙なズレを防止
+      // clientWidthよりも正確なgetBoundingClientRectを使用
       const rect = container.getBoundingClientRect();
-      const width  = rect.width;
-      const height = rect.height;
+      // 小数点によるスマホでの表示ズレを防ぐため、整数に丸める
+      const width  = Math.floor(rect.width);
+      const height = Math.floor(rect.height);
+
       if (width > 0 && height > 0) {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
+        renderer.setSize(width, height, false);
       }
     }
 
@@ -1953,7 +2055,8 @@
       });
     }
 
-    // 初回実行
+    // 初回実行（レイアウト確定を待つため少し遅延させる）
+    setTimeout(handleResize, 100);
     handleResize();
 
     animate();
