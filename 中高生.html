@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>弓道 射法八節 3D筋肉</title>
-  <meta name="description" content="弓道・射法八節の動作と筋肉の動きを3Dで視覚的に学べる教材アプリです。全日本弓道連盟の資料に基づいた詳細な解説を掲載。" />
+  <title>弓道 射法八節 3D学習アプリ【中高生版】</title>
+  <meta name="description" content="弓道の基本動作「射法八節」を3Dモデルで学べる中高生向け学習アプリ。使う筋肉をわかりやすく色分けして解説。" />
   <meta name="keywords" content="弓道, 射法八節, 3D, 筋肉, 解剖学, 教材, PWA" />
   
   <!-- 巨大な3Dモデルファイルを最優先でダウンロード開始させる -->
@@ -330,8 +330,163 @@
     .tag .dot {
       width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0;
     }
+    .tag-yomi {
+      font-size: 9px;
+      font-weight: 400;
+      opacity: 0.75;
+      margin-left: 2px;
+    }
     .tag.primary .dot { background: #fb7185; }
     .tag.secondary .dot { background: #fbbf24; }
+
+    /* ===== 筋肉タグ 新デザイン ===== */
+    .tag {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      padding: 7px 11px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      user-select: none;
+      line-height: 1.3;
+      position: relative;
+    }
+    .tag-top {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .tag-location {
+      font-size: 10px;
+      font-weight: 500;
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .tag-location-icon { font-size: 11px; }
+
+    /* ===== 筋肉ポップアップ ===== */
+    #muscle-popup {
+      display: none;
+      position: fixed;
+      z-index: 9000;
+      background: rgba(10, 18, 35, 0.97);
+      border: 1px solid rgba(148,163,184,0.3);
+      border-radius: 16px;
+      padding: 14px 16px;
+      width: min(320px, 90vw);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      pointer-events: none;
+    }
+    #muscle-popup.show { display: block; }
+    .popup-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .popup-body-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .popup-name-jp {
+      font-size: 16px;
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+    .popup-name-yomi {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+    .popup-desc {
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .popup-location-bar {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: #7dd3fc;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .popup-role {
+      margin-top: 8px;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+    .popup-role.primary {
+      background: rgba(251,113,133,0.12);
+      color: #fca5a5;
+      border: 1px solid rgba(251,113,133,0.2);
+    }
+    .popup-role.secondary {
+      background: rgba(251,191,36,0.1);
+      color: #fde68a;
+      border: 1px solid rgba(251,191,36,0.18);
+    }
+    .popup-tip {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #86efac;
+      display: flex;
+      gap: 5px;
+      align-items: flex-start;
+      line-height: 1.5;
+    }
+
+    /* ===== 説明カード 強化 ===== */
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(125,211,252,0.1);
+      border: 1px solid rgba(125,211,252,0.2);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .muscle-section-label {
+      font-size: 12px !important;
+      font-weight: 800;
+      margin-bottom: 10px !important;
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+    .muscle-section-label.primary {
+      background: rgba(251,113,133,0.12);
+      border: 1px solid rgba(251,113,133,0.2);
+    }
+    .muscle-section-label.secondary {
+      background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.15);
+    }
+    .muscle-note-box {
+      background: rgba(99,102,241,0.08);
+      border-left: 3px solid #818cf8;
+      border-radius: 0 8px 8px 0;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #c7d2fe;
+      line-height: 1.6;
+      margin: 8px 0 10px;
+    }
     .footer-note {
       padding: 0 18px 18px;
       color: var(--muted);
@@ -599,14 +754,31 @@
   </style>
 </head>
 <body>
+  <!-- 筋肉詳細ポップアップ -->
+  <div id="muscle-popup">
+    <div class="popup-header">
+      <div class="popup-body-icon" id="popup-icon"></div>
+      <div>
+        <div class="popup-name-jp" id="popup-name-jp"></div>
+        <div class="popup-name-yomi" id="popup-name-yomi"></div>
+      </div>
+    </div>
+    <div class="popup-desc" id="popup-desc"></div>
+    <div class="popup-location-bar">
+      <span>📍</span><span id="popup-location"></span>
+    </div>
+    <div class="popup-role" id="popup-role"></div>
+    <div class="popup-tip" id="popup-tip"></div>
+  </div>
+
   <!-- 縦画面警告オーバーレイ -->
   <div id="orientation-overlay">
     <div class="rotate-hint">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
     </div>
-    <h2 style="margin:0 0 10px;">画面を横向きにしてください</h2>
-    <p class="sub">この教材は横画面での閲覧に最適化されています。</p>
-    <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※画面が変わらない場合は、スマホの「縦向きロック」をオフにしてください。</p>
+    <h2 style="margin:0 0 10px;">📱 画面を横向きにしてね！</h2>
+    <p class="sub">このアプリは横画面で見るのがおすすめだよ。</p>
+    <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※ 画面が変わらない場合は、スマホの「縦向きロック」をオフにしてみよう。</p>
   </div>
 
   <div class="wrap">
@@ -614,27 +786,27 @@
     <section class="panel viewer-panel">
       <div class="header">
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-          <div class="eyebrow">3D / 筋肉色分けビューア</div>
-          <a href="中高生.html" style="
+          <div class="eyebrow">3D / 筋肉（きんにく）色分けビューア</div>
+          <a href="index.html" style="
             display:inline-flex; align-items:center; gap:8px;
             padding:9px 16px; border-radius:12px;
-            background:linear-gradient(135deg, rgba(52,211,153,0.28), rgba(52,211,153,0.16));
-            border:1.5px solid rgba(52,211,153,0.55);
-            color:#34d399; font-size:13px; font-weight:800;
+            background:linear-gradient(135deg, rgba(125,211,252,0.28), rgba(125,211,252,0.16));
+            border:1.5px solid rgba(125,211,252,0.55);
+            color:#7dd3fc; font-size:13px; font-weight:800;
             text-decoration:none; letter-spacing:.03em;
             transition:.18s ease;
             white-space:nowrap;
-            box-shadow: 0 0 12px rgba(52,211,153,0.18);
-          " onmouseover="this.style.background='linear-gradient(135deg,rgba(52,211,153,0.42),rgba(52,211,153,0.28))'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.35)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(52,211,153,0.28),rgba(52,211,153,0.16))'; this.style.boxShadow='0 0 12px rgba(52,211,153,0.18)'">
-            <span style="font-size:16px;">📚</span>
+            box-shadow: 0 0 12px rgba(125,211,252,0.18);
+          " onmouseover="this.style.background='linear-gradient(135deg,rgba(125,211,252,0.42),rgba(125,211,252,0.28))'; this.style.boxShadow='0 0 20px rgba(125,211,252,0.35)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(125,211,252,0.28),rgba(125,211,252,0.16))'; this.style.boxShadow='0 0 12px rgba(125,211,252,0.18)'">
+            <span style="font-size:16px;">🎯</span>
             <span style="display:flex; flex-direction:column; line-height:1.2;">
               <span style="font-size:10px; opacity:0.75; font-weight:600; letter-spacing:.06em; text-transform:uppercase;">Switch</span>
-              <span>中高生版へ →</span>
+              <span>通常版へ →</span>
             </span>
           </a>
         </div>
-        <h1>弓道・射法八節 3D解説</h1>
-        <p class="sub">節ボタンで局面移動、筋肉タグクリックで特定部位の単独表示が可能です。</p>
+        <h1>弓道・射法八節（しゃほうはっせつ）3D解説</h1>
+        <p class="sub">下の「第○節」ボタンを押すとそのポーズに移動！筋肉のタグをタップすると、その部位だけ表示できるよ。</p>
       </div>
       <div id="viewer">
         <!-- ローディング画面を追加 -->
@@ -664,9 +836,9 @@
     <!-- 右パネル: 射法八節 選択 + 筋肉解説 -->
     <aside class="panel right-panel">
       <div class="header">
-        <div class="eyebrow">射法八節</div>
-        <h1>節を選んで動作を確認</h1>
-        <p class="sub">全日本弓道連盟資料および研究論文を基に構成。</p>
+        <div class="eyebrow">射法八節（しゃほうはっせつ）</div>
+        <h1>節（ふし）を選んで動きを確認しよう</h1>
+        <p class="sub">弓道の基本8つの動作を順番に学んでいこう！</p>
       </div>
 
       <div class="stage-grid" id="stageGrid"></div>
@@ -680,14 +852,14 @@
           <p class="desc" id="stageDesc"></p>
           <div id="stageAnalogy" class="analogy-box"></div>
           <div id="stageAdvice" class="advice-box"></div>
-          <p class="note" id="stageMuscleNote"></p>
+          <div class="muscle-note-box" id="stageMuscleNote"></div>
 
           <div class="muscle-section" id="primarySection">
-            <div class="muscle-section-label primary">主動筋（Primary）</div>
+            <div class="muscle-section-label primary">🔴 メインで使う筋肉</div>
             <div class="tags" id="primaryTags"></div>
           </div>
           <div class="muscle-section" id="secondarySection" style="margin-top:12px;">
-            <div class="muscle-section-label secondary">補助・安定筋（Secondary）</div>
+            <div class="muscle-section-label secondary">🟡 サポートする筋肉</div>
             <div class="tags" id="secondaryTags"></div>
           </div>
 
@@ -695,7 +867,7 @@
           <div class="tenouchi-section" id="tenouchiSection">
             <div class="tenouchi-header" id="tenouchiToggle">
               <span>🤚</span>
-              <span class="tenouchi-header-label">手の内チェックポイント</span>
+              <span class="tenouchi-header-label">🤚 手の内（てのうち）チェックポイント</span>
               <span class="tenouchi-toggle" id="tenouchiArrow">▼</span>
             </div>
             <div class="tenouchi-body" id="tenouchiBody">
@@ -707,7 +879,7 @@
           <div class="miss-section">
             <div class="miss-header" id="missToggle">
               <span>⚠</span>
-              <span class="miss-header-label">見落としがちなポイント</span>
+              <span class="miss-header-label">⚠ やりがちなミス・コツ</span>
               <span class="miss-toggle" id="missArrow">▼</span>
             </div>
             <div class="miss-body" id="missBody">
@@ -715,6 +887,11 @@
             </div>
           </div>
         </section>
+      </div>
+      <div class="footer-note">
+        🏹 <strong>使い方</strong>：上の第○節ボタンで動作を選択 → 3Dモデルで筋肉の動きを確認 → タグをタップして特定の筋肉だけ表示！<br>
+        🔴 赤色＝メインで使う筋肉　🟡 黄色＝サポートする筋肉<br>
+        ※ 3Dモデルはドラッグで回転、ピンチで拡大縮小できます。
       </div>
     </aside>
   </div>
@@ -732,6 +909,220 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // ================================================================
+    // 筋肉名の詳細データ（中高生向け・場所・役割・コツ）
+    // ================================================================
+    const MUSCLE_READING = {
+      '大腿四頭筋': {
+        yomi: 'だいたいしとうきん',
+        icon: '🦵',
+        desc: '太ももの前側にある、体で一番大きな筋肉グループ。4つの筋肉がまとまってるから「四頭（4つの頭）」。',
+        location: '太もも前側（前面）',
+        role: '膝を伸ばす・足を踏みしめる力',
+        tip: '弓道では「地面をしっかり踏む」土台の力をここで作ってるよ！'
+      },
+      'ハムストリングス': {
+        yomi: 'はむすとりんぐす',
+        icon: '🦵',
+        desc: '太ももの裏側にある3つの筋肉のまとまり。スポーツでよく「ハムを痛めた」というのはここのこと。',
+        location: '太もも裏側（後面）',
+        role: '膝を曲げる・体を前に倒れないよう支える',
+        tip: '大腿四頭筋（前側）と一緒に働いて、立ち姿勢のバランスをとってるよ。'
+      },
+      '大殿筋': {
+        yomi: 'だいでんきん',
+        icon: '🍑',
+        desc: 'お尻の大きな筋肉。体の中でも最大クラスの筋肉！「殿（でん）」はお尻という意味。',
+        location: 'お尻全体',
+        role: '股関節を伸ばす・体を起こす・姿勢を安定させる',
+        tip: 'ここが弱いと腰が落ちてしまう。弓を引くときの体全体の安定に大事！'
+      },
+      '内転筋': {
+        yomi: 'ないてんきん',
+        icon: '🦵',
+        desc: '太ももの内側にある筋肉。足を内側に閉じる（内転させる）から「内転筋」。',
+        location: '太もも内側（内面）',
+        role: '足を内側に引き寄せる・骨盤を安定させる',
+        tip: '足踏みで足幅を保つときに、足が開きすぎないよう支えてくれてるよ。'
+      },
+      '腸腰筋': {
+        yomi: 'ちょうようきん',
+        icon: '💪',
+        desc: '腰の骨から太ももへつながる深い筋肉。インナーマッスルの王様とも言われる大事な筋肉！',
+        location: '腰の奥〜太ももの付け根（股関節）',
+        role: '股関節を曲げる・背骨を安定させる',
+        tip: 'ここが働くと腰がぶれず、上半身を安定させるのに大きく貢献するよ。'
+      },
+      '脊柱起立筋': {
+        yomi: 'せきちゅうきりつきん',
+        icon: '🗼',
+        desc: '背骨の左右に沿って縦に走る筋肉のグループ。背骨を立てる（起立させる）からこの名前。',
+        location: '背中の中央・背骨の両脇',
+        role: '背骨をまっすぐに保つ・上体を起こす',
+        tip: '弓道でいう「胴造り」のメイン筋肉。ここがしっかり働くと姿勢が安定するよ！'
+      },
+      '腹横筋': {
+        yomi: 'ふくおうきん',
+        icon: '🎽',
+        desc: 'お腹の一番深いところにある薄い筋肉。コルセット（ウエストを締めるベルト）のように腰を360度で支えてくれる！',
+        location: 'お腹の深層（一番内側）',
+        role: 'お腹を締めて腰を安定させる・「腹圧」を高める',
+        tip: '見えないけど超重要なインナーマッスル。ここを使えると体の軸がぶれなくなるよ！'
+      },
+      '腹直筋': {
+        yomi: 'ふくちょくきん',
+        icon: '💪',
+        desc: 'お腹の正面にある縦長の筋肉。鍛えると「シックスパック」が見える筋肉！',
+        location: 'お腹の正面（前面）',
+        role: '体を前に曲げる・姿勢を支える',
+        tip: '腹横筋と一緒に働いて「腹圧」を作り、体幹をサポートするよ。'
+      },
+      '外腹斜筋': {
+        yomi: 'がいふくしゃきん',
+        icon: '🔄',
+        desc: 'お腹の脇にある、斜めに走る筋肉。体をひねるときに使う。',
+        location: 'お腹の脇〜腰のあたり',
+        role: '体を横に曲げる・ひねる・腹圧を高める',
+        tip: '弓道の「胴作り」でお腹をしっかり固めるときに助けてくれてるよ。'
+      },
+      '多裂筋': {
+        yomi: 'たれつきん',
+        icon: '🗼',
+        desc: '背骨のすぐ横にある、深いところの小さな筋肉が連なったもの。背骨を細かく安定させる「縁の下の力持ち」。',
+        location: '背骨の深層・首〜腰まで',
+        role: '背骨の各関節を細かく安定させる',
+        tip: '腹横筋とセットで「背骨のコルセット」を作ってくれる。地味だけど超重要！'
+      },
+      '僧帽筋上部': {
+        yomi: 'そうぼうきんじょうぶ',
+        icon: '🧍',
+        desc: '肩から首にかけて広がる大きな筋肉「僧帽筋」の上の部分。肩をすくめるときに使う筋肉。',
+        location: '首〜肩の上部',
+        role: '肩甲骨を上に引き上げる・首を支える',
+        tip: '弓道では「肩が上がる」悪い癖のときにここが過剰に働いてしまうことが多い。意識的に下げよう！'
+      },
+      '僧帽筋中下部': {
+        yomi: 'そうぼうきんちゅうかぶ',
+        icon: '🦅',
+        desc: '僧帽筋の真ん中〜下の部分。肩甲骨を後ろ・下に引き寄せる動きをする。弓道で最も重要な背中の筋肉のひとつ！',
+        location: '肩甲骨〜背中の中央',
+        role: '肩甲骨を後ろに引く・肩を下げて安定させる',
+        tip: '引き分けで弓を引くとき、ここを使って肩甲骨を後ろに引き込むのが正しい動き。肩が上がるのはここが弱い証拠かも！'
+      },
+      '菱形筋': {
+        yomi: 'りょうけいきん',
+        icon: '🔷',
+        desc: '背骨と肩甲骨の間にある、ひし形の筋肉。左右の肩甲骨を背骨の方向に引き寄せる。',
+        location: '肩甲骨〜背骨の間（背中上部）',
+        role: '肩甲骨を内側に引き寄せる・姿勢を整える',
+        tip: '引き分けで「背中を広げる」感覚と一緒に働く筋肉。猫背の人は弱いことが多いよ。'
+      },
+      '広背筋': {
+        yomi: 'こうはいきん',
+        icon: '🦅',
+        desc: '背中の下半分を覆う、体で最も面積の大きな筋肉！脇から腰まで広がっている。弓道で「引き分け」の主力！',
+        location: '背中の下半分全体〜脇のあたり',
+        role: '腕を後ろ下方向に引く・体幹を安定させる',
+        tip: '弓を引くときの一番パワフルな主役筋肉！「肘で引く」意識で使えるようになるよ。'
+      },
+      '大胸筋': {
+        yomi: 'だいきょうきん',
+        icon: '💪',
+        desc: '胸の正面にある大きな筋肉。腕を前方・内側に動かすときに使う。',
+        location: '胸の正面（前面）',
+        role: '腕を前方や内側に引く・弓手を押し出す',
+        tip: '離れの瞬間に弓手（左手）を的に向けて押し出す力の源！'
+      },
+      '前鋸筋': {
+        yomi: 'ぜんきょきん',
+        icon: '⚙️',
+        desc: '肋骨の脇に沿ってある筋肉。肩甲骨を前に押し出す働きで、「肩甲骨の安定装置」とも呼ばれる。',
+        location: '脇の下〜肋骨の側面',
+        role: '肩甲骨を肋骨に押しつけて安定させる',
+        tip: '打ち起こしで「腕じゃなく肩甲骨から動かす」感覚はここを使っているイメージ！'
+      },
+      '三角筋': {
+        yomi: 'さんかくきん',
+        icon: '🔺',
+        desc: '肩を覆う三角形の筋肉。前・横・後ろの3つの部分に分かれていて、腕を色々な方向に動かす万能筋肉！',
+        location: '肩の外側全体',
+        role: '腕を横・前・後ろに上げる',
+        tip: '打ち起こしで腕を上げるときのメイン筋肉。でも「腕だけで上げる」とここだけ疲れてしまうよ。'
+      },
+      '大円筋': {
+        yomi: 'だいえんきん',
+        icon: '💪',
+        desc: '肩甲骨の外側から上腕（二の腕）につながる筋肉。広背筋の「サブ」として腕を引き下ろす力を出す。',
+        location: '肩甲骨の外下側〜上腕',
+        role: '腕を後ろ下方向に引く',
+        tip: '引き分けで広背筋と一緒に弦（つる）を引く力を出してくれる。'
+      },
+      '小円筋': {
+        yomi: 'しょうえんきん',
+        icon: '🔩',
+        desc: '肩のインナーマッスル「ローテーターカフ」の1つ。肩関節を外側に回す動きをする。',
+        location: '肩甲骨の外側〜上腕骨',
+        role: '肩関節を安定させる・外旋（そとまわり）させる',
+        tip: '棘下筋と一緒に、肩関節を正しい位置に保つ「縁の下の力持ち」。'
+      },
+      '棘上筋': {
+        yomi: 'きょくじょうきん',
+        icon: '🔩',
+        desc: '肩甲骨の上部（棘の上）にある小さな筋肉。腕を横に上げる最初の動きを担当する。',
+        location: '肩甲骨の上部',
+        role: '腕を横に上げる最初の動作・肩関節の安定',
+        tip: '弓構えで肩のポジションを正しく保つために働いているよ。野球のピッチャーが痛めることが多い部位でもある。'
+      },
+      '棘下筋': {
+        yomi: 'きょくかきん',
+        icon: '🔩',
+        desc: '肩甲骨の下部（棘の下）にある筋肉。ローテーターカフの中でも特に大事な筋肉。',
+        location: '肩甲骨の下部',
+        role: '肩関節を安定させる・腕を外側に回す（外旋）',
+        tip: '弓を引くとき、肩が「前に巻き込まれない」よう引き止める重要な筋肉！'
+      },
+      '肩甲下筋': {
+        yomi: 'けんこうかきん',
+        icon: '🔩',
+        desc: '肩甲骨の裏側（肋骨と肩甲骨の間）にある筋肉。肩を内側に回す力を出す。',
+        location: '肩甲骨の裏側',
+        role: '肩関節を安定させる・腕を内側に回す（内旋）',
+        tip: 'ローテーターカフ4つの中で最も大きい。弓構えで肩関節を「中心位」に保つ役割。'
+      },
+      '上腕三頭筋': {
+        yomi: 'じょうわんさんとうきん',
+        icon: '💪',
+        desc: '二の腕の後ろ側にある筋肉。3つの部分（三頭）があるから「三頭筋」。肘を伸ばす主役！',
+        location: '上腕（二の腕）の後ろ側',
+        role: '肘を伸ばす',
+        tip: '弓を押し出す（弓手側）の肘をしっかり伸ばすために働くよ。引き分けでも肘の伸展に使われる。'
+      },
+      '上腕二頭筋': {
+        yomi: 'じょうわんにとうきん',
+        icon: '💪',
+        desc: '二の腕の前側にある「力こぶ」の筋肉。2つの頭（二頭）があるから「二頭筋」。',
+        location: '上腕（二の腕）の前側',
+        role: '肘を曲げる・前腕を回転させる',
+        tip: '弓道では過剰に使うと腕が曲がりすぎるので注意。脱力して使うのがコツ。'
+      },
+      '腕橈骨筋': {
+        yomi: 'わんとうこつきん',
+        icon: '🦾',
+        desc: '前腕（ひじ〜手首）の外側にある筋肉。肘を曲げながら前腕を回転させる動きに使う。',
+        location: '前腕の外側（親指側）',
+        role: '肘を曲げる補助・前腕の回転',
+        tip: '弓を握る手首の安定に関わってくる筋肉。力みすぎると手の内が崩れる原因になるよ。'
+      },
+      '胸鎖乳突筋': {
+        yomi: 'きょうさにゅうとつきん',
+        icon: '🧍',
+        desc: '首の側面にある、斜めに走る太い筋肉。首を動かすときに目立って見えるやつ。',
+        location: '首の側面（左右）',
+        role: '頭を前や横に曲げる・顔を向きを変える',
+        tip: '物見（ものみ）で的に顔を向けるとき、この筋肉が働く。アゴが上がるとここが過緊張しやすい。'
+      },
+    };
 
     // ================================================================
     // GLBから実取得したノード名に基づく筋肉グループ定義
@@ -781,166 +1172,166 @@
     const stages = [
       {
         name: "足踏み", en: "Ashibumi", frame: 1, range: "1-9",
-        desc: "すべての動作の土台となる立ち位置を定めます。",
-        analogy: "「根を張る大樹」：地面から養分を吸い上げるようにどっしりと。",
-        advice: "足の裏全体で均等に地面を踏みしめ、重心を親指の付け根（母指球）に意識しましょう。",
-        muscleNote: "下肢の等尺性収縮と体幹深層筋（腹横筋・多裂筋）による軸安定が核心。",
+        desc: "すべての動作のスタート地点となる「立ち位置」を決めます。的（まと）に対して体を正しい向きに置き、安定した土台を作る大切な一歩です。",
+        analogy: "「根っこを張った大木」：地面にしっかり根を張るように、どっしりと立つイメージで！",
+        advice: "足の裏全体で地面を均等に踏みしめよう。体重は足の親指の付け根あたりを意識するといいよ。",
+        muscleNote: "足や太ももの筋肉が「動かないように踏ん張る」のが重要。お腹の深いところの筋肉も体のバランスを守ってくれてるよ。",
         primary:   ['大腿四頭筋', 'ハムストリングス', '大殿筋', '脊柱起立筋'],
         secondary: ['内転筋', '腸腰筋', '腹横筋', '多裂筋'],
         tenouchi: [
-          { icon: '👁', text: '<strong>確認のみ</strong>：足踏みの段階では弓を持つだけ。手の内はまだ作らず、余計な力を入れない。' },
-          { icon: '✋', text: '<strong>弛緩した状態</strong>で弓を軽く持ち、指に無駄な力が入っていないことを意識する。' },
+          { icon: '👁', text: '<strong>この段階では弓を持つだけ！</strong>：まだ手の形（手の内）は作らなくていい。余計な力を入れないようにしよう。' },
+          { icon: '✋', text: '<strong>手の力を抜く</strong>：弓をふんわり軽く持って、指が緊張していないことを確認しよう。' },
         ],
         tenouchiWarning: null,
         missPoints: [
-          { type: 'warn', text: '<strong>足幅の広げすぎ</strong>：広げすぎると前後が不安定になり、胴造りが硬くなって矢が上に飛びやすくなる。基準は自分の矢束（首の中心から横に伸ばした腕の指先まで。目安として身長の約半分）。' },
-          { type: 'warn', text: '<strong>重心の偏り</strong>：重心が前に寄ると引き分けで上体が前傾し、後ろに寄ると離れで姿勢が崩れる。足裏全体で均等に踏みしめること。' },
-          { type: 'warn', text: '<strong>礼射系で足元を見てしまう</strong>：目線は的に向けたまま右足を踏み開く。踏みなおしも禁止。足元に視線を落とす癖は姿勢全体の崩れにつながる。' },
-          { type: 'tip',  text: '<strong>足踏みのズレは残心まで影響する</strong>：不安定な足踏みは肩・胴の癖の原因になり、離れや残心まで悪影響が及ぶ。上達の近道は足元の見直しから。' },
+          { type: 'warn', text: '<strong>足を広げすぎてしまう</strong>：広げすぎると前後にぐらぐらして、次の動作が全部ズレてしまう。目安は「矢束（やづか）＝首の中心から横に伸ばした腕の指先まで。だいたい身長の約半分」の幅。' },
+          { type: 'warn', text: '<strong>体重が前か後ろに偏ってしまう</strong>：前に傾くと引いたときに上体が前に倒れやすく、後ろに傾くと放ったときに姿勢が崩れる。足の裏全体で均等に！' },
+          { type: 'warn', text: '<strong>足元を見てしまう（礼射の場合）</strong>：目線は的（まと）に向けたまま右足を踏み開こう。一度踏んだら踏み直しはNG。足元に視線が落ちると体全体の姿勢が乱れるよ。' },
+          { type: 'tip',  text: '<strong>足踏みのズレは最後まで影響する！</strong>：最初の足踏みが不安定だと、肩や体の癖の原因になり、放ったときや残心にまで悪影響が出るよ。上達の近道は足元の見直しから！' },
         ],
       },
       {
         name: "胴作り", en: "Dozukuri", frame: 10, range: "10-19",
-        desc: "腰を据え、脊柱を正しく伸ばして上半身を安定させます。",
-        analogy: "「不動の五重塔」：各層（骨格）が正しく積み重なり、揺るぎない状態。",
-        advice: "頭のてっぺんから糸で吊るされている感覚で、背筋をスッと伸ばします。",
-        muscleNote: "深層体幹筋が腰椎を安定。脊柱起立筋が伸展方向に働き、腹圧を高めます。",
+        desc: "腰をしっかり据えて、背骨（せぼね）をまっすぐに伸ばし、上半身を安定させます。土台（足踏み）の上に、正しい「柱」（胴体）を立てるイメージ。",
+        analogy: "「五重の塔（ごじゅうのとう）」：各階が正しく積み重なっているから、どんな風にも倒れない！",
+        advice: "頭のてっぺんから糸でピンと上に引っ張られているイメージで、背すじをスッと伸ばそう。",
+        muscleNote: "お腹の奥にある「インナーマッスル」が腰椎（ようつい＝腰の骨）を守り、背中の筋肉が体を伸ばした状態を保ってくれるよ。",
         primary:   ['脊柱起立筋', '多裂筋'],
         secondary: ['腹横筋', '腹直筋', '外腹斜筋', '大腿四頭筋', 'ハムストリングス'],
         tenouchi: [
-          { icon: '🤲', text: '<strong>弓を軽く持つ</strong>：胴作りでは弓を左膝に置くか軽く持つ程度。手の内の形作りはまだ行わない。' },
-          { icon: '💡', text: '<strong>準備の意識</strong>：この段階で左手首を折ったり力んだりしないよう注意。弓構えへの準備として自然に脱力しておく。' },
+          { icon: '🤲', text: '<strong>弓は軽く持つだけ</strong>：胴作りではまだ手の形は作らない。膝の上に置くか、ふんわり持つ程度でOK。' },
+          { icon: '💡', text: '<strong>手首を折ったり力まない</strong>：この段階で手首を曲げたり力んだりしないこと。次の「弓構え」への準備として、手を自然にリラックスさせておこう。' },
         ],
         tenouchiWarning: null,
         missPoints: [
-          { type: 'warn', text: '<strong>上半身だけで姿勢を考えてしまう</strong>：胴造りは上体だけでなく、下半身を含めた体全体の基本姿勢として捉えることが本質。' },
-          { type: 'warn', text: '<strong>胴造りを雑に済ませてしまう</strong>：比較的やりやすい動作のため安易に行いがちだが、行射全体の基礎。気息を整えず雑に済ませると次の動作が崩れる。' },
-          { type: 'warn', text: '<strong>アゴが上がって首が縮む</strong>：アゴを引いて首の後ろと背中を上方に伸ばすことが要。肩を耳から垂直に落とし、脊柱と項を真っ直ぐ保つ意識を持つ。' },
-          { type: 'tip',  text: '<strong>呼吸で気息を整えることが核心</strong>：胴造りは「おとなしい動作・気息を整える段階」。次の打起しへの静的準備として呼吸を整えることが忘れられがち。' },
+          { type: 'warn', text: '<strong>上半身だけ考えてしまう</strong>：胴作りは上体だけじゃなく、下半身も含めた体全体の姿勢を整えることが大事。足踏みとセットで考えよう。' },
+          { type: 'warn', text: '<strong>雑に済ませてしまう</strong>：「難しくないから適当でいいや」と思いがちだけど、ここが全ての動作の基礎！気持ちを整えながらていねいに行おう。' },
+          { type: 'warn', text: '<strong>アゴが上がって首が縮む</strong>：アゴを引いて、首の後ろから背中を上方向に伸ばすことが大切。肩は耳から真下に落とすイメージで！' },
+          { type: 'tip',  text: '<strong>呼吸を整えることが一番大事！</strong>：胴作りは「気持ちを落ち着かせる段階」。次の動作に向けてゆっくり呼吸を整えることが忘れられがちだけど、めちゃくちゃ重要だよ。' },
         ],
       },
       {
         name: "弓構え", en: "Yugamae", frame: 20, range: "20-29",
-        desc: "取懸け、手の内、物見を整え、集中を高めます。",
-        analogy: "「卵を抱くような丸み」：懐に柔らかな空間を作り、嵐の前の静けさを維持。",
-        advice: "肩を下げ、肘を外側に張ることで、背中に心地よい緊張感を持たせます。",
-        muscleNote: "肩甲骨の安定化が重要。棘下筋などの旋回筋が肩関節を中心位に保持します。",
+        desc: "弦（つる）に指をかける「取懸け（とりかけ）」、手の形を整える「手の内（てのうち）」、的（まと）を見る「物見（ものみ）」の3つをまとめて整えます。ここから集中モード全開！",
+        analogy: "「嵐の前の静けさ」：見た目は静かでも、内側にはエネルギーが満ちている状態。",
+        advice: "肩を下げて、肘（ひじ）を外側に張ると、背中に心地いい緊張感が生まれるよ。",
+        muscleNote: "肩甲骨（けんこうこつ）を安定させる「ローテーターカフ（肩のインナーマッスル4つ）」が、肩関節を正しい位置に保ってくれてるよ。",
         primary:   ['棘上筋', '棘下筋', '肩甲下筋'],
         secondary: ['僧帽筋上部', '菱形筋', '三角筋', '前鋸筋', '腕橈骨筋'],
         tenouchi: [
-          { icon: '①', text: '<strong>天文筋</strong>を弓の外竹左角に当てる。天文筋とは小指付け根から人差し指付け根へ走る手相の感情線のこと。' },
-          { icon: '②', text: '<strong>虎口（ここう）</strong>を弓に深く巻き込む。親指と人差し指の水かき部分で弓をしっかり受け、虎口の下に空洞を作る。' },
-          { icon: '③', text: '<strong>小指を締め</strong>、薬指・中指を弓に沿わせる（紅葉重ね）。この3本は握り込まず「ふわりと添える」程度でよい。' },
-          { icon: '④', text: '<strong>親指はまっすぐ伸ばし</strong>、爪を上に向ける（鵜の首）。角見（親指付け根）を弓の右角に当てる位置を確認。' },
-          { icon: '⑤', text: '<strong>握卵（あくらん）</strong>：卵を落とさない程度の力加減。指先が白くなるほど握り込むのはNG。' },
+          { icon: '①', text: '<strong>天文筋（てんもんすじ）</strong>を弓に当てる：小指の付け根から人差し指の付け根へ走る手相の線（感情線）のこと。ここを弓の角（かど）に当てるよ。' },
+          { icon: '②', text: '<strong>虎口（ここう）</strong>を弓に巻き込む：親指と人差し指の間の水かき部分で弓をしっかり受け、虎口の下に少し空洞を作るのがポイント！' },
+          { icon: '③', text: '<strong>小指を締め</strong>て、薬指・中指を弓に沿わせる（「紅葉重ね」とも言う）。この3本は「ぎゅっ」と握らず、ふわっと添える程度でOK。' },
+          { icon: '④', text: '<strong>親指はまっすぐ伸ばす</strong>：爪を上に向けて（「鵜の首（うのくび）」の形）、親指の付け根（角見：つのみ）を弓の右角に当てよう。' },
+          { icon: '⑤', text: '<strong>握卵（あくらん）</strong>：卵を持つときの力加減をイメージしよう。指先が白くなるほど握り込むのはNG！' },
         ],
-        tenouchiWarning: '⚠ べた握り厳禁：手のひら全体を握革につけると角見が利かず弓返りしない。虎口の下に空洞を作ること。',
+        tenouchiWarning: '⚠ べた握り（手のひら全体でぎゅっと握ること）は絶対NG！角見（つのみ）が効かなくて弓が正しく回転しないよ。虎口の下に少し空洞を作ることが大事！',
         missPoints: [
-          { type: 'warn', text: '<strong>取懸けで矢を抑え込んでしまう</strong>：手先で行ったり矢を抑え込んだりしないこと。腕を反時計回りに回し、矢と人差し指がわずかに触れる程度にとどめる。' },
-          { type: 'warn', text: '<strong>物見でアゴが上がる</strong>：顔を的へ向ける際アゴが上がりやすい。首筋の縦の張りを感じながら水平に向けること。「目尻見頭」が正しい位置の目安。' },
-          { type: 'warn', text: '<strong>的を「見すぎる」ことで緊張が増す</strong>：焦点を的に集中しすぎると余計な緊張が生じ、自然な射が乱れる。物見は「定める」動作であり、凝視ではない。' },
-          { type: 'tip',  text: '<strong>羽引きを省略してしまう</strong>：弓構えの形で両肘を張り弓を少し押し開く「羽引き」を忘れがち。筈こぼれ防止だけでなく、弓を引く方向の目安になる重要動作。' },
+          { type: 'warn', text: '<strong>弦に指をかけるとき矢を押さえすぎてしまう</strong>：手先だけで行わず、矢は人差し指がわずかに触れる程度で十分。強く押さえすぎないこと。' },
+          { type: 'warn', text: '<strong>的（まと）を見るときアゴが上がる</strong>：顔を的に向けるとき、アゴが上がりやすいので注意。首の縦の張りを感じながら水平に向けよう。「目尻（めじり）見頭（みがしら）」が正しい位置の目安だよ。' },
+          { type: 'warn', text: '<strong>的を「じっと見すぎる」と緊張が増す</strong>：的に焦点を集中しすぎると余計な緊張が生まれ、自然な射が乱れる。「ちゃんと定める」動作であって、「凝視する」のとは違うよ。' },
+          { type: 'tip',  text: '<strong>「羽引き（はびき）」を忘れずに！</strong>：弓構えの形のまま両肘を少し張って弓を少し押し開く動作「羽引き」は忘れがち。次の動作の方向の目安になる重要な動きだよ。' },
         ],
       },
       {
         name: "打ち起こし", en: "Uchiokoshi", frame: 30, range: "30-39",
-        desc: "両拳を同じ高さに静かに持ち上げます。",
-        analogy: "「天への階段」：雲を両手で押し上げるように、軽やかにかつ厳かに。",
-        advice: "腕の力で上げず、脇〜肋骨側面の筋肉（前鋸筋）を使って肩甲骨から動かしましょう。",
-        muscleNote: "三角筋が腕を挙上。脊柱起立筋が姿勢を維持します。",
+        desc: "両手の拳（こぶし）を同じ高さに、ゆっくり静かに持ち上げます。腕だけじゃなく、背中から動かすのがポイント！",
+        analogy: "「雲を両手で押し上げる」：軽やかに、でも厳かに、ゆっくりと空に向かって。",
+        advice: "腕の力だけで上げようとしないで！脇〜肋骨側面にある筋肉「前鋸筋（ぜんきょきん）」を使って肩甲骨（けんこうこつ）から動かすと自然に上がるよ。",
+        muscleNote: "三角筋（さんかくきん：肩の筋肉）が腕を上げてくれて、脊柱起立筋（せきちゅうきりつきん：背骨を支える筋肉）がしっかり姿勢を保ってくれてるよ。",
         primary:   ['三角筋', '前鋸筋', '脊柱起立筋'],
         secondary: ['僧帽筋上部', '棘上筋', '上腕三頭筋', '腹横筋', '多裂筋'],
         tenouchi: [
-          { icon: '🔒', text: '<strong>弓構えの形を崩さない</strong>：天文筋・虎口・角見の位置を維持したまま腕を上げる。手首を折ってはいけない。' },
-          { icon: '💧', text: '<strong>手先の力を抜く</strong>：上腕から動かし、手先はただ付いてくるイメージ。指先に力が入ると肩が上がりやすい。' },
+          { icon: '🔒', text: '<strong>弓構えの手の形を崩さない</strong>：天文筋・虎口・角見の位置を保ったまま腕を上げよう。手首を折らないこと！' },
+          { icon: '💧', text: '<strong>手先の力を抜く</strong>：上腕（二の腕）から動かして、手先はただ付いてくるイメージ。指先に力が入ると肩が上がりやすくなるよ。' },
         ],
         tenouchiWarning: null,
         missPoints: [
-          { type: 'warn', text: '<strong>肩が一緒に上がってしまう</strong>：打起しで弓を上げる際に肩が持ち上がるのは最頻出の悪癖。特に左肩（弓手側）が上がりやすく、的への安定押しを妨げる。肩を落として弓を挙げることを意識する。' },
-          { type: 'warn', text: '<strong>手首のアーチが崩れる</strong>：弓手と馬手をスムーズに動かす際、手首のアーチをつぶさないよう弦に対して親指が十字になる形を保つ。形が崩れると引き分け全体に影響が出る。' },
-          { type: 'tip',  text: '<strong>胸郭が持ち上がって呼吸が浅くなる</strong>：打起しで胸が持ち上がっている人が多い。腹に力を入れて胸は抜くように意識し、息はいっぱいに吸い込みすぎないこと。' },
+          { type: 'warn', text: '<strong>肩が一緒に上がってしまう</strong>：弓を上げるとき肩も持ち上がるのは最もよくある悪い癖！特に左肩（弓手側）が上がりやすい。「肩を下げながら弓だけを上げる」を意識しよう。' },
+          { type: 'warn', text: '<strong>手首が崩れてしまう</strong>：弓手と馬手（めて：右手）をスムーズに動かすとき、弦（つる）に対して親指が十字になる形を保とう。崩れると引き分けまで影響するよ。' },
+          { type: 'tip',  text: '<strong>胸が持ち上がって呼吸が浅くなる</strong>：弓を上げるとき胸まで浮き上がっている人が多い。お腹に力を入れて胸は自然に保ち、息を吸いすぎないようにしよう。' },
         ],
       },
       {
         name: "引き分け", en: "Hikiwake", frame: 40, range: "40-49",
-        desc: "左右均等に押し引きし、身体の中へ弓を引き込みます。",
-        analogy: "「大河を分かつ」：行く手を阻む水の流れを、体幹の力で左右に押し開く。",
-        advice: "肘で引くイメージを持つと、末端の余計な力が抜け、大きな筋肉を使えます。",
-        muscleNote: "広背筋・大円筋が主動。僧帽筋中下部が肩甲骨を後退させ、肘を伸展させます。",
+        desc: "左右均等に「押し」と「引き」をして、体の中に弓を引き込んでいきます。腕じゃなく体全体で大きく引くのが正解！",
+        analogy: "「大きな川の流れを左右に分ける」：体幹（たいかん）のパワーで左右にダイナミックに押し開く。",
+        advice: "「肘（ひじ）で引く」イメージを持つと、末端（手先）の余計な力が抜けて、大きな筋肉をちゃんと使えるよ。",
+        muscleNote: "背中の大きな筋肉「広背筋（こうはいきん）」と「大円筋（だいえんきん）」がメイン。肩甲骨を後ろに引く「僧帽筋中下部（そうぼうきん）」も大活躍！",
         primary:   ['広背筋', '大円筋', '僧帽筋中下部', '上腕三頭筋'],
         secondary: ['三角筋', '棘下筋', '菱形筋', '大胸筋', '前鋸筋', '腕橈骨筋'],
         tenouchi: [
-          { icon: '🌀', text: '<strong>大三で手の皮が巻き込まれる</strong>感覚を確認。弓が手の中に深く入り、天文筋が外竹左角に吸い付くように密着する。' },
-          { icon: '🔑', text: '<strong>角見（つのみ）を効かせ始める</strong>：大三以降、親指付け根で弓の右角を押し、弓を時計回りに捻る力を徐々に高める。' },
-          { icon: '✋', text: '<strong>中指・薬指・小指は添えるだけ</strong>：3本の指先が白くなるほど握ると弓返りにブレーキがかかる。前腕の筋肉ではなく体幹で引く。' },
-          { icon: '📐', text: '<strong>中押しを維持</strong>：上押し（親指中心）でも下押し（ベタ押し）でもなく、弓の真ん中を均等に押す中押しが基本。' },
+          { icon: '🌀', text: '<strong>大三（だいさん）で手の皮が巻き込まれる感覚を確認</strong>：弓が手の中に深く入り、天文筋が弓の角にしっかり吸い付くように密着するよ。' },
+          { icon: '🔑', text: '<strong>角見（つのみ）を効かせ始める</strong>：大三以降、親指の付け根で弓の右角を押しながら、弓を時計回りに捻（ひね）る力を少しずつ高めていこう。' },
+          { icon: '✋', text: '<strong>中指・薬指・小指は「添えるだけ」</strong>：3本の指先が白くなるほど握ると弓の回転にブレーキがかかる。手先ではなく体幹で引く感覚を大事に！' },
+          { icon: '📐', text: '<strong>中押し（なかおし）を維持する</strong>：弓の真ん中を均等に押す「中押し」が基本。上だけ押す・ベタ押し（手のひら全体）はNG。' },
         ],
-        tenouchiWarning: '⚠ 親指が曲がると弓を捻る力がゼロになる。人差し指が突っ張ってもNG。引き分けで手の内が崩れたら一度やり直すことも選択肢。',
+        tenouchiWarning: '⚠ 引き分け中に親指が曲がると、弓を捻る力がゼロになるよ。人差し指が突っ張るのもNG。手の内が崩れたら、一度やり直すことも選択肢のひとつ！',
         missPoints: [
-          { type: 'warn', text: '<strong>妻手だけで「引っ張って」しまう</strong>：「引き分け」という言葉から妻手だけで弦を引こうとするのは最多のミス。正しくは弓手で押し・妻手で引く「押し開く」動作。この感覚を変えない限り上達しない。' },
-          { type: 'warn', text: '<strong>弓を引き寄せて胸が前に出る</strong>：弓を引き寄せようとすると背中の筋肉が縮み胸が前方に出る。これが早気の主な原因の一つ。背中を広げるイメージで大きく押し開くことが重要。' },
-          { type: 'warn', text: '<strong>矢束を最大限に取れていない</strong>：ほとんどの射癖の根本原因は矢束が最大限に取れていないこと。右手は少なくとも右肩の上に位置していないと、手が的方向に戻って離れが緩む。' },
-          { type: 'tip',  text: '<strong>引き分けの前後半でリズムが乱れる</strong>：前半と後半を同じリズムで引くことが重要。後半が長すぎて息が続かない人は会に入る前に苦しくなり、離れに悪影響が出る。' },
+          { type: 'warn', text: '<strong>右手（妻手）だけで「引っ張って」しまう</strong>：「引き分け」という言葉から右手だけで引こうとしがちだけど、それは大間違い！正しくは「左手で押し・右手で引く」の両方向に開くイメージ。' },
+          { type: 'warn', text: '<strong>弓を「引き寄せて」胸が前に出る</strong>：弓を体に引き寄せようとすると背中の筋肉が縮んで胸が前方に出てしまう。背中を広げるイメージで大きく押し開こう！' },
+          { type: 'warn', text: '<strong>引き幅（矢束）を最大限に取れていない</strong>：ほとんどの射の癖の根本原因はこれ！右手は少なくとも右肩の上の位置になければ、放ったときに手が的方向に戻って緩んでしまうよ。' },
+          { type: 'tip',  text: '<strong>前半と後半のリズムが乱れる</strong>：引き分けの前半と後半を同じリズムで引くことが大切。後半が長すぎて息が続かなくなる人は、次の「会（かい）」に入る前に苦しくなって離れに影響が出るよ。' },
         ],
       },
       {
         name: "会", en: "Kai", frame: 50, range: "50-59",
-        desc: "無限の伸合いと気力の充実を待つ、射の極致。",
-        analogy: "「溢れる寸前の水」：器に水が満ち満ちて、表面張力でギリギリ保たれている状態。",
-        advice: "止まっているのではなく、身体の内側から外側へ膨らみ続ける「伸合い」を意識。",
-        muscleNote: "腹横筋・内腹斜筋が体幹安定の主役として機能します。これらの深層体幹筋が先行して活動することで全身の安定が保たれます。",
+        desc: "引き分けが完了し、じっと保ちながら、内側からどんどん膨らみ続ける「伸合い（のびあい）」を続ける段階。弓道で一番難しく、一番大切な局面！",
+        analogy: "「あふれる寸前の水」：コップに水がいっぱいで、表面張力でギリギリ保たれている状態のイメージ。",
+        advice: "「止まっている」のではなく、体の内側から外側へ常に膨らみ続けている「伸合い」を意識しよう！",
+        muscleNote: "お腹の奥の筋肉「腹横筋（ふくおうきん）」と「内腹斜筋（ないふくしゃきん）」が体を安定させる主役。これらが頑張っているからこそ、全体の形が保てるんだよ。",
         primary:   ['広背筋', '僧帽筋中下部', '大胸筋', '上腕三頭筋'],
         secondary: ['腹横筋', '多裂筋', '三角筋', '大円筋', '棘下筋', '前鋸筋'],
         tenouchi: [
-          { icon: '🎯', text: '<strong>五重十文字の完成</strong>：「弓と弓手の手の内」が十字に交わる正しい位置を保つ。角見・脈所・肩が一直線になるのが理想。' },
-          { icon: '🌊', text: '<strong>伸合いの中でも角見を押し続ける</strong>：止まっているのではなく、親指付け根で弓を的方向へ押し続けることで弓への捻り力を蓄積する。' },
-          { icon: '🧘', text: '<strong>手先を緩めない</strong>：緩めると弓返りが起きず矢勢が落ちる。しかし力みすぎると離れで手の内が崩れる。「保つ」と「握る」は違う。' },
+          { icon: '🎯', text: '<strong>五重十文字（ごじゅうじゅうもんじ）の完成</strong>：「弓と手の内」が正しい十字の位置を保つ。角見・脈所（みゃくしょ：手首）・肩が一直線になるのが理想の形！' },
+          { icon: '🌊', text: '<strong>伸合いの中でも角見（つのみ）を押し続ける</strong>：止まって待つのではなく、親指の付け根で弓を的方向へ常に押し続けることで、弓に捻り力がたまっていくよ。' },
+          { icon: '🧘', text: '<strong>手先を「緩め」ない</strong>：緩めると弓が正しく回転せず矢の勢いが落ちる。でも力みすぎると放ったとき手の形が崩れる。「保つ」と「握る」は全然違うよ！' },
         ],
-        tenouchiWarning: '⚠ 会で手の内を意識しすぎると「縮み」につながる。体幹の伸合いを主役に、手の内はその結果として自然に維持されるのが理想。',
+        tenouchiWarning: '⚠ 会で手の形ばかり意識しすぎると、体が「縮む」原因になるよ。体幹の伸合いが主役！手の内はその結果として自然に維持されるのが理想的な状態。',
         missPoints: [
-          { type: 'warn', text: '<strong>静止しているだけで「伸び合い」がない</strong>：会は見た目に静止しているが、内部では常に左右に伸び続けている。この伸び合いが止まると縮みが起き、離れが乱れる。「静止＝完成」ではない。' },
-          { type: 'warn', text: '<strong>呼吸を完全に止めてしまう</strong>：会で呼吸を完全に止める人がいるが、伸び合いの妨げになる。打ち起こしで吸い、引き分けに移るにつれて徐々に丹田へ気息を収め、会では息が詰まらぬよう腹圧を保つのが教本の基本。流派・個人差があるが息を止めて固まるのは最も避けるべき状態。' },
-          { type: 'warn', text: '<strong>狙いのみに意識が集中してしまう</strong>：狙い目だけに集中すると左右の拳が均等に開かず矢が乱れる。姿勢・伸び合い・狙いをすべて統合して保つことが会の本質。' },
-          { type: 'tip',  text: '<strong>気力を丹田に満たすことが条件</strong>：全日本弓道連盟の教本では「気力が丹田に八分から九分満ちた時に気合の発動で矢を放つ」とある。精神的な充実が離れの条件であり、力だけでは本当の会にならない。' },
+          { type: 'warn', text: '<strong>ただ「止まって」いるだけになってしまう</strong>：会は見た目は止まっているけど、内側では常に左右に伸び続けている。この伸び合いが止まると体が縮んで離れが乱れる。「止まること＝完成」じゃないよ！' },
+          { type: 'warn', text: '<strong>呼吸を完全に止めてしまう</strong>：会で息を完全に止める人がいるけど、それは伸び合いの妨げになる。打ち起こしで吸い、引き分けにかけて丹田（たんでん：おへその下）へ気息を収め、会では息が詰まらぬよう腹圧を保つのが弓道教本の基本。流派・個人差があるが、息を止めて固まるのは最も避けるべき状態！' },
+          { type: 'warn', text: '<strong>狙い（的への照準）だけに集中しすぎる</strong>：狙い目だけに意識が集中すると左右の拳のバランスが崩れて矢が乱れる。姿勢・伸び合い・狙いを同時に統合して保つことが会の本質！' },
+          { type: 'tip',  text: '<strong>気力（きりょく）を丹田（たんでん：おへその下あたり）に満たすことが条件</strong>：気持ちが充実したときに自然と矢が放たれるのが理想。力だけでは本当の「会」にはならないんだよ。' },
         ],
       },
       {
         name: "離れ", en: "Hanare", frame: 60, range: "60-69",
-        desc: "伸合いの結果として、弦が自然に解けます。",
-        analogy: "「熟した実が落ちる」：重みに耐えかねた果実が、自然の摂理で枝を離れる瞬間。",
-        advice: "自分の意思で「放す」のではなく、身体が開く力に任せて「放たれる」のを待ちます。",
-        muscleNote: "弓手側の大胸筋・前鋸筋が急速に収縮。前腕筋群が手の内の弛緩を制御します。",
+        desc: "伸合いの結果として、弦（つる）が自然に解けて矢が放たれる瞬間。自分の意思で「放す」のではなく、体が開く力に任せて「放たれる」のが本物の離れ！",
+        analogy: "「熟した実が木から落ちる」：重みに耐えきれなくなった果実が、自然の力で枝を離れる瞬間。",
+        advice: "「放す！」と意識するのではなく、体が開く力のままに「放たれる」のを待つ感覚で。",
+        muscleNote: "弓手（左手）側の「大胸筋（だいきょうきん）」と「前鋸筋（ぜんきょきん）」が素早く収縮するよ。前腕の筋肉が手の内の弛緩（しかん：力を抜く動き）をコントロールしてくれてるんだ。",
         primary:   ['大胸筋', '前鋸筋', '広背筋'],
         secondary: ['僧帽筋中下部', '上腕三頭筋', '腕橈骨筋', '三角筋', '腹横筋'],
         tenouchi: [
-          { icon: '🔄', text: '<strong>弓返りは結果</strong>：手の内を握り込まなければ、弓は自然に時計回りに回転（弓返り）する。意図的に回そうとしない。' },
-          { icon: '↗', text: '<strong>弓手を的に向かって押し切る</strong>：離れで弓手を緩めず、親指を的に突き込む意識で押し続けることが弓返りの原動力。' },
-          { icon: '🚫', text: '<strong>手首をひねらない</strong>：意識的に弓を回転させようとして手首を捻ると悪い癖になる。弓は弦の復元力と角見の押しで自然に回る。' },
+          { icon: '🔄', text: '<strong>弓返り（ゆがえり）は結果として起きるもの</strong>：手の内を握り込まなければ、弓は自然に時計回りに回転する（弓返り）。意図的に回そうとしなくていいよ！' },
+          { icon: '↗', text: '<strong>弓手（左手）を的に向かって押し切る</strong>：離れの瞬間に弓手を緩めず、親指を的に突き込む意識で押し続けることが弓返りの原動力になるよ。' },
+          { icon: '🚫', text: '<strong>手首を意図的にひねらない</strong>：「弓を回してあげよう」と手首を捻（ひね）ると悪い癖になる。弓は弦の反発力と角見の押しで自然に回るんだ。' },
         ],
-        tenouchiWarning: '⚠ 離れで弓手を緩めると「ゆるみ離れ」になり矢勢・的中が激減。弓を握り込んで止めようとすると弓返りしない。どちらでもなく「押したまま放たれる」が正解。',
+        tenouchiWarning: '⚠ 離れで弓手を緩めると「ゆるみ離れ」になって矢の勢いも的中率も激減！逆に握り込んで止めようとすると弓返りしない。「押したまま自然に放たれる」が正解！',
         missPoints: [
-          { type: 'warn', text: '<strong>右手を前方に「送る」ように動かしてしまう</strong>：離れで右手を的方向に送ろうとすると右腕が前方に開いて離れが緩む（前離れ）。離れは会の伸び合いの自然な結果として起こるべきで、意図的な操作は禁物。' },
-          { type: 'warn', text: '<strong>左右の拳のスピードが不均等</strong>：どれだけ姿勢が美しくても、左右の拳が均等なスピードで開かなければ矢は真っ直ぐに飛ばない。弓手・妻手の均等な伸びが的中の本質条件。' },
+          { type: 'warn', text: '<strong>右手を的方向に「送る」ように動かしてしまう</strong>：離れで右手を的方向に送ろうとすると右腕が前に開いて「前離れ（まえばなれ）」になってしまう。離れは会の伸び合いの自然な結果として起こるべきもので、意識的に操作したらダメ！' },
+          { type: 'warn', text: '<strong>左右の拳のスピードが不均等</strong>：姿勢が美しくても、左右の拳が均等なスピードで開かないと矢はまっすぐ飛ばない。弓手・妻手（めて：右手）が均等に伸びることが的中の絶対条件！' },
         ],
       },
       {
         name: "残心", en: "Zanshin", frame: 70, range: "70-80",
-        desc: "放れた後の姿勢を維持し、精神を継続させます。",
-        analogy: "「波紋の広がり」：石を投げた後の静かな水面のように、余韻が広がっていく。",
-        advice: "矢が的に当たったかよりも、自分の姿勢が崩れていないか内省しましょう。",
-        muscleNote: "脊柱起立筋・多裂筋が直立を維持。下肢は足踏みの等尺性収縮を継続します。",
+        desc: "矢を放った後の姿勢をキープして、精神を継続させます。射はここで完結！「残心（ざんしん）」とは、動作が終わった後も心が残り続けることを意味します。",
+        analogy: "「波紋（はもん）が広がる水面（みなも）」：石を投げた後、静かに波紋が広がっていくような余韻のイメージ。",
+        advice: "矢が当たったかどうかより、自分の姿勢が崩れていないか内省（ないせい：自分を振り返ること）しよう。",
+        muscleNote: "「脊柱起立筋（せきちゅうきりつきん）」と「多裂筋（たれつきん）」が背骨をまっすぐ立てた状態を維持。足の筋肉は足踏みのときと同じように踏ん張り続けているよ。",
         primary:   ['脊柱起立筋', '多裂筋', '腹横筋'],
         secondary: ['僧帽筋中下部', '広背筋', '大腿四頭筋', 'ハムストリングス', '大殿筋'],
         tenouchi: [
-          { icon: '🔍', text: '<strong>手の内の検証タイム</strong>：残身での弓手の形が「手の内の通信簿」。天文筋がずれていないか、角見が効いているかチェック。' },
-          { icon: '✅', text: '<strong>弓返りの確認</strong>：弓が180度（弦が腕に向く）前後まで回転していれば角見が正しく働いた証拠。90度以下なら握り込みの可能性。' },
-          { icon: '📝', text: '<strong>射後の内省</strong>：「手の内10年」と言われるほど奥深い技術。毎射ごとに残身を確認し、弓構えからの形の変化を記憶する習慣をつける。' },
+          { icon: '🔍', text: '<strong>手の内を「採点」するタイム</strong>：残心のときの弓手の形が手の内のできばえを教えてくれる。天文筋がズレていないか、角見が効いているかチェック！' },
+          { icon: '✅', text: '<strong>弓返りを確認</strong>：弓が約180度（弦が自分の腕に向くくらい）回っていれば角見が正しく機能した証拠。90度以下なら握り込みすぎかも。' },
+          { icon: '📝', text: '<strong>毎回振り返る習慣をつけよう</strong>：「手の内十年」と言われるほど奥深い技術。毎回の射の後に残心をしっかり確認して、弓構えからの変化を記憶しよう！' },
         ],
         tenouchiWarning: null,
         missPoints: [
-          { type: 'warn', text: '<strong>離れの瞬間に気合が抜ける</strong>：矢が離れた瞬間に気合を抜いてしまう人が多い。残心は「射の総決算」であり、矢所を見て縦横十文字の規準を保ちながら弓倒しをするまで気合を継続させる。' },
-          { type: 'warn', text: '<strong>矢所（やどころ）を確認しない</strong>：矢が当たった場所を「矢所」と言い、残心でここを見ることが求められる。矢所の観察から射形の問題点を読み取る習慣が上達につながる。' },
-          { type: 'tip',  text: '<strong>残心は「作る」ものではなく「残る」もの</strong>：残心を意識的に形作ろうとするのは本末転倒。正しい射の結果として自然に残るのが理想の残心。美しい残心は会・離れが正しかった証。' },
+          { type: 'warn', text: '<strong>矢が離れた瞬間に気合が抜ける</strong>：放った瞬間に気合を抜いてしまう人が多い。残心は「射の総決算（そうけっさん）」。矢がどこに当たったかを確認して、縦横の姿勢を保ちながら弓を下ろすまで集中を切らさないこと！' },
+          { type: 'warn', text: '<strong>矢所（やどころ）を確認しない</strong>：矢が当たった場所「矢所」を見ることで、自分の射形の問題点を読み取れる。観察する習慣が上達への近道！' },
+          { type: 'tip',  text: '<strong>残心は「作る」ものではなく「残る」もの</strong>：意識的に残心のポーズを作ろうとするのは本末転倒。正しい射の結果として自然に残るのが理想の残心。美しい残心は、会・離れがうまくできた証拠なんだよ！' },
         ],
       },
     ];
@@ -1230,25 +1621,92 @@
       stageGrid.appendChild(btn);
     });
 
+    // ================================================================
+    // 筋肉ポップアップ
+    // ================================================================
+    const musclePopup = document.getElementById('muscle-popup');
+    let popupTimeout = null;
+
+    function showMusclePopup(name, role, event) {
+      const info = MUSCLE_READING[name];
+      if (!info) return;
+      document.getElementById('popup-icon').textContent = info.icon;
+      document.getElementById('popup-name-jp').textContent = name;
+      document.getElementById('popup-name-yomi').textContent = `（${info.yomi}）`;
+      document.getElementById('popup-desc').textContent = info.desc;
+      document.getElementById('popup-location').textContent = info.location;
+      const roleEl = document.getElementById('popup-role');
+      roleEl.className = `popup-role ${role}`;
+      roleEl.innerHTML = role === 'primary'
+        ? `🔴 <strong>今この動作のメイン筋肉！</strong>　${info.role}`
+        : `🟡 <strong>サポート役</strong>　${info.role}`;
+      document.getElementById('popup-tip').innerHTML = `💡 ${info.tip}`;
+
+      musclePopup.style.display = 'block';
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const rect = event.currentTarget.getBoundingClientRect();
+      const pw = musclePopup.offsetWidth;
+      const ph = musclePopup.offsetHeight;
+      let left = rect.left;
+      let top = rect.bottom + 8;
+      if (left + pw > vw - 8) left = vw - pw - 8;
+      if (left < 8) left = 8;
+      if (top + ph > vh - 8) top = rect.top - ph - 8;
+      musclePopup.style.left = left + 'px';
+      musclePopup.style.top  = top  + 'px';
+      musclePopup.classList.add('show');
+    }
+
+    function hideMusclePopup() {
+      musclePopup.classList.remove('show');
+      musclePopup.style.display = 'none';
+    }
+
+    // 背景クリックでポップアップを閉じる
+    document.addEventListener('click', () => hideMusclePopup());
+
     function makeTags(container, list, cls) {
       container.innerHTML = '';
       list.forEach(name => {
-        const tag = document.createElement('span');
+        const info = MUSCLE_READING[name];
+        const tag = document.createElement('div');
         tag.className = `tag ${cls}`;
         if (currentSoloMuscle === name) tag.classList.add('solo');
-        tag.innerHTML = `<span class="dot"></span>${name}`;
-        
-        // 筋肉タグクリックイベント
+
+        const locationText = info ? info.location : '';
+        const iconText = info ? info.icon : '💪';
+
+        tag.innerHTML = `
+          <div class="tag-top">
+            <span class="dot"></span>
+            <span>${name}</span>
+          </div>
+          <div class="tag-location">
+            <span class="tag-location-icon">${iconText}</span>
+            <span>${locationText}</span>
+          </div>`;
+
         tag.addEventListener('click', (e) => {
           e.stopPropagation();
           if (currentSoloMuscle === name) {
             currentSoloMuscle = null;
+            hideMusclePopup();
           } else {
             currentSoloMuscle = name;
+            showMusclePopup(name, cls, e);
           }
           makeTags(primaryTags, stages[currentStageIdx].primary, 'primary');
           makeTags(secondaryTags, stages[currentStageIdx].secondary, 'secondary');
           updateMuscles(stages[currentStageIdx], currentSoloMuscle);
+        });
+
+        tag.addEventListener('mouseenter', (e) => {
+          clearTimeout(popupTimeout);
+          showMusclePopup(name, cls, e);
+        });
+        tag.addEventListener('mouseleave', () => {
+          popupTimeout = setTimeout(hideMusclePopup, 300);
         });
 
         container.appendChild(tag);
@@ -1272,9 +1730,9 @@
       stageName.textContent = s.name;
       stageEn.textContent   = s.en;
       stageDesc.textContent = s.desc;
-      stageAnalogy.innerHTML = `<strong>例え：</strong>${s.analogy}`;
-      stageAdvice.innerHTML  = `<strong>アドバイス：</strong>${s.advice}`;
-      musNote.textContent   = s.muscleNote;
+      stageAnalogy.innerHTML = `💬 <strong>イメージ：</strong>${s.analogy}`;
+      stageAdvice.innerHTML  = `✅ <strong>コツ：</strong>${s.advice}`;
+      musNote.innerHTML = `🔬 <strong>使っている筋肉のポイント</strong><br>${s.muscleNote}`;
       makeTags(primaryTags,   s.primary,   'primary');
       makeTags(secondaryTags, s.secondary, 'secondary');
       renderTenouchi(s);
