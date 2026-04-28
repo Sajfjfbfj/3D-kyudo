@@ -10,6 +10,9 @@
   <!-- 巨大な3Dモデルファイルを最優先でダウンロード開始させる -->
   <link rel="preload" href="弓道基礎１.glb" as="fetch" crossorigin="anonymous">
 
+  <!-- 手書き風フォントの読み込み -->
+  <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="弓道 射法八節 3D解説" />
@@ -813,9 +816,84 @@
       background: var(--accent);
       transition: width 0.3s;
     }
+
+    /* ===== チュートリアル（手書き風） ===== */
+    #tutorial-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0); /* JSで制御するため初期は透明 */
+      display: none;
+      cursor: pointer;
+      font-family: 'Klee One', cursive;
+      transition: background-color 0.4s;
+    }
+    #tutorial-bubble {
+      position: absolute;
+      background: #fff;
+      color: #333;
+      padding: 20px;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; /* 手書き風のゆがみ */
+      border: 3px solid #333;
+      max-width: 280px;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    #tutorial-bubble::after {
+      content: 'タップで次へ ＞';
+      display: block;
+      font-size: 10px;
+      text-align: right;
+      margin-top: 10px;
+      color: #666;
+    }
+    .tutorial-highlight {
+      position: absolute;
+      border: 4px dashed var(--accent);
+      border-radius: 30px 10px 25px 12px / 12px 25px 10px 30px; /* 手書き風のゆがみ */
+      pointer-events: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75); /* ここで周囲を暗くし、中身だけをくり抜く */
+    }
+    .hand-arrow {
+      position: absolute;
+      font-size: 40px;
+      pointer-events: none;
+      filter: drop-shadow(2px 2px 0px #000);
+      animation: bounce 1.2s infinite ease-in-out;
+      transform: translateX(-50%);
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translate(-50%, 0) rotate(-5deg); }
+      50% { transform: translate(-50%, -15px) rotate(5deg); }
+    }
+    #tutorial-bubble, .tutorial-highlight, .hand-arrow {
+      transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+    #tutorial-skip {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid #fff;
+      color: #fff;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
+  <!-- チュートリアル用オーバーレイ -->
+  <div id="tutorial-overlay">
+    <div id="tutorial-skip">説明をとばす</div>
+    <div class="tutorial-highlight" id="tutorial-focus"></div>
+    <div class="hand-arrow" id="tutorial-arrow">⤴</div>
+    <div id="tutorial-bubble">
+      ここに説明文が入ります。
+    </div>
+  </div>
+
   <!-- 筋肉詳細ポップアップ -->
   <div id="muscle-popup">
     <div class="popup-header">
@@ -839,8 +917,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
     </div>
     <h2 style="margin:0 0 10px;">画面を横向きにしてください</h2>
-    <p class="sub">この教材は横画面での閲覧に最適化されています。</p>
-    <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※画面が変わらない場合は、スマホの「縦向きロック」をオフにしてください。</p>
+    <p class="sub">この教材は横画面で見やすいように設計されています。</p>
+    <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※画面の向きが変わらない場合は、スマホの「縦向きロック」をオフにしてください。</p>
   </div>
 
   <div class="wrap">
@@ -868,7 +946,7 @@
           </a>
         </div>
         <h1>弓道・射法八節3D解説</h1>
-        <p class="sub">下の「第○節」ボタンを押すとそのポーズに移動！筋肉のタグをタップすると、その部位だけ表示できるよ。</p>
+        <p class="sub">右の節ボタンをタップするとその時に使う筋肉とポーズに移動できます。筋肉名をクリックすると詳細とその部位だけの表示が出来ます</p>
       </div>
       <div id="viewer">
         <!-- ローディング画面を追加 -->
@@ -1255,7 +1333,7 @@
         missPoints: [
           { type: 'warn', text: '<strong>足を広げすぎてしまう</strong>：広げすぎると前後にぐらぐらして、次の動作が全部ズレてしまう。目安は「矢束（やづか）＝首の中心から横に伸ばした腕の指先まで。だいたい身長の約半分」の幅。' },
           { type: 'warn', text: '<strong>体重が前か後ろに偏ってしまう</strong>：前に傾くと引いたときに上体が前に倒れやすく、後ろに傾くと放ったときに姿勢が崩れる。足の裏全体で均等に！' },
-          { type: 'warn', text: '<strong>足元を見てしまう（礼射の場合）</strong>：目線は的（まと）に向けたまま右足を踏み開こう。一度踏んだら踏み直しはNG。足元に視線の落ちると体全体の姿勢が乱れるよ。' },
+          { type: 'warn', text: '<strong>足元を見てしまう（礼射の場合）</strong>：目線は的（まと）に向けたまま右足を踏み開こう。一度踏んだら踏み直しはNG。足元に視線が落ちると体全体の姿勢が乱れるよ。' },
           { type: 'tip',  text: '<strong>足踏みのズレは最後まで影響する！</strong>：最初の足踏みが不安定だと、肩や体の癖の原因になり、放ったときや残心にまで悪影響が出るよ。上達の近道は足元の見直しから！' },
         ],
       },
@@ -1297,16 +1375,16 @@
         tenouchiWarning: '⚠ べた握り（手のひら全体でぎゅっと握ること）は絶対NG！角見（つのみ）が効かなくて弓が正しく回転しないよ。虎口の下に少し空洞を作ることが大事！',
         missPoints: [
           { type: 'warn', text: '<strong>弦に指をかけるとき矢を押さえすぎてしまう</strong>：手先だけで行わず、矢は人差し指がわずかに触れる程度で十分。強く押さえすぎないこと。' },
-          { type: 'warn', text: '<strong>的（まと）を見るときアゴが上がる</strong>：顔を的に向けるとき、アゴが上がりやすいので注意。首の縦の張りを感じながら水平に向けよう。「目尻（めじり）見頭（みがしら）」が正しい位置の目安だよ。' },
+          { type: 'warn', text: '<strong>的（まと）を見るときアゴが上がる</strong>：顔を的に向けるとき、アゴが上がりやすいので注意。首の縦の張りを感じながら水平に向けよう。「目尻（めじり）鼻頭（はながしら）」が正しい位置の目安だよ。' },
           { type: 'warn', text: '<strong>的を「じっと見すぎる」と緊張が増す</strong>：的に焦点を集中しすぎると余計な緊張が生まれ、自然な射が乱れる。「ちゃんと定める」動作であって、「凝視する」のとは違うよ。' },
           { type: 'tip',  text: '<strong>「羽引き（はびき）」を忘れずに！</strong>：弓構えの形のまま両肘を少し張って弓を少し押し開く動作「羽引き」は忘れがち。次の動作の方向の目安になる重要な動きだよ。' },
         ],
       },
       {
         name: "打ち起こし", en: "Uchiokoshi", frame: 30, range: "30-39",
-        desc: "両手の拳（こぶし）を同じ高さに、ゆっくり静かに持ち上げます。腕だけじゃなく、背中から動かすのがポイント！",
+        desc: "弓構えで作った形を崩さないように、両拳（りょうこぶし）を同じ高さにそろえて、だいたい45度の高さまで静かに持ち上げよう。腕の力だけじゃなく、肩甲骨（けんこうこつ）から大きく動かすのがポイントだよ！",
         analogy: "「雲を両手で押し上げる」：軽やかに、でも厳かに、ゆっくりと空に向かって。",
-        advice: "腕の力だけで上げようとしないで！脇〜肋骨側面にある筋肉「前鋸筋（ぜんきょきん）」を使って肩甲骨（けんこうこつ）から動かすと自然に上がるよ。",
+        advice: "腕の力だけで上げようとせず、肩を浮かさないように注意！肩根（かたね）からゆったりと持ち上げる意識を持つと、余計な力みが抜けるよ。",
         muscleNote: "三角筋（さんかくきん：肩の筋肉）が腕を上げてくれて、脊柱起立筋（せきちゅうきりつきん：背骨を支える筋肉）がしっかり姿勢を保ってくれてるよ。",
         primary:   ['三角筋', '前鋸筋', '脊柱起立筋'],
         secondary: ['僧帽筋上部', '棘上筋', '上腕三頭筋', '腹横筋', '多裂筋'],
@@ -1337,22 +1415,22 @@
         ],
         tenouchiWarning: '⚠ 引き分け中に親指が曲がると、弓を捻る力がゼロになるよ。人差し指が突っ張るのもNG。手の内が崩れたら、一度やり直すことも選択肢のひとつ！',
         missPoints: [
-          { type: 'warn', text: '<strong>右手（妻手）だけで「引っ張って」しまう</strong>：「引き分け」という言葉から右手だけで引こうとしがちだけど、それは大間違い！正しくは「左手で押し・右手で引く」の両方向に開くイメージ。' },
+          { type: 'warn', text: '<strong>馬手（めて）だけで「引っ張って」しまう</strong>：「引き分け」という言葉から右手だけで引こうとしがちだけど、それは大間違い！正しくは「左手で押し・右手で引く」の両方向に開くイメージ。' },
           { type: 'warn', text: '<strong>弓を「引き寄せて」胸が前に出る</strong>：弓を体に引き寄せようとすると背中の筋肉が縮んで胸が前方に出てしまう。背中を広げるイメージで大きく押し開こう！' },
           { type: 'warn', text: '<strong>引き幅（矢束）を最大限に取れていない</strong>：ほとんどの射の癖の根本原因はこれ！右手は少なくとも右肩の上の位置になければ、放ったときに手が的方向に戻って緩んでしまうよ。' },
-          { type: 'tip',  text: '<strong>前半と後半のリズムが乱れる</strong>：引き分けの前半と後半を同じリズムで引くことが大切。後半が長すぎて息が続かなくなる人は、次の「会（かい）」に入る前に苦しくなって離れに影響が出るよ。' },
+          { type: 'tip',  text: '<strong>前半と後半のリズムが乱れる</strong>：引き分けの前半と後半を同じリズムで引くことが大切。後半が長すぎて息が続かなくなる人は、次の「会（かい）」に入る前に苦しくなって離れ（はなれ）に影響が出るよ。' },
         ],
       },
       {
         name: "会", en: "Kai", frame: 50, range: "50-59",
-        desc: "引き分けが完了し、じっと保ちながら、内側からどんどん膨らみ続ける「伸合い（のびあい）」を続ける段階。弓道で一番難しく、一番大切な局面！",
+        desc: "引き分けが完了し、形を保ちながら、内側から無限に膨らみ続ける「伸合い（のびあい）」を続ける段階。弓道で一番難しく、一番大切な局面！",
         analogy: "「あふれる寸前の水」：コップに水がいっぱいで、表面張力でギリギリ保たれている状態のイメージ。",
-        advice: "「止まっている」のではなく、体の内側から外側へ常に膨らみ続けている「伸合い」を意識しよう！",
-        muscleNote: "お腹の奥の筋肉「腹横筋（ふくおうきん）」と「内腹斜筋（ないふくしゃきん）」が体を安定させる主役。これらが頑張っているからこそ、全体の形が保てるんだよ。",
+        advice: "「止まっている」のではなく、体の中心から外側へ常に膨らみ続けている「伸合い」を意識しよう！",
+        muscleNote: "お腹の奥の筋肉「腹横筋（ふくおうきん）」と「外腹斜筋（がいふくしゃきん）」が体を安定させる主役。これらが頑張っているからこそ、全体の形が保てるんだよ。",
         primary:   ['広背筋', '僧帽筋中下部', '大胸筋', '上腕三頭筋'],
         secondary: ['腹横筋', '多裂筋', '三角筋', '大円筋', '棘下筋', '前鋸筋'],
         tenouchi: [
-          { icon: '🎯', text: '<strong>五重十文字（ごじゅうじゅうもんじ）の完成</strong>：「弓と手の内」が正しい十字の位置を保つ。角見・脈所・肩が一直線になるのが理想の形！' },
+          { icon: '🎯', text: '<strong>五重十文字（ごじゅうじゅうもんじ）の完成</strong>：「弓と手の内」が正しい十字の位置を保つ。角見（つのみ）・脈所（みゃくどころ）・肩が一直線になるのが理想の形！' },
           { icon: '🌊', text: '<strong>伸合いの中でも角見（つのみ）を押し続ける</strong>：止まって待つのではなく、親指の付け根で弓を的方向へ常に押し続けることで、弓に捻り力がたまっていくよ。' },
           { icon: '🧘', text: '<strong>手先を「緩め」ない</strong>：緩めると弓が正しく回転せず矢の勢いが落ちる。でも力みすぎると放ったとき手の形が崩れる。「保つ」と「握る」は全然違うよ！' },
         ],
@@ -1369,11 +1447,11 @@
         desc: "伸合いの結果として、弦（つる）が自然に解けて矢が放たれる瞬間。自分の意思で「放す」のではなく、体が開く力に任せて「放たれる」のが本物の離れ！",
         analogy: "「熟した実が木から落ちる」：重みに耐えきれなくなった果実が、自然の力で枝を離れる瞬間。",
         advice: "「放す！」と意識するのではなく、体が開く力のままに「放たれる」のを待つ感覚で。",
-        muscleNote: "弓手（左手）側の「大胸筋（だいきょうきん）」と「前鋸筋（ぜんきょきん）」が素早く収縮するよ。前腕の筋肉が手の内の弛緩（しかん：力を抜く動き）をコントロールしてくれてるんだ。",
+        muscleNote: "弓手（ゆんで：左手）側の「大胸筋（だいきょうきん）」と「前鋸筋（ぜんきょきん）」が素早く収縮するよ。前腕の筋肉が手の内の弛緩（しかん：力を抜く動き）をコントロールしてくれてるんだ。",
         primary:   ['大胸筋', '前鋸筋', '広背筋'],
         secondary: ['僧帽筋中下部', '上腕三頭筋', '腕橈骨筋', '三角筋', '腹横筋'],
         tenouchi: [
-          { icon: '🔄', text: '<strong>弓返り（ゆがえり）は結果として起きるもの</strong>：手の内を握り込まなければ、弓は自然に時計回りに回転（弓返り）。意図的に回そうとしない。' },
+          { icon: '🔄', text: '<strong>弓返り（ゆがえり）は結果として起きるもの</strong>：手の内を握り込まなければ、弓は自然に時計回りに回転する（弓返り）。意図的に回そうとしない。' },
           { icon: '↗', text: '<strong>弓手（左手）を的に向かって押し切る</strong>：離れの瞬間に弓手を緩めず、親指を的に突き込む意識で押し続けることが弓返りの原動力になるよ。' },
           { icon: '🚫', text: '<strong>手首を意図的にひねらない</strong>：「弓を回してあげよう」と手首を捻（ひね）ると悪い癖になる。弓は弦の反発力と角見の押しで自然に回るんだ。' },
         ],
@@ -2000,11 +2078,114 @@
       });
     }
 
+    // ================================================================
+    // チュートリアル制御ロジック
+    // ================================================================
+    const tutorialSteps = [
+      {
+        text: "こんにちは！弓道の動作と筋肉を学べるアプリだよ。使いかたを説明するね！",
+        target: null, // 画面中央
+      },
+      {
+        text: "まずはここ！『射法八節』のボタンを押して、見たいポーズを選んでみてね。",
+        target: "stageGrid",
+        pos: "bottom",
+        arrow: "⤴"
+      },
+      {
+        text: "3Dモデルは指でぐりぐり回したり、広げて大きくしたりできるよ。全方向からチェックしよう！",
+        target: "viewer",
+        pos: "center",
+        arrow: "⤵"
+      },
+      {
+        text: "ここには使う筋肉の名前が出るよ。タップすると、その筋肉だけを表示できるんだ！",
+        target: "primarySection",
+        pos: "top",
+        arrow: "⤵"
+      },
+      {
+        text: "最後にここ！『手の内』や『ミスしやすい点』も読めるよ。じっくり見てみてね！",
+        target: "tenouchiSection",
+        pos: "top",
+        arrow: "⤵"
+      },
+      {
+        text: "説明はこれでおしまい！自分のペースで楽しく学んでいこう！",
+        target: null
+      }
+    ];
+
+    let currentTutorialStep = 0;
+    const overlay = document.getElementById('tutorial-overlay');
+    const bubble = document.getElementById('tutorial-bubble');
+    const focus = document.getElementById('tutorial-focus');
+    const arrow = document.getElementById('tutorial-arrow');
+
+    function showStep() {
+      const step = tutorialSteps[currentTutorialStep];
+      bubble.textContent = step.text;
+      
+      if (step.target) {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0)'; // 注目させるときはオーバーレイ自体は透明に
+        const el = document.getElementById(step.target);
+        // 対象まで自動でスクロール
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        const rect = el.getBoundingClientRect();
+        focus.style.display = 'block';
+        focus.style.top = (rect.top - 5) + 'px';
+        focus.style.left = (rect.left - 5) + 'px';
+        focus.style.width = (rect.width + 10) + 'px';
+        focus.style.height = (rect.height + 10) + 'px';
+        
+        bubble.style.top = step.pos === 'bottom' ? (rect.bottom + 40) + 'px' : (rect.top - 150) + 'px';
+        bubble.style.left = '50%';
+        bubble.style.transform = 'translateX(-50%)';
+        
+        arrow.style.display = 'block';
+        arrow.textContent = step.arrow;
+        arrow.style.top = step.pos === 'bottom' ? (rect.bottom + 5) + 'px' : (rect.top - 50) + 'px';
+        arrow.style.left = (rect.left + rect.width / 2) + 'px';
+      } else {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.7)'; // ターゲットがない時は全体を暗く
+        focus.style.display = 'none';
+        arrow.style.display = 'none';
+        bubble.style.top = '50%';
+        bubble.style.left = '50%';
+        bubble.style.transform = 'translate(-50%, -50%)';
+      }
+    }
+
+    overlay.addEventListener('click', () => {
+      currentTutorialStep++;
+      if (currentTutorialStep < tutorialSteps.length) {
+        showStep();
+      } else {
+        overlay.style.display = 'none';
+        localStorage.setItem('kyudo_tutorial_finished', 'true');
+      }
+    });
+
+    document.getElementById('tutorial-skip').addEventListener('click', (e) => {
+      e.stopPropagation();
+      overlay.style.display = 'none';
+      localStorage.setItem('kyudo_tutorial_finished', 'true');
+    });
+
     // 初回実行（レイアウト確定を待つため少し遅延させる）
     setTimeout(handleResize, 100);
     handleResize();
 
     animate();
+
+    // チュートリアルの開始判定
+    window.addEventListener('load', () => {
+      if (!localStorage.getItem('kyudo_tutorial_finished')) {
+        overlay.style.display = 'block';
+        showStep();
+      }
+    });
 
     // Service Worker Registration for PWA
     if ('serviceWorker' in navigator) {
