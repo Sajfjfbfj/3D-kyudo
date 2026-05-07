@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>リアル八節くん ─ カスタムエディタ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Klee+One:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: rgba(15, 23, 42, 0.88);
+      --panel-2: rgba(30, 41, 59, 0.82);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #f1f5f9;
+      --muted: #a9b6cd;
+      --accent: #7dd3fc;
+      --accent-2: #fb7185;
+      --accent-3: #fbbf24;
+      --ok: #34d399;
+      --shadow: 0 10px 30px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: Inter, "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── 背景装飾 ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(251, 113, 133, 0.10), transparent 24%),
+        linear-gradient(180deg, #08101d 0%, #0b1220 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 太字をより強調 */
+    b, strong {
+      font-weight: 900 !important;
+      text-shadow: 0.3px 0 0 currentColor, -0.3px 0 0 currentColor;
+    }
+
+    /* 波線スタイルの定義 */
+    u {
+      text-decoration: underline wavy var(--accent-2);
+      text-underline-offset: 4px;
+    }
+
+    /* ── ヘッダー ── */
+    .app-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      flex-shrink: 0;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .app-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+    .app-title span { font-size: 13px; color: var(--muted); font-family: 'Noto Sans JP', sans-serif; margin-left: 8px; }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: 'Noto Sans JP', sans-serif;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--accent), #3b82f6);
+      color: #0b1220;
+      font-weight: 700;
+    }
+    .btn-gold:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+    .btn-outline:hover { background: rgba(125, 211, 252, 0.1); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.12); }
+
+    /* ── グローバルナビ ── */
+    .global-nav {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 4px; padding: 6px; border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); z-index: 10000; box-shadow: var(--shadow);
+    }
+    .global-nav a {
+      color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 700;
+      padding: 8px 16px; border-radius: 999px; transition: 0.2s; white-space: nowrap;
+    }
+    .global-nav a:hover { color: var(--accent); background: rgba(255,255,255,0.05); }
+    .global-nav a.active { color: var(--bg); background: var(--accent); }
+
+    /* ── メインレイアウト ── */
+    .main-layout {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    /* ── 左: 3Dビューア ── */
+    .viewer-side {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .stage-nav {
+      display: flex;
+      gap: 4px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(10,14,22,0.8);
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+    .stage-nav::-webkit-scrollbar { height: 3px; }
+    .stage-nav::-webkit-scrollbar-track { background: transparent; }
+    .stage-nav::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+    .stage-tab {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .stage-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .stage-tab.active {
+      background: rgba(125, 211, 252, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    #viewer {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 15%, rgba(125, 211, 252, 0.13), transparent 32%),
+                  linear-gradient(180deg, rgba(18,26,40,0.3), rgba(4,8,16,0.9));
+    }
+    #viewer canvas {
+      position: absolute; inset: 0;
+      width: 100% !important; height: 100% !important;
+      display: block; touch-action: none;
+    }
+    #loading-screen {
+      position: absolute; inset: 0;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 50;
+      transition: opacity 0.5s;
+    }
+    .loader-title { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 16px; }
+    .loader-bar-wrap { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+    #loader-bar { height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
+    #loader-text { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+    .viewer-controls {
+      padding: 8px 12px;
+      border-top: 1px solid var(--line);
+      background: rgba(10,14,22,0.9);
+      flex-shrink: 0;
+    }
+    .ctrl-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
+    .ctrl-row::-webkit-scrollbar { display: none; }
+    .ctrl-btn {
+      flex-shrink: 0;
+      padding: 6px 11px;
+      border-radius: 7px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .ctrl-btn:hover { background: rgba(255,255,255,0.12); border-color: var(--accent); }
+    .ctrl-btn.active { background: rgba(125, 211, 252, 0.2); border-color: var(--accent); color: var(--accent); }
+    .time-label { font-size: 12px; color: var(--muted); margin-left: auto; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .slider-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .slider-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+
+    /* ── 右: エディタ ── */
+    .editor-side {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .editor-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(10,14,22,0.8);
+      flex-shrink: 0;
+    }
+    .editor-stage-title {
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--text);
+      letter-spacing: 0.08em;
+    }
+    .editor-stage-en {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 10px;
+      font-weight: 300;
+    }
+    .editor-tabs {
+      display: flex;
+      gap: 2px;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(10,14,22,0.7);
+      flex-shrink: 0;
+    }
+    .editor-tab {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+    .editor-tab:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+    .editor-tab.active { background: rgba(125, 211, 252, 0.15); color: var(--accent); }
+
+    .editor-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .editor-body::-webkit-scrollbar { width: 5px; }
+    .editor-body::-webkit-scrollbar-track { background: transparent; }
+    .editor-body::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    /* タブコンテンツ */
+    .tab-pane { display: none; flex-direction: column; gap: 12px; }
+    .tab-pane.active { display: flex; }
+
+    /* フィールドグループ */
+    .field-group {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .field-group-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .field-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .field-row { margin-bottom: 10px; }
+    .field-row:last-child { margin-bottom: 0; }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12.5px;
+      padding: 9px 12px;
+      resize: vertical;
+      line-height: 1.6;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    textarea:focus, input[type="text"]:focus {
+      border-color: var(--accent);
+      background: rgba(125, 211, 252, 0.04);
+    }
+    textarea { min-height: 60px; }
+
+    /* ── リッチテキストエディタ ── */
+    .rich-editor {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      border-radius: 0 0 8px 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12.5px;
+      padding: 12px;
+      min-height: 120px;
+      line-height: 1.6;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .rich-editor:focus { border-color: var(--accent); background: rgba(125, 211, 252, 0.04); }
+    .rich-editor-sm { min-height: 60px; }
+    .toolbar {
+      display: flex; gap: 4px; padding: 6px 10px;
+      align-items: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-bottom: none; border-radius: 8px 8px 0 0;
+      margin-top: 4px;
+    }
+    .btn-sm { padding: 4px 10px; font-size: 12px; font-weight: 800; }
+    .toolbar select, .checkpoint-item select {
+      color: var(--accent) !important;
+      background: rgba(0,0,0,0.5) !important;
+      font-weight: 900 !important;
+    }
+    .toolbar select option, .checkpoint-item select option {
+      background: #0b1220;
+      color: var(--text);
+    }
+
+    /* チェックポイントリスト */
+    .checkpoint-list { display: flex; flex-direction: column; gap: 8px; }
+    .checkpoint-item {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .checkpoint-item input[type="text"] {
+      flex: 0 0 48px;
+      min-width: 0;
+      width: 48px;
+      text-align: center;
+      padding: 5px 4px;
+      font-size: 14px;
+    }
+    .checkpoint-item textarea {
+      flex: 1;
+      min-height: 44px;
+      padding: 5px 8px;
+    }
+    .checkpoint-del {
+      flex-shrink: 0;
+      background: transparent;
+      border: none;
+      color: var(--accent-2);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px 4px;
+      line-height: 1;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .checkpoint-del:hover { background: rgba(251, 113, 133, 0.15); }
+    .add-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.04);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      width: 100%;
+      transition: all 0.15s;
+    }
+    .add-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(125, 211, 252, 0.06); }
+
+    /* 筋肉選択 */
+    .muscle-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .muscle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .muscle-chip.available {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    .muscle-chip.available:hover { border-color: var(--border-gold); color: var(--text); }
+    .muscle-chip.primary-sel {
+      background: rgba(192,65,74,0.2);
+      border-color: rgba(192,65,74,0.5);
+      color: #f0a0a8;
+    }
+    .muscle-chip.secondary-sel {
+      background: rgba(180,140,40,0.2);
+      border-color: rgba(212,168,75,0.5);
+      color: var(--gold-light);
+    }
+    .chip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .primary-sel .chip-dot { background: #f0a0a8; }
+    .secondary-sel .chip-dot { background: var(--gold-light); }
+
+    .muscle-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ビュー: 保存済みノート表示 */
+    .note-view {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .note-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .note-text {
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .note-analogy {
+      background: rgba(74,144,208,0.08);
+      border-left: 3px solid var(--blue-soft);
+      padding: 7px 11px;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      color: #c0d8f0;
+      margin-top: 6px;
+    }
+    .note-advice {
+      background: rgba(58,144,96,0.08);
+      border-left: 3px solid var(--green-soft);
+      padding: 7px 11px;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      color: #a0d8b8;
+      margin-top: 6px;
+    }
+    .muscle-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 9px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; margin: 3px 2px;
+    }
+    .muscle-tag.primary { background: rgba(192,65,74,0.15); border: 1px solid rgba(192,65,74,0.35); color: #f0a0a8; }
+    .muscle-tag.secondary { background: rgba(180,140,40,0.15); border: 1px solid rgba(212,168,75,0.35); color: var(--gold-light); }
+    .checkpoint-view { display: flex; flex-direction: column; gap: 6px; }
+    .checkpoint-view-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12px; line-height: 1.6;
+    }
+    .checkpoint-icon {
+      flex-shrink: 0; width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(212,168,75,0.12);
+      border: 1px solid rgba(212,168,75,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; margin-top: 1px;
+    }
+    .miss-view-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12px; line-height: 1.6;
+    }
+    .miss-icon-view {
+      flex-shrink: 0; width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; margin-top: 1px;
+    }
+    .miss-icon-view.warn { background: rgba(251, 113, 133, 0.12); border: 1px solid var(--accent-2); }
+    .miss-icon-view.tip  { background: rgba(52, 211, 153, 0.12); border: 1px solid var(--ok); }
+
+    /* 完了バッジ */
+    .stage-done-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; color: var(--ok);
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid var(--ok);
+      border-radius: 999px; padding: 2px 7px;
+      margin-left: 6px;
+    }
+
+    /* 共有モーダル */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: rgba(18,26,40,0.98);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 24px;
+      width: min(540px, 100%);
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    .modal h3 {
+      font-family: 'Zen Antique Soft', serif;
+      color: var(--gold-light);
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+    .modal p { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+    .share-textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 11px;
+      padding: 10px;
+      height: 160px;
+      resize: none;
+      font-family: 'Courier New', monospace;
+    }
+    .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+
+    /* トースト通知 */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 13px;
+      color: var(--accent);
+      box-shadow: var(--shadow);
+      z-index: 2000;
+      transition: transform 0.3s cubic-bezier(0.18,0.89,0.32,1.28);
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* 進捗バー */
+    .progress-bar-wrap {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .progress-steps {
+      display: flex; gap: 3px;
+    }
+    .progress-step {
+      width: 20px; height: 4px;
+      border-radius: 2px;
+      background: var(--line);
+      transition: background 0.3s;
+    }
+    .progress-step.done { background: var(--ok); }
+    .progress-step.partial { background: var(--accent-3); }
+    .progress-label { font-size: 11px; color: var(--muted); }
+
+    /* 縦画面 */
+    #orientation-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: var(--bg);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .rotate-svg {
+      width: 64px; height: 64px;
+      color: var(--accent);
+      animation: rotate-anim 2s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes rotate-anim {
+      0%   { transform: rotate(0deg); }
+      70%  { transform: rotate(-90deg); }
+      100% { transform: rotate(-90deg); }
+    }
+
+    @media (orientation: portrait) {
+      #orientation-overlay { display: flex; }
+    }
+    @media (orientation: landscape) {
+      #orientation-overlay { display: none; }
+    }
+
+    /* スクロールバー全体 */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- 縦画面警告 -->
+<div id="orientation-overlay">
+  <svg class="rotate-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <rect x="5" y="2" width="14" height="20" rx="2"/>
+    <path d="M12 18h.01"/>
+  </svg>
+  <h2 style="color:var(--accent);margin-bottom:10px;">横画面にしてください</h2>
+  <p style="font-size:13px;color:var(--muted);">このアプリは横向き（ランドスケープ）でご利用ください。</p>
+</div>
+
+<!-- ヘッダー -->
+<header class="app-header">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div class="app-title">リアル八節くん<span>リアハチ・カスタムエディタ</span></div>
+    <div class="progress-bar-wrap">
+      <div class="progress-steps" id="progressSteps"></div>
+      <span class="progress-label" id="progressLabel">0/8 節</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="importData()">📥 インポート</button>
+    <button class="btn btn-outline" onclick="openShare()">🔗 共有URLを発行</button>
+    <button class="btn btn-gold" onclick="saveAll()">💾 すべて保存</button>
+  </div>
+</header>
+
+<!-- メニューバー -->
+<nav class="global-nav">
+  <a href="index.html">一般用</a>
+  <a href="中高生.html">中高生用</a>
+  <a href="カスタム.html" class="active">３D編集</a>
+  <a href="プレビュー.html">閲覧用</a>
+  <a href="マイリスト.html">マイリスト</a>
+</nav>
+
+<!-- メインレイアウト -->
+<div class="main-layout">
+
+  <!-- 左: 3Dビューア -->
+  <div class="viewer-side">
+    <div class="stage-nav" id="stageNav"></div>
+    <div id="viewer">
+      <div id="loading-screen">
+        <div class="loader-title">3Dモデル読み込み中...</div>
+        <div class="loader-bar-wrap"><div id="loader-bar"></div></div>
+        <div id="loader-text">0%</div>
+      </div>
+    </div>
+    <div class="viewer-controls">
+      <div class="ctrl-row">
+        <button class="ctrl-btn" id="playBtn">▶ 再生</button>
+        <button class="ctrl-btn active" id="pauseBtn">⏸ 停止</button>
+        <button class="ctrl-btn" id="resetBtn">⏮ 先頭</button>
+        <button class="ctrl-btn" id="fitBtn">🎯 中央</button>
+        <span class="time-label" id="timeLabel">0.00 s</span>
+      </div>
+      <div class="slider-row">
+        <input id="timeline" type="range" min="0" max="7.041667" step="0.041667" value="0.041667" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 右: エディタ -->
+  <div class="editor-side">
+    <div class="editor-header">
+      <div>
+        <span class="editor-stage-title" id="editorStageName">足踏み</span>
+        <span class="editor-stage-en" id="editorStageEn">Ashibumi</span>
+        <span class="stage-done-badge" id="doneBadge" style="display:none;">✓ 記入済み</span>
+      </div>
+    </div>
+    <div class="editor-tabs">
+      <button class="editor-tab active" onclick="switchTab('edit')">✏️ 編集</button>
+      <button class="editor-tab" onclick="switchTab('view')">👁 プレビュー</button>
+    </div>
+    <div class="editor-body" id="editorBody">
+
+      <!-- 編集タブ -->
+      <div class="tab-pane active" id="tab-edit">
+        <div class="field-group">
+          <div class="field-group-label">📋 基本説明</div>
+          <div class="field-row">
+            <div class="field-label">この節の説明・やること（装飾可能）</div>
+            <div class="toolbar">
+              <select class="btn btn-ghost btn-sm" onchange="formatDoc('fontSize', this.value); this.selectedIndex=0;" style="width: 70px; height: 28px; padding: 0 4px; font-size: 12px; border: 1px solid var(--accent);">
+                <option value="" selected disabled>サイズ</option>
+                <option value="1">最小</option>
+                <option value="2">小</option>
+                <option value="3">中</option>
+                <option value="4">大</option>
+                <option value="5">特大</option>
+                <option value="6">極大</option>
+                <option value="7">最大</option>
+              </select>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('bold')" title="太字"><b>B</b></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('underline')" title="波線"><u>U</u></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('hiliteColor', '#d4a84b66')" title="マーカー"><span style="background:#d4a84b66;color:#fff;padding:0 2px;">M</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#c0414a')" title="赤字"><span style="color:#c0414a">赤字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#4a90d0')" title="青字"><span style="color:#4a90d0">青字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#e8e4d8')" title="標準色">標準</button>
+            </div>
+            <div id="f-desc" class="rich-editor rich-editor-sm" contenteditable="true"></div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">🎭 たとえ（イメージしやすい比喩・装飾可能）</div>
+            <div class="toolbar">
+              <select class="btn btn-ghost btn-sm" onchange="formatDoc('fontSize', this.value); this.selectedIndex=0;" style="width: 70px; height: 28px; padding: 0 4px; font-size: 12px; border: 1px solid var(--accent);">
+                <option value="" selected disabled>サイズ</option>
+                <option value="1">最小</option>
+                <option value="2">小</option>
+                <option value="3">中</option>
+                <option value="4">大</option>
+                <option value="5">特大</option>
+                <option value="6">極大</option>
+                <option value="7">最大</option>
+              </select>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('bold')" title="太字"><b>B</b></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('underline')" title="波線"><u>U</u></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('hiliteColor', '#d4a84b66')" title="マーカー"><span style="background:#d4a84b66;color:#fff;padding:0 2px;">M</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#c0414a')" title="赤字"><span style="color:#c0414a">赤字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#4a90d0')" title="青字"><span style="color:#4a90d0">青字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#e8e4d8')" title="標準色">標準</button>
+            </div>
+            <div id="f-analogy" class="rich-editor rich-editor-sm" contenteditable="true"></div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">💡 自分へのアドバイス・コツ（装飾可能）</div>
+            <div class="toolbar">
+              <select class="btn btn-ghost btn-sm" onchange="formatDoc('fontSize', this.value); this.selectedIndex=0;" style="width: 70px; height: 28px; padding: 0 4px; font-size: 12px; border: 1px solid var(--accent);">
+                <option value="" selected disabled>サイズ</option>
+                <option value="1">最小</option>
+                <option value="2">小</option>
+                <option value="3">中</option>
+                <option value="4">大</option>
+                <option value="5">特大</option>
+                <option value="6">極大</option>
+                <option value="7">最大</option>
+              </select>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('bold')" title="太字"><b>B</b></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('underline')" title="波線"><u>U</u></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('hiliteColor', '#d4a84b66')" title="マーカー"><span style="background:#d4a84b66;color:#fff;padding:0 2px;">M</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#c0414a')" title="赤字"><span style="color:#c0414a">赤字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#4a90d0')" title="青字"><span style="color:#4a90d0">青字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#e8e4d8')" title="標準色">標準</button>
+            </div>
+            <div id="f-advice" class="rich-editor rich-editor-sm" contenteditable="true"></div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">🧠 筋肉メモ（使っている筋肉のイメージ・装飾可能）</div>
+            <div class="toolbar">
+              <select class="btn btn-ghost btn-sm" onchange="formatDoc('fontSize', this.value); this.selectedIndex=0;" style="width: 70px; height: 28px; padding: 0 4px; font-size: 12px; border: 1px solid var(--accent);">
+                <option value="" selected disabled>サイズ</option>
+                <option value="1">最小</option>
+                <option value="2">小</option>
+                <option value="3">中</option>
+                <option value="4">大</option>
+                <option value="5">特大</option>
+                <option value="6">極大</option>
+                <option value="7">最大</option>
+              </select>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('bold')" title="太字"><b>B</b></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('underline')" title="波線"><u>U</u></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('hiliteColor', '#d4a84b66')" title="マーカー"><span style="background:#d4a84b66;color:#fff;padding:0 2px;">M</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#c0414a')" title="赤字"><span style="color:#c0414a">赤字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#4a90d0')" title="青字"><span style="color:#4a90d0">青字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#e8e4d8')" title="標準色">標準</button>
+            </div>
+            <div id="f-muscleNote" class="rich-editor rich-editor-sm" contenteditable="true"></div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">📝 自由メモ（太字や色などの装飾が可能です）</div>
+            <div class="toolbar">
+              <select class="btn btn-ghost btn-sm" onchange="formatDoc('fontSize', this.value); this.selectedIndex=0;" style="width: 70px; height: 28px; padding: 0 4px; font-size: 12px; border: 1px solid var(--accent);">
+                <option value="" selected disabled>サイズ</option>
+                <option value="1">最小</option>
+                <option value="2">小</option>
+                <option value="3">中</option>
+                <option value="4">大</option>
+                <option value="5">特大</option>
+                <option value="6">極大</option>
+                <option value="7">最大</option>
+              </select>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('bold')" title="太字"><b>B</b></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('underline')" title="波線"><u>U</u></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('hiliteColor', '#d4a84b66')" title="マーカー"><span style="background:#d4a84b66;color:#fff;padding:0 2px;">M</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#c0414a')" title="赤字"><span style="color:#c0414a">赤字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#4a90d0')" title="青字"><span style="color:#4a90d0">青字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#e8e4d8')" title="標準色">標準</button>
+            </div>
+            <div id="f-memo" class="rich-editor" contenteditable="true"></div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-group-label">💪 筋肉の役割分担</div>
+          <div class="field-label">🔴 メインで使う筋肉（主動筋）</div>
+          <div class="muscle-grid" id="primaryMuscleGrid" style="margin-bottom:20px;"></div>
+          <div class="field-label">🟡 サポート・安定させる筋肉（補助筋）</div>
+          <div class="muscle-grid" id="secondaryMuscleGrid"></div>
+          <div id="muscleMemoArea"></div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-group-label">🤚 手の内チェックポイント</div>
+          <div class="checkpoint-list" id="tenouchiList"></div>
+          <button class="add-btn" onclick="addCheckpoint('tenouchi')">＋ チェックポイントを追加</button>
+          <div style="margin-top:10px;">
+            <div class="field-label">⚠ 手の内 注意メモ（装飾可能）</div>
+            <div class="toolbar">
+              <select class="btn btn-ghost btn-sm" onchange="formatDoc('fontSize', this.value); this.selectedIndex=0;" style="width: 70px; height: 28px; padding: 0 4px; font-size: 12px; border: 1px solid var(--accent);">
+                <option value="" selected disabled>サイズ</option>
+                <option value="1">最小</option>
+                <option value="2">小</option>
+                <option value="3">中</option>
+                <option value="4">大</option>
+                <option value="5">特大</option>
+                <option value="6">極大</option>
+                <option value="7">最大</option>
+              </select>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('bold')" title="太字"><b>B</b></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('underline')" title="波線"><u>U</u></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('hiliteColor', '#d4a84b66')" title="マーカー"><span style="background:#d4a84b66;color:#fff;padding:0 2px;">M</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#c0414a')" title="赤字"><span style="color:#c0414a">赤字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#4a90d0')" title="青字"><span style="color:#4a90d0">青字</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="formatDoc('foreColor', '#e8e4d8')" title="標準色">標準</button>
+            </div>
+            <div id="f-tenouchiWarning" class="rich-editor rich-editor-sm" contenteditable="true"></div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-group-label">⚠ やりがちなミス・コツ</div>
+          <div class="checkpoint-list" id="missList"></div>
+          <button class="add-btn" onclick="addCheckpoint('miss')">＋ ミス/コツを追加</button>
+        </div>
+
+        <div style="display:flex;gap:8px;padding-bottom:4px;">
+          <button class="btn btn-gold" style="flex:1" onclick="saveCurrentStage()">💾 この節を保存</button>
+          <button class="btn btn-ghost" onclick="resetCurrentStage()">↩ リセット</button>
+        </div>
+      </div>
+
+      <!-- プレビュータブ -->
+      <div class="tab-pane" id="tab-view">
+        <div class="note-view" id="previewDesc"></div>
+        <div class="note-view" id="previewMuscles"></div>
+        <div class="note-view" id="previewTenouchi"></div>
+        <div class="note-view" id="previewMiss"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 共有モーダル -->
+<div class="modal-overlay hidden" id="shareModal">
+  <div class="modal">
+    <h3>🔗 共有URLを発行しました</h3>
+    <p>このURLを相手に送ると、あなたが作成したカスタムノートをプレビューページでそのまま見てもらうことができます。</p>
+    <textarea class="share-textarea" id="shareTextarea" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeShare()">閉じる</button>
+      <button class="btn btn-gold" onclick="copyShare()">📋 URLをコピー</button>
+    </div>
+  </div>
+</div>
+
+<!-- インポートモーダル -->
+<div class="modal-overlay hidden" id="importModal">
+  <div class="modal">
+    <h3>📥 ノートをインポート</h3>
+    <p>保存したJSONファイルを選択してください。<br><strong style="color:var(--red-soft)">単節ファイルはその節のみ、全節ファイルは全データが上書きされます。</strong></p>
+    <input type="file" id="importFileInput" accept=".json,application/json"
+      onchange="onImportFileChange(this)"
+      style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--accent);border-radius:8px;color:var(--text);font-size:12px;padding:8px 10px;cursor:pointer;font-family:inherit;">
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn btn-ghost" onclick="closeImport()">キャンセル</button>
+      <button class="btn btn-gold" onclick="doImport()">📥 インポート実行</button>
+    </div>
+  </div>
+</div>
+
+<!-- トースト通知 -->
+<div id="toast">保存しました</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ====================================================
+// 筋肉グループ定義 (GLBノード名と対応)
+// ====================================================
+const ALL_MUSCLES = [
+  '大腿四頭筋','ハムストリングス','大殿筋','内転筋','腸腰筋',
+  '脊柱起立筋','腹横筋','腹直筋','外腹斜筋','多裂筋',
+  '僧帽筋上部','僧帽筋中下部','菱形筋','広背筋','大胸筋','前鋸筋',
+  '三角筋','大円筋','小円筋','棘上筋','棘下筋','肩甲下筋',
+  '上腕三頭筋','上腕二頭筋','腕橈骨筋','胸鎖乳突筋',
+];
+
+const MUSCLE_NODES = {
+  大腿四頭筋:      ['筋_大腿四頭筋_L','筋_大腿四頭筋_R'],
+  ハムストリングス:['筋_ハムストリングス_L','筋_ハムストリングス_R'],
+  大殿筋:          ['筋_大殿筋_L','筋_大殿筋_R'],
+  内転筋:          ['筋_内転筋_L','筋_内転筋_R'],
+  腸腰筋:          ['筋_腸腰筋_L','筋_腸腰筋_R'],
+  脊柱起立筋:      ['筋_脊柱起立筋'],
+  腹横筋:          ['筋_腹横筋'],
+  腹直筋:          ['筋_腹直筋'],
+  外腹斜筋:        ['筋_外腹斜筋_L','筋_外腹斜筋_R'],
+  多裂筋:          ['筋_多裂筋'],
+  僧帽筋上部:      ['筋_僧帽筋_上部'],
+  僧帽筋中下部:    ['筋_僧帽筋_中下部'],
+  菱形筋:          ['筋_菱形筋'],
+  広背筋:          ['筋_広背筋_L','筋_広背筋_R'],
+  大胸筋:          ['筋_大胸筋_L','筋_大胸筋_R'],
+  前鋸筋:          ['筋_前鋸筋_L','筋_前鋸筋_R'],
+  三角筋:          ['筋_三角筋_L','筋_三角筋_R'],
+  大円筋:          ['筋_大円筋_L','筋_大円筋_R'],
+  小円筋:          ['筋_小円筋_L','筋_小円筋_R'],
+  棘上筋:          ['筋_棘上筋_L','筋_棘上筋_R'],
+  棘下筋:          ['筋_棘下筋_L','筋_棘下筋_R'],
+  肩甲下筋:        ['筋_肩甲下筋_L','筋_肩甲下筋_R'],
+  上腕三頭筋:      ['筋_上腕三頭筋_L','筋_上腕三頭筋_R'],
+  上腕二頭筋:      ['筋_上腕二頭筋_L','筋_上腕二頭筋_R'],
+  腕橈骨筋:        ['筋_腕橈骨筋_L','筋_腕橈骨筋_R'],
+  胸鎖乳突筋:      ['筋_胸鎖乳突筋_L','筋_胸鎖乳突筋_R'],
+};
+
+// 節の基本情報 (フレームのみ)
+const STAGES_BASE = [
+  { name:"足踏み",    en:"Ashibumi",   frame:1,  range:"1-9" },
+  { name:"胴作り",    en:"Dozukuri",   frame:10, range:"10-19" },
+  { name:"弓構え",    en:"Yugamae",    frame:20, range:"20-29" },
+  { name:"打ち起こし",en:"Uchiokoshi", frame:30, range:"30-39" },
+  { name:"引き分け",  en:"Hikiwake",   frame:40, range:"40-49" },
+  { name:"会",        en:"Kai",        frame:50, range:"50-59" },
+  { name:"離れ",      en:"Hanare",     frame:60, range:"60-69" },
+  { name:"残心",      en:"Zanshin",    frame:70, range:"70-80" },
+];
+
+// ====================================================
+// ユーザーデータ（8節分）
+// ====================================================
+const STORAGE_KEY = 'kyudo_custom_notes_v2';
+let userData = loadUserData();
+
+function getDefaultStageData() {
+  return {
+    desc: '', analogy: '', advice: '', muscleNote: '',
+    memo: '',
+    tenouchiWarning: '',
+    tenouchi: [], // [{icon, text}]
+    miss: [],     // [{type:'warn'|'tip', text}]
+    primaryMuscles: [],
+    secondaryMuscles: [],
+    muscleMemos: {}, // { "筋肉名": "意識メモ" }
+  };
+}
+
+function loadUserData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      // 古いデータに新しいフィールドをマージ
+      return data.map(d => ({ ...getDefaultStageData(), ...d }));
+    }
+  } catch(e) {}
+  return STAGES_BASE.map(() => getDefaultStageData());
+}
+
+function saveUserData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+}
+
+// ====================================================
+// 現在の状態
+// ====================================================
+let currentStage = 0;
+let currentTab = 'edit';
+let loadedModel = null;
+const originalMaterials = new Map();
+const COLOR_PRIMARY   = new THREE.Color(0xff2020);  // 赤（メイン筋肉）
+const COLOR_SECONDARY = new THREE.Color(0xffee00);  // 黄色（サポート筋肉）
+
+// ====================================================
+// UI初期化
+// ====================================================
+function buildStageNav() {
+  const nav = document.getElementById('stageNav');
+  STAGES_BASE.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'stage-tab' + (i === 0 ? ' active' : '');
+    btn.textContent = `第${i+1}節 ${s.name}`;
+    btn.onclick = () => selectStage(i);
+    nav.appendChild(btn);
+  });
+}
+
+function buildMuscleGrid() {
+  const priGrid = document.getElementById('primaryMuscleGrid');
+  const secGrid = document.getElementById('secondaryMuscleGrid');
+  priGrid.innerHTML = '';
+  secGrid.innerHTML = '';
+  
+  const data = userData[currentStage];
+  ALL_MUSCLES.forEach(m => {
+    // メイン選択用
+    const priChip = document.createElement('div');
+    const isPri = data.primaryMuscles.includes(m);
+    priChip.className = 'muscle-chip ' + (isPri ? 'primary-sel' : 'available');
+    priChip.innerHTML = `<span class="chip-dot"></span>${m}`;
+    priChip.onclick = () => toggleMuscle(m, 'primary');
+    priGrid.appendChild(priChip);
+
+    // サブ選択用
+    const secChip = document.createElement('div');
+    const isSec = data.secondaryMuscles.includes(m);
+    secChip.className = 'muscle-chip ' + (isSec ? 'secondary-sel' : 'available');
+    secChip.innerHTML = `<span class="chip-dot"></span>${m}`;
+    secChip.onclick = () => toggleMuscle(m, 'secondary');
+    secGrid.appendChild(secChip);
+  });
+
+  // 選択された筋肉の個別メモ欄を表示
+  const memoArea = document.getElementById('muscleMemoArea');
+  memoArea.innerHTML = '';
+  const allSelected = [...data.primaryMuscles, ...data.secondaryMuscles];
+  if (allSelected.length > 0) {
+    const label = document.createElement('div');
+    label.className = 'field-label';
+    label.style.marginTop = '16px';
+    label.style.color = 'var(--accent)';
+    label.innerHTML = '🎯 各筋肉の意識ポイント（自分なりのメモ）';
+    memoArea.appendChild(label);
+
+    allSelected.forEach(m => {
+      const isPri = data.primaryMuscles.includes(m);
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:8px;';
+      row.innerHTML = `
+        <span style="font-size:11px; font-weight:700; color:${isPri?'var(--accent-2)':'var(--accent-3)'}; min-width:80px;">${m}</span>
+        <input type="text" placeholder="例：ここを意識して引く" value="${escHtml((data.muscleMemos && data.muscleMemos[m]) || '')}" 
+          oninput="updateMuscleMemo('${m}', this.value)" style="flex:1; padding:5px 8px; font-size:11px;">
+      `;
+      memoArea.appendChild(row);
+    });
+  }
+}
+
+function toggleMuscle(m, type) {
+  const data = userData[currentStage];
+  if (type === 'primary') {
+    if (data.primaryMuscles.includes(m)) {
+      data.primaryMuscles = data.primaryMuscles.filter(x => x !== m);
+    } else {
+      data.primaryMuscles.push(m);
+      data.secondaryMuscles = data.secondaryMuscles.filter(x => x !== m);
+    }
+  } else {
+    if (data.secondaryMuscles.includes(m)) {
+      data.secondaryMuscles = data.secondaryMuscles.filter(x => x !== m);
+    } else {
+      data.secondaryMuscles.push(m);
+      data.primaryMuscles = data.primaryMuscles.filter(x => x !== m);
+    }
+  }
+  // 選択解除された筋肉のメモを削除
+  if (!data.primaryMuscles.includes(m) && !data.secondaryMuscles.includes(m)) {
+    delete data.muscleMemos[m];
+  }
+  buildMuscleGrid();
+  // 3Dリアルタイム更新
+  updateMuscles3D();
+  updateProgress();
+}
+
+window.updateMuscleMemo = function(m, val) {
+  userData[currentStage].muscleMemos[m] = val;
+};
+
+function buildCheckpointList(listId, items, type) {
+  const list = document.getElementById(listId);
+  list.innerHTML = '';
+  items.forEach((item, idx) => {
+    list.appendChild(makeCheckpointRow(listId, type, item, idx));
+  });
+}
+
+function makeCheckpointRow(listId, type, item, idx) {
+  const row = document.createElement('div');
+  row.className = 'checkpoint-item';
+  if (type === 'tenouchi') {
+    row.innerHTML = `
+      <input type="text" placeholder="🎯" value="${escHtml(item.icon||'')}" oninput="updateCheckpoint('tenouchi',${idx},'icon',this.value)" style="flex:0 0 44px;min-width:44px;width:44px;text-align:center;padding:5px 4px;font-size:15px;">
+      <div style="font-size:11px; color:var(--muted); align-self:center; white-space:nowrap; font-weight:700;">ポイント：</div>
+      <textarea placeholder="チェックポイントを入力..." oninput="updateCheckpoint('tenouchi',${idx},'text',this.value)" style="min-height:44px;">${escHtml(item.text||'')}</textarea>
+      <button class="checkpoint-del" onclick="delCheckpoint('tenouchi',${idx})">✕</button>
+    `;
+  } else {
+    row.innerHTML = `
+      <select onchange="updateCheckpoint('miss',${idx},'type',this.value)" style="flex:0 0 90px;min-width:90px;height:30px;border-radius:6px;border:1px solid var(--border-gold);font-size:12px;padding:0 4px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">
+        <option value="warn" ${item.type==='warn'?'selected':''}>⚠ミス</option>
+        <option value="tip"  ${item.type==='tip'?'selected':''}>✔️コツ</option>
+      </select>
+      <textarea placeholder="ミスやコツを入力..." oninput="updateCheckpoint('miss',${idx},'text',this.value)" style="min-height:44px;">${escHtml(item.text||'')}</textarea>
+      <button class="checkpoint-del" onclick="delCheckpoint('miss',${idx})">✕</button>
+    `;
+  }
+  return row;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// グローバル関数 (HTML onclick から呼ぶ)
+window.updateCheckpoint = function(type, idx, key, value) {
+  const arr = type === 'tenouchi' ? userData[currentStage].tenouchi : userData[currentStage].miss;
+  if (arr[idx]) arr[idx][key] = value;
+};
+
+window.delCheckpoint = function(type, idx) {
+  if (type === 'tenouchi') {
+    userData[currentStage].tenouchi.splice(idx, 1);
+    buildCheckpointList('tenouchiList', userData[currentStage].tenouchi, 'tenouchi');
+  } else {
+    userData[currentStage].miss.splice(idx, 1);
+    buildCheckpointList('missList', userData[currentStage].miss, 'miss');
+  }
+};
+
+window.addCheckpoint = function(type) {
+  if (type === 'tenouchi') {
+    userData[currentStage].tenouchi.push({ icon: '✅', text: '' });
+    buildCheckpointList('tenouchiList', userData[currentStage].tenouchi, 'tenouchi');
+  } else {
+    userData[currentStage].miss.push({ type: 'warn', text: '' });
+    buildCheckpointList('missList', userData[currentStage].miss, 'miss');
+  }
+};
+
+function loadEditorFields() {
+  const d = userData[currentStage];
+  document.getElementById('f-desc').innerHTML         = d.desc || '';
+  document.getElementById('f-analogy').innerHTML      = d.analogy || '';
+  document.getElementById('f-advice').innerHTML       = d.advice || '';
+  document.getElementById('f-muscleNote').innerHTML   = d.muscleNote || '';
+  document.getElementById('f-memo').innerHTML         = d.memo || '';
+  document.getElementById('f-tenouchiWarning').innerHTML = d.tenouchiWarning || '';
+  buildCheckpointList('tenouchiList', d.tenouchi || [], 'tenouchi');
+  buildCheckpointList('missList', d.miss || [], 'miss');
+}
+
+function collectEditorFields() {
+  const d = userData[currentStage];
+  d.desc            = document.getElementById('f-desc').innerHTML;
+  d.analogy         = document.getElementById('f-analogy').innerHTML;
+  d.advice          = document.getElementById('f-advice').innerHTML;
+  d.muscleNote      = document.getElementById('f-muscleNote').innerHTML;
+  d.memo            = document.getElementById('f-memo').innerHTML;
+  d.tenouchiWarning = document.getElementById('f-tenouchiWarning').innerHTML;
+  // tenouchi/miss は oninput でリアルタイム更新済み
+}
+
+function isStageHasData(i) {
+  const d = userData[i];
+  return !!(d.desc || d.primaryMuscles.length || d.secondaryMuscles.length || d.tenouchi.length || d.miss.length);
+}
+
+function isStageComplete(i) {
+  const d = userData[i];
+  return !!(d.desc && (d.primaryMuscles.length > 0 || d.secondaryMuscles.length > 0));
+}
+
+function updateProgress() {
+  const steps = document.getElementById('progressSteps');
+  const label = document.getElementById('progressLabel');
+  let done = 0, partial = 0;
+  STAGES_BASE.forEach((_, i) => {
+    if (isStageComplete(i)) done++;
+    else if (isStageHasData(i)) partial++;
+  });
+  steps.innerHTML = '';
+  STAGES_BASE.forEach((_, i) => {
+    const step = document.createElement('div');
+    step.className = 'progress-step ' + (isStageComplete(i) ? 'done' : isStageHasData(i) ? 'partial' : '');
+    step.title = STAGES_BASE[i].name;
+    steps.appendChild(step);
+  });
+  label.textContent = `${done}/8 節`;
+  // バッジ
+  const badge = document.getElementById('doneBadge');
+  badge.style.display = isStageComplete(currentStage) ? 'inline-flex' : 'none';
+}
+
+// ====================================================
+// ステージ切り替え
+// ====================================================
+function selectStage(idx) {
+  // 現在の編集内容を保存
+  collectEditorFields();
+  currentStage = idx;
+
+  // ナビ更新
+  document.querySelectorAll('.stage-tab').forEach((t,i) => {
+    t.classList.toggle('active', i === idx);
+  });
+
+  // ヘッダー更新
+  document.getElementById('editorStageName').textContent = STAGES_BASE[idx].name;
+  document.getElementById('editorStageEn').textContent   = STAGES_BASE[idx].en;
+
+  // 編集フィールド更新
+  loadEditorFields();
+  buildMuscleGrid();
+  updateProgress();
+
+  // タブ更新
+  if (currentTab === 'view') renderPreview();
+
+  // 3D: フレーム移動
+  jumpToStage(idx);
+
+  // 3D: 筋肉色更新
+  updateMuscles3D();
+}
+
+window.switchTab = function(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.editor-tab').forEach((t, i) => {
+    t.classList.toggle('active', ['edit','view'][i] === tab);
+  });
+  document.querySelectorAll('.tab-pane').forEach((p, i) => {
+    p.classList.toggle('active', ['tab-edit','tab-view'][i] === 'tab-' + tab);
+  });
+  if (tab === 'view') {
+    collectEditorFields(); // プレビュー前に現在の編集内容をデータに同期
+    renderPreview();
+  }
+};
+
+window.formatDoc = function(cmd, val) {
+  document.execCommand(cmd, false, val);
+};
+
+// ====================================================
+// ファイルダウンロード共通関数
+// ====================================================
+function downloadJSON(obj, filename) {
+  const json = JSON.stringify(obj, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+window.saveCurrentStage = function() {
+  collectEditorFields();
+  saveUserData();   // ローカルストレージにも保存
+  updateProgress();
+  const stageName = STAGES_BASE[currentStage].name;
+  downloadJSON(
+    { type: 'kyudo_stage', version: 2, stageIndex: currentStage, stageName, data: userData[currentStage] },
+    `弓道ノート_第${currentStage+1}節_${stageName}.json`
+  );
+  // マイリスト（お気に入り）にも保存
+  const favName = `第${currentStage+1}節「${stageName}」_${new Date().toLocaleDateString()}`;
+  const favorites = JSON.parse(localStorage.getItem('kyudo_favorites') || '[]');
+  favorites.push({ id: Date.now(), name: favName, data: userData });
+  localStorage.setItem('kyudo_favorites', JSON.stringify(favorites));
+  showToast('💾 保存・マイリスト登録しました');
+};
+
+window.saveAll = function() {
+  collectEditorFields();
+  saveUserData();   // ローカルストレージにも保存
+  updateProgress();
+  downloadJSON(
+    { type: 'kyudo_all', version: 2, data: userData },
+    '弓道ノート_全節.json'
+  );
+  // マイリスト（お気に入り）にも保存
+  const favName = `全節ノート_${new Date().toLocaleDateString()}`;
+  const favorites = JSON.parse(localStorage.getItem('kyudo_favorites') || '[]');
+  favorites.push({ id: Date.now(), name: favName, data: userData });
+  localStorage.setItem('kyudo_favorites', JSON.stringify(favorites));
+  showToast('✅ すべて保存・マイリスト登録しました！');
+};
+
+window.resetCurrentStage = function() {
+  if (!confirm('この節のデータをリセットしますか？')) return;
+  userData[currentStage] = getDefaultStageData();
+  loadEditorFields();
+  buildMuscleGrid();
+  updateProgress();
+  updateMuscles3D();
+  showToast('↩ リセットしました');
+};
+
+// ====================================================
+// プレビュー描画
+// ====================================================
+function renderPreview() {
+  const d = userData[currentStage];
+
+  // 基本情報
+  const descEl = document.getElementById('previewDesc');
+  descEl.innerHTML = `
+    <div class="note-section-title">📋 説明・やること</div>
+    <div class="note-text">${d.desc || '<span style="color:var(--muted)">未記入</span>'}</div>
+    ${d.analogy ? `<div class="note-analogy" style="margin-top:6px;">🎭 <strong>たとえ：</strong>${d.analogy}</div>` : ''}
+    ${d.advice  ? `<div class="note-advice">💡 <strong>アドバイス・コツ：</strong>${d.advice}</div>` : ''}
+    ${d.memo ? `
+      <div style="margin-top:12px; padding:12px; border:1px solid var(--border); border-radius:8px; background:rgba(255,255,255,0.02);">
+        <div class="note-section-title">📝 自由メモ</div>
+        <div class="note-text">${d.memo}</div>
+      </div>
+    ` : ''}
+  `;
+
+  // 筋肉
+  const musEl = document.getElementById('previewMuscles');
+  // メイン筋肉のタグと一言メモを生成
+  const priTags = (d.primaryMuscles||[]).map(m => {
+    const memo = (d.muscleMemos && d.muscleMemos[m]) ? d.muscleMemos[m].trim() : '';
+    return `<div style="margin-bottom:8px;"><span class="muscle-tag primary">🔴 ${m}</span>${memo ? `<div style="font-size:11.5px;color:var(--gold-light);margin-left:14px;padding-left:10px;border-left:1.5px solid var(--red-soft);margin-top:2px;line-height:1.4;">🎯 一言：${escHtml(memo)}</div>` : ''}</div>`;
+  }).join('');
+
+  // サポート筋肉のタグと一言メモを生成
+  const secTags = (d.secondaryMuscles||[]).map(m => {
+    const memo = (d.muscleMemos && d.muscleMemos[m]) ? d.muscleMemos[m].trim() : '';
+    return `<div style="margin-bottom:8px;"><span class="muscle-tag secondary">🟡 ${m}</span>${memo ? `<div style="font-size:11.5px;color:var(--gold-light);margin-left:14px;padding-left:10px;border-left:1.5px solid var(--gold);margin-top:2px;line-height:1.4;">🎯 一言：${escHtml(memo)}</div>` : ''}</div>`;
+  }).join('');
+
+  musEl.innerHTML = `
+    <div class="note-section-title">💪 使っている筋肉</div>
+    <!-- 全体の筋肉メモ（🧠） -->
+    ${d.muscleNote ? `<div style="margin-bottom:12px; font-size:12.5px; color:var(--text); border-bottom:1px dashed var(--border); padding-bottom:8px;">🧠 <strong>筋肉のイメージ・メモ：</strong><br>${d.muscleNote}</div>` : ''}
+    <!-- 個別の筋肉と一言メモ（🎯） -->
+    ${(priTags + secTags) || '<span style="color:var(--muted);font-size:12px">筋肉未選択</span>'}
+  `;
+
+  // 手の内
+  const tenEl = document.getElementById('previewTenouchi');
+  const tenItems = (d.tenouchi||[]).map(t => `
+    <div class="checkpoint-view-item">
+      <div class="checkpoint-icon">${t.icon||'✓'}</div>
+      <div style="color:var(--text)"><strong>ポイント：</strong>${t.text||''}</div>
+    </div>
+  `).join('');
+  tenEl.innerHTML = `
+    <div class="note-section-title">🤚 手の内チェックポイント</div>
+    ${tenItems || '<span style="color:var(--muted);font-size:12px">未記入</span>'}
+    ${d.tenouchiWarning ? `<div style="margin-top:8px;background:rgba(212,168,75,0.08);border-left:3px solid var(--gold);padding:7px 11px;border-radius:0 8px 8px 0;font-size:12px;color:var(--gold-light);">⚠ <strong>注意点：</strong>${d.tenouchiWarning}</div>` : ''}
+  `;
+
+  // ミス
+  const missEl = document.getElementById('previewMiss');
+  const missItems = (d.miss||[]).map(m => `
+    <div class="miss-view-item">
+      <div class="miss-icon-view ${m.type}">${m.type==='warn'?'⚠':'💡'}</div>
+      <div style="color:${m.type==='warn'?'#f0c0c0':'#a0d8b8'}">${m.text||''}</div>
+    </div>
+  `).join('');
+  missEl.innerHTML = `
+    <div class="note-section-title">⚠ やりがちなミス・コツ</div>
+    ${missItems || '<span style="color:var(--muted);font-size:12px">未記入</span>'}
+  `;
+}
+
+// ====================================================
+// 共有・インポート
+// ====================================================
+window.openShare = function() {
+  collectEditorFields();
+  saveUserData();
+  const json = JSON.stringify({ type: 'kyudo_all', version: 2, data: userData });
+  const b64 = btoa(unescape(encodeURIComponent(json)));
+  
+  // 現在のURLからプレビュー用URLを構築
+  const currentUrl = window.location.href;
+  const previewUrl = currentUrl.replace('カスタム.html', 'プレビュー.html');
+  
+  // URLパラメータにBase64データを付与
+  const shareUrl = `${previewUrl}?data=${encodeURIComponent(b64)}`;
+  
+  document.getElementById('shareTextarea').value = shareUrl;
+  document.getElementById('shareModal').classList.remove('hidden');
+};
+
+window.closeShare = function() {
+  document.getElementById('shareModal').classList.add('hidden');
+};
+
+window.copyShare = function() {
+  const ta = document.getElementById('shareTextarea');
+  ta.select();
+  document.execCommand('copy');
+  showToast('📋 クリップボードにコピーしました');
+};
+
+window.importData = function() {
+  document.getElementById('importFileInput').value = '';
+  document.getElementById('importModal').classList.remove('hidden');
+};
+
+window.closeImport = function() {
+  document.getElementById('importModal').classList.add('hidden');
+};
+
+// ファイル選択時にデータを読み込む
+window.onImportFileChange = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+
+      if (parsed.type === 'kyudo_all' && Array.isArray(parsed.data) && parsed.data.length === 8) {
+        if (!confirm('全節のデータをインポートします。現在の全データが上書きされます。よろしいですか？')) return;
+        userData = parsed.data.map(d => ({ ...getDefaultStageData(), ...d }));
+        saveUserData();
+        loadEditorFields();
+        buildMuscleGrid();
+        updateProgress();
+        updateMuscles3D();
+        document.getElementById('importModal').classList.add('hidden');
+        showToast('✅ 全節をインポートしました！');
+        return;
+      }
+
+      if (parsed.type === 'kyudo_stage' && parsed.data && typeof parsed.stageIndex === 'number') {
+        const idx = parsed.stageIndex;
+        if (idx < 0 || idx > 7) throw new Error('invalid index');
+        const stageName = STAGES_BASE[idx].name;
+        if (!confirm(`第${idx+1}節「${stageName}」をインポートします。この節の現在のデータが上書きされます。よろしいですか？`)) return;
+        userData[idx] = { ...getDefaultStageData(), ...parsed.data };
+        saveUserData();
+        if (currentStage === idx) {
+          loadEditorFields();
+          buildMuscleGrid();
+          updateMuscles3D();
+        }
+        updateProgress();
+        document.getElementById('importModal').classList.add('hidden');
+        showToast(`✅ 第${idx+1}節「${stageName}」をインポートしました！`);
+        return;
+      }
+
+      throw new Error('unknown format');
+    } catch(e) {
+      showToast('❌ ファイルの読み込みに失敗しました。正しいJSONファイルか確認してください。');
+    }
+  };
+  reader.readAsText(file);
+};
+
+window.doImport = function() {
+  const input = document.getElementById('importFileInput');
+  if (!input.files || !input.files.length) {
+    showToast('❌ ファイルを選択してください');
+    return;
+  }
+  window.onImportFileChange(input);
+};
+
+// ====================================================
+// トースト
+// ====================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+window.showToast = showToast;
+
+// ====================================================
+// Three.js セットアップ
+// ====================================================
+const container = document.getElementById('viewer');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+camera.position.set(0, 1.0, 4.0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+dirLight.position.set(5, 8, 5);
+scene.add(dirLight);
+const backLight = new THREE.DirectionalLight(0x8fb8d8, 0.6);
+backLight.position.set(-4, 3, -6);
+scene.add(backLight);
+
+let mixer, animationAction;
+const clock = new THREE.Clock();
+const FPS = 24;
+const MAX_FRAME = 80;
+const MAX_TIME = MAX_FRAME / FPS;
+
+// GLBロード
+const manager = new THREE.LoadingManager();
+manager.onProgress = (url, loaded, total) => {
+  const pct = Math.round((loaded/total)*100);
+  document.getElementById('loader-bar').style.width = pct + '%';
+  document.getElementById('loader-text').textContent = pct + '%';
+};
+manager.onLoad = () => {
+  setTimeout(() => {
+    const ls = document.getElementById('loading-screen');
+    ls.style.opacity = '0';
+    setTimeout(() => ls.style.display = 'none', 500);
+  }, 200);
+};
+
+const loader = new GLTFLoader(manager);
+loader.load('弓道基礎１.glb', (gltf) => {
+  const model = gltf.scene;
+  model.rotation.x = Math.PI / 2;
+  scene.add(model);
+  loadedModel = model;
+
+  model.traverse(obj => {
+    if (!obj.isMesh) return;
+    // マテリアルを共有しているメッシュが互いに色を上書きしないよう、
+    // 各メッシュ専用にクローンしてから保存する
+    if (Array.isArray(obj.material)) {
+      obj.material = obj.material.map(mat => {
+        const cloned = mat.clone();
+        originalMaterials.set(cloned.uuid, {
+          color: cloned.color.clone(),
+          transparent: cloned.transparent,
+          opacity: cloned.opacity,
+        });
+        return cloned;
+      });
+    } else {
+      const cloned = obj.material.clone();
+      originalMaterials.set(cloned.uuid, {
+        color: cloned.color.clone(),
+        transparent: cloned.transparent,
+        opacity: cloned.opacity,
+      });
+      obj.material = cloned;
+    }
+  });
+
+  const box   = new THREE.Box3().setFromObject(model);
+  const size  = box.getSize(new THREE.Vector3());
+  const bodyMesh = model.getObjectByName('kyudo_male_base');
+  let bodyCenterX = 0;
+  if (bodyMesh) {
+    const bb = new THREE.Box3().setFromObject(bodyMesh);
+    bodyCenterX = bb.getCenter(new THREE.Vector3()).x;
+  } else {
+    bodyCenterX = box.max.x - size.x * 0.2;
+  }
+  const targetY = box.min.y + size.y * 0.52;
+  controls.target.set(bodyCenterX, targetY, 0);
+  const halfH = size.y / 2.2;
+  const dist  = (halfH / Math.tan((camera.fov * Math.PI / 180) / 2)) * 1.15;
+  camera.position.set(bodyCenterX, targetY, dist);
+  controls.update();
+
+  window._defaultCamPos    = camera.position.clone();
+  window._defaultTargetPos = controls.target.clone();
+
+  // アニメーション
+  mixer = new THREE.AnimationMixer(model);
+  const clip = gltf.animations[0];
+  if (clip) {
+    animationAction = mixer.clipAction(clip);
+    animationAction.setLoop(THREE.LoopOnce, 1);
+    animationAction.clampWhenFinished = true;
+    animationAction.timeScale = 0.25;
+    animationAction.play();
+    document.getElementById('timeline').max = String(Math.min(clip.duration, MAX_TIME));
+  }
+
+  // 初期状態を「足踏み」の静止ポーズにする
+  selectStage(0);
+  updateMuscles3D();
+  updateProgress();
+});
+
+// ====================================================
+// 筋肉色更新
+// ====================================================
+function updateMuscles3D() {
+  if (!loadedModel) return;
+  const data = userData[currentStage];
+  const pri  = new Set(data.primaryMuscles   || []);
+  const sec  = new Set(data.secondaryMuscles || []);
+
+  // ノード名→グループ逆引き
+  const NODE_TO_GROUP = new Map();
+  for (const [group, nodes] of Object.entries(MUSCLE_NODES)) {
+    for (const n of nodes) NODE_TO_GROUP.set(n, group);
+  }
+
+  loadedModel.traverse(obj => {
+    // 素体（人間）のベースモデルは常に表示
+    if (obj.name === 'kyudo_male_base') {
+      obj.visible = true;
+      return;
+    }
+
+    if (!obj.isMesh) return;
+    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+    const group = NODE_TO_GROUP.get(obj.name);
+
+    if (group) {
+      if (pri.has(group)) {
+        obj.visible = true;
+        mats.forEach(mat => {
+          mat.color.copy(COLOR_PRIMARY);
+          mat.transparent = false; mat.opacity = 1;
+          mat.needsUpdate = true;
+        });
+      } else if (sec.has(group)) {
+        obj.visible = true;
+        mats.forEach(mat => {
+          mat.color.copy(COLOR_SECONDARY);
+          mat.transparent = false; mat.opacity = 1;
+          mat.needsUpdate = true;
+        });
+      } else {
+        // メイン・サブどちらにも選択されていない筋肉は非表示にする
+        obj.visible = false;
+      }
+    } else {
+      // 筋肉以外のメッシュ（弓、弦、矢など）は元の色で常に表示
+      obj.visible = true;
+      mats.forEach(mat => {
+        const orig = originalMaterials.get(mat.uuid);
+        if (orig) {
+          mat.color.copy(orig.color);
+          mat.transparent = orig.transparent;
+          mat.opacity = orig.opacity;
+          mat.needsUpdate = true;
+        }
+      });
+    }
+  });
+}
+
+// ====================================================
+// フレームジャンプ
+// ====================================================
+function jumpToStage(idx) {
+  if (!animationAction || !mixer) return;
+  const t = STAGES_BASE[idx].frame / FPS;
+  animationAction.paused = false;
+  animationAction.time   = t;
+  mixer.update(0);
+  animationAction.paused = true;
+  document.getElementById('timeline').value = t;
+  document.getElementById('timeLabel').textContent = t.toFixed(2) + 's';
+  document.getElementById('playBtn').classList.remove('active');
+  document.getElementById('pauseBtn').classList.add('active');
+}
+
+window.jumpToStage = jumpToStage;
+
+// コントロールボタン
+const playBtn  = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const fitBtn   = document.getElementById('fitBtn');
+const timeline = document.getElementById('timeline');
+
+playBtn.addEventListener('click', () => {
+  if (animationAction) { animationAction.timeScale = 0.25; animationAction.paused = false; }
+  playBtn.classList.add('active'); pauseBtn.classList.remove('active');
+});
+pauseBtn.addEventListener('click', () => {
+  if (animationAction) animationAction.paused = true;
+  pauseBtn.classList.add('active'); playBtn.classList.remove('active');
+});
+resetBtn.addEventListener('click', () => {
+  if (animationAction) {
+    animationAction.stop();
+    animationAction.setLoop(THREE.LoopOnce, 1);
+    animationAction.clampWhenFinished = true;
+    animationAction.timeScale = 0.25;
+    animationAction.play();
+    animationAction.paused = false;
+    timeline.value = 0;
+    document.getElementById('timeLabel').textContent = '0.00s';
+    playBtn.classList.add('active'); pauseBtn.classList.remove('active');
+  }
+});
+fitBtn.addEventListener('click', () => {
+  if (window._defaultCamPos) {
+    camera.position.copy(window._defaultCamPos);
+    controls.target.copy(window._defaultTargetPos);
+    controls.update();
+  }
+});
+timeline.addEventListener('input', (e) => {
+  if (animationAction && mixer) {
+    animationAction.paused = false;
+    animationAction.time   = parseFloat(e.target.value);
+    mixer.update(0);
+    animationAction.paused = true;
+    document.getElementById('timeLabel').textContent = animationAction.time.toFixed(2) + 's';
+  }
+});
+
+// ====================================================
+// リサイズ
+// ====================================================
+function resizeRenderer() {
+  const rect = container.getBoundingClientRect();
+  const w = Math.floor(rect.width) || 400;
+  const h = Math.floor(rect.height) || 400;
+  if (w > 0 && h > 0) {
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  }
+}
+window.addEventListener('resize', resizeRenderer);
+setTimeout(resizeRenderer, 100);
+
+// ====================================================
+// レンダリングループ
+// ====================================================
+function animate() {
+  requestAnimationFrame(animate);
+  const delta = clock.getDelta();
+  if (mixer && animationAction && !animationAction.paused) {
+    mixer.update(delta);
+    if (animationAction.time >= MAX_TIME) {
+      animationAction.paused = true;
+      animationAction.time   = MAX_TIME;
+      mixer.update(0);
+      playBtn.classList.remove('active'); pauseBtn.classList.add('active');
+    }
+    const t = Math.min(animationAction.time, MAX_TIME);
+    timeline.value = t;
+    document.getElementById('timeLabel').textContent = t.toFixed(2) + 's';
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// ====================================================
+// 初期化
+// ====================================================
+buildStageNav();
+loadEditorFields();
+buildMuscleGrid();
+updateProgress();
+resizeRenderer();
+
+</script>
+</body>
+</html>

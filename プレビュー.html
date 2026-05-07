@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>リアル八節くん ─ ビューア</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: rgba(15, 23, 42, 0.88);
+      --panel-2: rgba(30, 41, 59, 0.82);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #f1f5f9;
+      --muted: #a9b6cd;
+      --accent: #7dd3fc;
+      --accent-2: #fb7185;
+      --accent-3: #fbbf24;
+      --ok: #34d399;
+      --shadow: 0 10px 30px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: Inter, "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(251, 113, 133, 0.10), transparent 24%),
+        linear-gradient(180deg, #08101d 0%, #0b1220 100%);
+      pointer-events: none; z-index: 0;
+    }
+    b, strong { font-weight: 800; }
+    /* ── ヘッダー ── */
+    .app-header {
+      position: relative; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      flex-shrink: 0; gap: 12px; flex-wrap: wrap;
+    }
+    .app-title {
+      font-weight: 800;
+      font-size: 18px; color: var(--accent); letter-spacing: 0.1em; white-space: nowrap;
+    }
+    .app-title span { font-size: 13px; color: var(--muted); font-family: 'Noto Sans JP', sans-serif; margin-left: 8px; }
+    .viewer-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--accent);
+      background: rgba(125, 211, 252, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 999px; padding: 3px 10px; margin-left: 8px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+      cursor: pointer; border: none; font-family: 'Noto Sans JP', sans-serif;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .btn-gold { background: linear-gradient(135deg, var(--accent), #3b82f6); color: #0b1220; font-weight: 700; }
+    .btn-gold:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn-ghost { background: rgba(255,255,255,0.06); border: 1px solid var(--line); color: var(--text); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.12); }
+
+    /* ── メインレイアウト ── */
+    .main-layout {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 1fr;
+      flex: 1; overflow: hidden;
+    }
+
+    /* ── 左: 3Dビューア ── */
+    .viewer-side {
+      display: flex; flex-direction: column;
+      border-right: 1px solid var(--line); overflow: hidden;
+    }
+    .stage-nav {
+      display: flex; gap: 4px; padding: 8px 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(10,14,22,0.8);
+      overflow-x: auto; flex-shrink: 0;
+    }
+    .stage-nav::-webkit-scrollbar { height: 3px; }
+    .stage-nav::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+    .stage-tab {
+      flex-shrink: 0; padding: 6px 12px; border-radius: 8px;
+      border: 1px solid var(--line); background: transparent;
+      color: var(--muted); font-size: 11px; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .stage-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .stage-tab.active {
+      background: rgba(125, 211, 252, 0.15);
+      border-color: var(--accent); color: var(--accent);
+    }
+    #viewer {
+      position: relative; flex: 1; overflow: hidden;
+      background: radial-gradient(circle at 50% 15%, rgba(125, 211, 252, 0.13), transparent 32%),
+                  linear-gradient(180deg, rgba(18,26,40,0.3), rgba(4,8,16,0.9));
+    }
+    #viewer canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; touch-action: none; }
+    #loading-screen {
+      position: absolute; inset: 0; background: var(--bg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 50; transition: opacity 0.5s;
+    }
+    .loader-title { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 16px; }
+    .loader-bar-wrap { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+    #loader-bar { height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
+    #loader-text { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+    .viewer-controls {
+      padding: 8px 12px; border-top: 1px solid var(--border);
+      background: rgba(10,14,22,0.9); flex-shrink: 0;
+    }
+    .ctrl-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
+    .ctrl-row::-webkit-scrollbar { display: none; }
+    .ctrl-btn {
+      flex-shrink: 0; padding: 6px 11px; border-radius: 7px;
+      border: 1px solid var(--line); background: rgba(255,255,255,0.05);
+      color: var(--text); font-size: 11px; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .ctrl-btn:hover { background: rgba(255,255,255,0.12); border-color: var(--accent); }
+    .ctrl-btn.active { background: rgba(125, 211, 252, 0.2); border-color: var(--accent); color: var(--accent); }
+    .time-label { font-size: 12px; color: var(--muted); margin-left: auto; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .slider-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .slider-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+
+    /* ── 右: ビューアパネル ── */
+    .content-side {
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .content-header {
+      padding: 10px 16px; border-bottom: 1px solid var(--line);
+      background: rgba(10,14,22,0.8); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .content-stage-title {
+      font-weight: 800;
+      font-size: 22px; color: var(--text); letter-spacing: 0.08em;
+    }
+    .content-stage-en { font-size: 12px; color: var(--muted); margin-left: 10px; font-weight: 300; }
+
+    /* コンテンツ本体 */
+    .content-body {
+      flex: 1; overflow-y: auto; padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .content-body::-webkit-scrollbar { width: 5px; }
+    .content-body::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    /* ── ウェルカム画面 ── */
+    .welcome-screen {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 20px; padding: 32px; text-align: center;
+    }
+    .welcome-icon { font-size: 56px; }
+    .welcome-title {
+      font-weight: 800;
+      font-size: 20px; color: var(--accent); letter-spacing: 0.08em;
+    }
+    .welcome-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+    .welcome-file-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      width: 100%; max-width: 360px;
+    }
+    .file-drop-zone {
+      width: 100%; padding: 24px 20px;
+      border: 2px dashed var(--accent);
+      border-radius: 14px;
+      background: rgba(125, 211, 252, 0.04);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .file-drop-zone:hover { background: rgba(125, 211, 252, 0.09); border-color: var(--accent); }
+    .file-drop-zone.drag-over { background: rgba(125, 211, 252, 0.14); border-color: var(--accent); }
+    .file-drop-zone input[type="file"] { display: none; }
+    .file-drop-icon { font-size: 32px; }
+    .file-drop-label { font-size: 13px; color: var(--accent); font-weight: 600; }
+    .file-drop-sub { font-size: 11px; color: var(--muted); }
+
+    /* ── ノート表示 ── */
+    .note-view {
+      background: var(--panel-2); border: 1px solid var(--line);
+      border-radius: 12px; padding: 14px;
+    }
+    .note-section-title {
+      font-size: 11px; font-weight: 700; color: var(--gold);
+      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .note-text { font-size: 12.5px; line-height: 1.7; color: var(--text); }
+    .note-analogy {
+      background: rgba(125, 211, 252, 0.08); border-left: 3px solid var(--accent);
+      padding: 7px 11px; border-radius: 0 8px 8px 0;
+      font-size: 12px; color: var(--accent); margin-top: 6px;
+    }
+    .note-advice {
+      background: rgba(52, 211, 153, 0.08); border-left: 3px solid var(--ok);
+      padding: 7px 11px; border-radius: 0 8px 8px 0;
+      font-size: 12px; color: var(--ok); margin-top: 6px;
+    }
+    .muscle-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 9px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; margin: 3px 2px;
+    }
+    .muscle-tag.primary { background: rgba(251, 113, 133, 0.15); border: 1px solid var(--accent-2); color: var(--accent-2); }
+    .muscle-tag.secondary { background: rgba(251, 191, 36, 0.15); border: 1px solid var(--accent-3); color: var(--accent-3); }
+    .checkpoint-view-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12px; line-height: 1.6; margin-bottom: 6px;
+    }
+    .checkpoint-icon {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(125, 211, 252, 0.12); border: 1px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; margin-top: 1px;
+    }
+    .miss-view-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12px; line-height: 1.6; margin-bottom: 6px;
+    }
+    .miss-icon-view {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; margin-top: 1px;
+    }
+    .miss-icon-view.warn { background: rgba(251, 113, 133, 0.12); border: 1px solid var(--accent-2); }
+    .miss-icon-view.tip  { background: rgba(52, 211, 153, 0.12); border: 1px solid var(--ok); }
+
+    /* ── 進捗バー ── */
+    .progress-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .progress-steps { display: flex; gap: 3px; }
+    .progress-step { width: 20px; height: 4px; border-radius: 2px; background: var(--line); transition: background 0.3s; }
+    .progress-step.done { background: var(--ok); }
+    .progress-step.partial { background: var(--accent-3); }
+    .progress-label { font-size: 11px; color: var(--muted); }
+
+    /* ── ステータス表示 ── */
+    .loaded-info {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; color: var(--muted);
+    }
+    .loaded-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600; color: var(--ok);
+      background: rgba(52, 211, 153, 0.12); border: 1px solid var(--ok);
+      border-radius: 999px; padding: 2px 8px;
+    }
+
+    /* トースト */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--panel); border: 1px solid var(--accent);
+      border-radius: 10px; padding: 10px 20px; font-size: 13px; color: var(--gold-light);
+      box-shadow: var(--shadow); z-index: 2000;
+      transition: transform 0.3s cubic-bezier(0.18,0.89,0.32,1.28); white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── グローバルナビ ── */
+    .global-nav {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 4px; padding: 6px; border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); z-index: 10000; box-shadow: var(--shadow);
+    }
+    .global-nav a {
+      color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 700;
+      padding: 8px 16px; border-radius: 999px; transition: 0.2s; white-space: nowrap;
+    }
+    .global-nav a:hover { color: var(--accent); background: rgba(255,255,255,0.05); }
+    .global-nav a.active { color: var(--bg); background: var(--accent); }
+
+    /* 縦画面 */
+    #orientation-overlay {
+      display: none; position: fixed; inset: 0; background: var(--bg);
+      z-index: 9999; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 24px;
+    }
+    .rotate-svg { width: 64px; height: 64px; color: var(--accent); animation: rotate-anim 2s ease-in-out infinite; margin-bottom: 20px; }
+    @keyframes rotate-anim { 0%{transform:rotate(0)} 70%{transform:rotate(-90deg)} 100%{transform:rotate(-90deg)} }
+    @media (orientation: portrait)  { #orientation-overlay { display: flex; } }
+    @media (orientation: landscape) { #orientation-overlay { display: none; } }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    /* 未記入の節を薄く */
+    .stage-tab.empty { opacity: 0.45; }
+  </style>
+  <style>
+    /* 共有モーダル (カスタム.htmlからコピー) */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      width: min(540px, 100%);
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    .modal h3 {
+      font-weight: 800;
+      color: var(--accent);
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+    .modal p { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+    .share-textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 11px; padding: 10px; height: 60px; resize: none; font-family: 'Courier New', monospace; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+  </style>
+</head>
+<body>
+
+<!-- 縦画面警告 -->
+<div id="orientation-overlay">
+  <svg class="rotate-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
+  </svg>
+  <h2 style="color:var(--accent);margin-bottom:10px;">横画面にしてください</h2>
+  <p style="font-size:13px;color:var(--muted);">このアプリは横向き（ランドスケープ）でご利用ください。</p>
+</div>
+
+<!-- ヘッダー -->
+<header class="app-header">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div class="app-title">
+      リアル八節くん<span>リアハチ・ビューア</span>
+      <span class="viewer-badge">👁 閲覧専用</span>
+    </div>
+    <div class="progress-bar-wrap" id="progressWrap" style="display:none;">
+      <div class="progress-steps" id="progressSteps"></div>
+      <span class="progress-label" id="progressLabel"></span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <span class="loaded-info" id="loadedInfo" style="display:none;"></span>
+    <button class="btn btn-gold" id="favoriteBtn" style="display:none;" onclick="saveToFavorites()">⭐ お気に入りに保存</button>
+    <label class="btn btn-gold" style="cursor:pointer;">
+      📂 ファイルを開く
+      <input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="loadFile(this)">
+      </label>
+    <button class="btn btn-gold" onclick="openUrlModal()">
+      🔗 URLから開く
+    </button>
+  </div>
+</header>
+
+<!-- メニューバー -->
+<nav class="global-nav">
+  <a href="index.html">一般用</a>
+  <a href="中高生.html">中高生用</a>
+  <a href="カスタム.html">３D編集</a>
+  <a href="プレビュー.html" class="active">閲覧用</a>
+  <a href="マイリスト.html">マイリスト</a>
+</nav>
+
+<!-- メインレイアウト -->
+<div class="main-layout">
+
+  <!-- 左: 3Dビューア -->
+  <div class="viewer-side">
+    <div class="stage-nav" id="stageNav"></div>
+    <div id="viewer">
+      <div id="loading-screen">
+        <div class="loader-title">3Dモデル読み込み中...</div>
+        <div class="loader-bar-wrap"><div id="loader-bar"></div></div>
+        <div id="loader-text">0%</div>
+      </div>
+    </div>
+    <div class="viewer-controls">
+      <div class="ctrl-row">
+        <button class="ctrl-btn" id="playBtn">▶ 再生</button>
+        <button class="ctrl-btn active" id="pauseBtn">⏸ 停止</button>
+        <button class="ctrl-btn" id="resetBtn">⏮ 先頭</button>
+        <button class="ctrl-btn" id="fitBtn">🎯 中央</button>
+        <span class="time-label" id="timeLabel">0.00 s</span>
+      </div>
+      <div class="slider-row">
+        <input id="timeline" type="range" min="0" max="7.041667" step="0.041667" value="0.041667" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 右: 閲覧コンテンツ -->
+  <div class="content-side">
+
+    <!-- ウェルカム画面（データ未読込時） -->
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-icon">🏹</div>
+      <div class="welcome-title">弓道マイノート ビューア</div>
+      <div class="welcome-desc">
+        カスタムエディタで保存した<br>
+        <strong>全節ファイル</strong>または<strong>単節ファイル</strong>（.json）を読み込んでください。
+      </div>
+      <div class="welcome-file-wrap">
+        <label class="file-drop-zone" id="dropZone">
+          <input type="file" id="dropFileInput" accept=".json,application/json" onchange="loadFile(this)">
+          <div class="file-drop-icon">📂</div>
+          <div class="file-drop-label">クリックしてファイルを選択</div>
+          <div class="file-drop-sub">弓道ノート_全節.json または 弓道ノート_第○節_○○.json</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- ノート表示エリア（データ読込後） -->
+    <div id="noteArea" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="content-header">
+        <div>
+          <span class="content-stage-title" id="stageName">─</span>
+          <span class="content-stage-en" id="stageEn"></span>
+        </div>
+        <div id="stageStatus"></div>
+      </div>
+      <div class="content-body" id="contentBody"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- URL入力モーダル -->
+<div class="modal-overlay hidden" id="urlModal">
+  <div class="modal">
+    <h3>🔗 URLからノートを読み込む</h3>
+    <p>カスタムエディタで発行された共有URLをここに貼り付けてください。<br>
+       例: <code>https://example.com/プレビュー.html?data=...</code></p>
+    <textarea class="share-textarea" id="urlInput" placeholder="共有URLを貼り付けてください" rows="3"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeUrlModal()">キャンセル</button>
+      <button class="btn btn-gold" onclick="loadFromUrl()">読み込む</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="toast">読み込みました</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ====================================================
+// 定数
+// ====================================================
+/**
+ * 各節のデフォルトデータ構造を返す関数。
+ * 読み込みデータに不足がある場合に補完するために使用。
+ */
+function defaultStage() {
+  return {
+    desc: '', analogy: '', advice: '', muscleNote: '',
+    memo: '',
+    tenouchiWarning: '',
+    tenouchi: [],
+    miss: [],
+    primaryMuscles: [],
+    secondaryMuscles: [],
+    muscleMemos: {},
+  };
+}
+
+const STAGES_BASE = [
+  { name:"足踏み",    en:"Ashibumi",   frame:1  },
+  { name:"胴作り",    en:"Dozukuri",   frame:10 },
+  { name:"弓構え",    en:"Yugamae",    frame:20 },
+  { name:"打ち起こし",en:"Uchiokoshi", frame:30 },
+  { name:"引き分け",  en:"Hikiwake",   frame:40 },
+  { name:"会",        en:"Kai",        frame:50 },
+  { name:"離れ",      en:"Hanare",     frame:60 },
+  { name:"残心",      en:"Zanshin",    frame:70 },
+];
+
+const MUSCLE_NODES = {
+  大腿四頭筋:      ['筋_大腿四頭筋_L','筋_大腿四頭筋_R'],
+  ハムストリングス:['筋_ハムストリングス_L','筋_ハムストリングス_R'],
+  大殿筋:          ['筋_大殿筋_L','筋_大殿筋_R'],
+  内転筋:          ['筋_内転筋_L','筋_内転筋_R'],
+  腸腰筋:          ['筋_腸腰筋_L','筋_腸腰筋_R'],
+  脊柱起立筋:      ['筋_脊柱起立筋'],
+  腹横筋:          ['筋_腹横筋'],
+  腹直筋:          ['筋_腹直筋'],
+  外腹斜筋:        ['筋_外腹斜筋_L','筋_外腹斜筋_R'],
+  多裂筋:          ['筋_多裂筋'],
+  僧帽筋上部:      ['筋_僧帽筋_上部'],
+  僧帽筋中下部:    ['筋_僧帽筋_中下部'],
+  菱形筋:          ['筋_菱形筋'],
+  広背筋:          ['筋_広背筋_L','筋_広背筋_R'],
+  大胸筋:          ['筋_大胸筋_L','筋_大胸筋_R'],
+  前鋸筋:          ['筋_前鋸筋_L','筋_前鋸筋_R'],
+  三角筋:          ['筋_三角筋_L','筋_三角筋_R'],
+  大円筋:          ['筋_大円筋_L','筋_大円筋_R'],
+  小円筋:          ['筋_小円筋_L','筋_小円筋_R'],
+  棘上筋:          ['筋_棘上筋_L','筋_棘上筋_R'],
+  棘下筋:          ['筋_棘下筋_L','筋_棘下筋_R'],
+  肩甲下筋:        ['筋_肩甲下筋_L','筋_肩甲下筋_R'],
+  上腕三頭筋:      ['筋_上腕三頭筋_L','筋_上腕三頭筋_R'],
+  上腕二頭筋:      ['筋_上腕二頭筋_L','筋_上腕二頭筋_R'],
+  腕橈骨筋:        ['筋_腕橈骨筋_L','筋_腕橈骨筋_R'],
+  胸鎖乳突筋:      ['筋_胸鎖乳突筋_L','筋_胸鎖乳突筋_R'],
+};
+
+const NODE_TO_GROUP = new Map();
+for (const [group, nodes] of Object.entries(MUSCLE_NODES)) {
+  for (const n of nodes) NODE_TO_GROUP.set(n, group);
+}
+
+  const COLOR_PRIMARY   = new THREE.Color(0xfb7185);
+  const COLOR_SECONDARY = new THREE.Color(0xfbbf24);
+
+const FPS = 24;
+const MAX_FRAME = 80;
+const MAX_TIME  = MAX_FRAME / FPS;
+
+let currentStage = 0;
+let loadedModel  = null;
+let userData     = null;
+const originalMaterials = new Map();
+let mixer, animationAction;
+
+// ====================================================
+// 3Dモデル読み込み管理 (Loaderより先に定義)
+// ====================================================
+/**
+ * Three.js のローディングマネージャー。
+ * 3Dモデルの読み込み進捗をUIに反映するために使用。
+ */
+const manager = new THREE.LoadingManager();
+manager.onProgress = (url, loaded, total) => {
+  const pct = Math.round((loaded/total)*100);
+  document.getElementById('loader-bar').style.width = pct + '%';
+  document.getElementById('loader-text').textContent = pct + '%';
+};
+manager.onLoad = () => {
+  setTimeout(() => {
+    const ls = document.getElementById('loading-screen');
+    if(ls) {
+      ls.style.opacity = '0';
+      setTimeout(() => ls.style.display = 'none', 500);
+    }
+  }, 200);
+};
+
+// ====================================================
+// ファイル読み込み
+// ====================================================
+/**
+ * URLパラメータから共有データを読み込む関数。
+ * `?data=...` パラメータを解析し、`userData` を更新する。
+ * `&stage=N` パラメータがあれば、その節を初期表示する。
+ */
+function checkUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const sharedData = params.get('data');
+  if (sharedData) {
+    try {
+      const json = decodeURIComponent(escape(atob(sharedData)));
+      const parsed = JSON.parse(json);
+      if (parsed.type === 'kyudo_all' && Array.isArray(parsed.data)) {
+        userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
+        onDataLoaded('共有リンクから読み込みました');
+        // URLに stage パラメータがあれば、その節に移動
+        const stageParam = params.get('stage');
+        if (stageParam !== null) {
+          currentStage = parseInt(stageParam, 10) || 0; // 無効な値なら0
+        }
+      }
+    } catch (e) {
+      console.error('URLデータの解析に失敗しました', e);
+    }
+  }
+}
+
+window.loadFile = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+
+      if (parsed.type === 'kyudo_all' && Array.isArray(parsed.data) && parsed.data.length === 8) {
+        userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
+        onDataLoaded(`全節 — ${file.name}`);
+        return;
+      }
+
+      if (parsed.type === 'kyudo_stage' && parsed.data && typeof parsed.stageIndex === 'number') {
+        // 単節：その節だけ埋めて残りはデフォルト
+        const base = Array.from({ length: 8 }, () => defaultStage());
+        base[parsed.stageIndex] = { ...defaultStage(), ...parsed.data };
+        userData = base;
+        onDataLoaded(`第${parsed.stageIndex+1}節「${parsed.stageName}」— ${file.name}`);
+        currentStage = parsed.stageIndex;
+        return;
+      }
+
+      throw new Error('unknown format');
+    } catch(e) {
+      showToast('❌ ファイルの読み込みに失敗しました');
+    }
+  };
+  reader.readAsText(file);
+};
+
+function onDataLoaded(label) {
+  // ウェルカム → ノートエリアへ切替
+  document.getElementById('welcomeScreen').style.display = 'none';
+  const noteArea = document.getElementById('noteArea');
+  noteArea.style.display = 'flex';
+
+  // ヘッダー情報
+  document.getElementById('loadedInfo').style.display = 'flex';
+  document.getElementById('loadedInfo').innerHTML =
+    `<span class="loaded-badge">✓ 読み込み済み</span><span style="font-size:11px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label}</span>`;
+
+  // 進捗表示
+  document.getElementById('progressWrap').style.display = 'flex';
+  document.getElementById('favoriteBtn').style.display = 'inline-flex';
+  buildProgress();
+
+  // ステージタブ構築
+  buildStageNav();
+  selectStage(currentStage);
+
+  showToast('✅ 読み込みました');
+}
+
+// ====================================================
+// ステージタブ
+// ====================================================
+function buildStageNav() {
+  const nav = document.getElementById('stageNav');
+  nav.innerHTML = '';
+  STAGES_BASE.forEach((s, i) => {
+    const btn = document.createElement('button');
+    const hasData = userData && hasContent(userData[i]);
+    btn.className = 'stage-tab' + (i === currentStage ? ' active' : '') + (hasData ? '' : ' empty');
+    btn.textContent = `第${i+1}節 ${s.name}`;
+    btn.onclick = () => selectStage(i);
+    nav.appendChild(btn);
+  });
+}
+
+function hasContent(d) {
+  if (!d) return false;
+  return !!(d.desc || (d.primaryMuscles && d.primaryMuscles.length) ||
+            (d.secondaryMuscles && d.secondaryMuscles.length) ||
+            (d.tenouchi && d.tenouchi.length) || (d.miss && d.miss.length));
+}
+
+function selectStage(idx) {
+  currentStage = idx;
+  document.querySelectorAll('.stage-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.getElementById('stageName').textContent = STAGES_BASE[idx].name;
+  document.getElementById('stageEn').textContent   = STAGES_BASE[idx].en;
+
+  // 記入状況バッジ
+  const d = userData ? userData[idx] : null;
+  const isComplete = d && d.desc && ((d.primaryMuscles||[]).length > 0 || (d.secondaryMuscles||[]).length > 0);
+  document.getElementById('stageStatus').innerHTML = isComplete
+    ? '<span style="font-size:11px;color:var(--green-soft);background:rgba(58,144,96,0.12);border:1px solid rgba(58,144,96,0.3);border-radius:999px;padding:2px 8px;">✓ 記入済み</span>'
+    : '';
+
+  renderContent(idx);
+  jumpToStage(idx);
+  updateMuscles3D();
+}
+
+// ====================================================
+// お気に入り保存
+// ====================================================
+window.saveToFavorites = function() {
+  if (!userData) return;
+  const favName = prompt("お気に入りの名前を入力してください", `ノート_${new Date().toLocaleDateString()}`);
+  if (!favName) return;
+
+  const favorites = JSON.parse(localStorage.getItem('kyudo_favorites') || '[]');
+  favorites.push({
+    id: Date.now(),
+    name: favName,
+    data: userData
+  });
+  localStorage.setItem('kyudo_favorites', JSON.stringify(favorites));
+  showToast('⭐ お気に入りに保存しました');
+};
+
+// ====================================================
+// コンテンツ描画（読み取り専用）
+// ====================================================
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderContent(idx) {
+  const body = document.getElementById('contentBody');
+  const d = userData ? userData[idx] : null;
+
+  if (!d || !hasContent(d)) {
+    body.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;padding:40px;text-align:center;opacity:0.5;">
+        <div style="font-size:36px;">📄</div>
+        <div style="font-size:13px;color:var(--muted);">この節はまだ記入されていません</div>
+      </div>`;
+    return;
+  }
+
+  // --- 説明・やること ---
+  const descBlock = (d.desc || d.analogy || d.advice || d.memo) ? `
+    <div class="note-view">
+      <div class="note-section-title">📋 説明・やること</div>
+      ${d.desc ? `<div class="note-text">${d.desc}</div>` : ''}
+      ${d.analogy ? `<div class="note-analogy" style="margin-top:6px;">🎭 <strong>たとえ：</strong>${d.analogy}</div>` : ''}
+      ${d.advice  ? `<div class="note-advice">💡 <strong>アドバイス・コツ：</strong>${d.advice}</div>` : ''}
+      ${d.memo ? `<div style="margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.02);">
+        <div class="note-section-title">📝 自由メモ</div>
+        <div class="note-text">${d.memo}</div>
+      </div>` : ''}
+    </div>` : '';
+
+  // --- 筋肉 ---
+  const priTags = (d.primaryMuscles||[]).map(m => {
+    const memo = d.muscleMemos && d.muscleMemos[m] ? d.muscleMemos[m].trim() : '';
+    return `<div style="margin-bottom:8px;">
+      <span class="muscle-tag primary">🔴 ${m}</span>
+      ${memo ? `<div style="font-size:11.5px;color:var(--gold-light);margin-left:14px;padding-left:10px;border-left:1.5px solid var(--red-soft);margin-top:2px;line-height:1.4;">🎯 一言：${esc(memo)}</div>` : ''}
+    </div>`;
+  }).join('');
+  const secTags = (d.secondaryMuscles||[]).map(m => {
+    const memo = d.muscleMemos && d.muscleMemos[m] ? d.muscleMemos[m].trim() : '';
+    return `<div style="margin-bottom:8px;">
+      <span class="muscle-tag secondary">🟡 ${m}</span>
+      ${memo ? `<div style="font-size:11.5px;color:var(--gold-light);margin-left:14px;padding-left:10px;border-left:1.5px solid var(--gold);margin-top:2px;line-height:1.4;">🎯 一言：${esc(memo)}</div>` : ''}
+    </div>`;
+  }).join('');
+  const muscleBlock = (d.primaryMuscles||[]).length || (d.secondaryMuscles||[]).length || d.muscleNote ? `
+    <div class="note-view">
+      <div class="note-section-title">💪 使っている筋肉</div>
+      ${d.muscleNote ? `<div style="margin-bottom:12px;font-size:12.5px;color:var(--text);border-bottom:1px dashed var(--border);padding-bottom:8px;">🧠 <strong>筋肉のイメージ・メモ：</strong><br>${d.muscleNote}</div>` : ''}
+      ${(priTags + secTags) || '<span style="color:var(--muted);font-size:12px">筋肉未選択</span>'}
+    </div>` : '';
+
+  // --- 手の内 ---
+  const tenItems = (d.tenouchi||[]).map(t => `
+    <div class="checkpoint-view-item">
+      <div class="checkpoint-icon">${t.icon||'✓'}</div>
+      <div style="color:var(--text)"><strong>ポイント：</strong>${t.text||''}</div>
+    </div>`).join('');
+  const tenouchiBlock = (d.tenouchi||[]).length || d.tenouchiWarning ? `
+    <div class="note-view">
+      <div class="note-section-title">🤚 手の内チェックポイント</div>
+      ${tenItems || '<span style="color:var(--muted);font-size:12px">未記入</span>'}
+      ${d.tenouchiWarning ? `<div style="margin-top:8px;background:rgba(212,168,75,0.08);border-left:3px solid var(--gold);padding:7px 11px;border-radius:0 8px 8px 0;font-size:12px;color:var(--gold-light);">⚠ <strong>注意点：</strong>${d.tenouchiWarning}</div>` : ''}
+    </div>` : '';
+
+  // --- ミス・コツ ---
+  const missItems = (d.miss||[]).map(m => `
+    <div class="miss-view-item">
+      <div class="miss-icon-view ${m.type}">${m.type==='warn'?'⚠':'💡'}</div>
+      <div style="color:${m.type==='warn'?'#f0c0c0':'#a0d8b8'}">${m.text||''}</div>
+    </div>`).join('');
+  const missBlock = (d.miss||[]).length ? `
+    <div class="note-view">
+      <div class="note-section-title">⚠ やりがちなミス・コツ</div>
+      ${missItems}
+    </div>` : '';
+
+  body.innerHTML = descBlock + muscleBlock + tenouchiBlock + missBlock;
+}
+
+// ====================================================
+// 進捗
+// ====================================================
+function buildProgress() {
+  if (!userData) return;
+  const steps = document.getElementById('progressSteps');
+  const label = document.getElementById('progressLabel');
+  let done = 0;
+  steps.innerHTML = '';
+  userData.forEach((d, i) => {
+    const complete = d.desc && ((d.primaryMuscles||[]).length > 0 || (d.secondaryMuscles||[]).length > 0);
+    const partial  = hasContent(d);
+    if (complete) done++;
+    const step = document.createElement('div');
+    step.className = 'progress-step ' + (complete ? 'done' : partial ? 'partial' : '');
+    step.title = STAGES_BASE[i].name;
+    steps.appendChild(step);
+  });
+  label.textContent = `${done}/8 節`;
+}
+
+// ====================================================
+// トースト
+// ====================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ====================================================
+// URLから読み込み
+// ====================================================
+window.openUrlModal = function() {
+  document.getElementById('urlInput').value = '';
+  document.getElementById('urlModal').classList.remove('hidden');
+};
+
+window.closeUrlModal = function() {
+  document.getElementById('urlModal').classList.add('hidden');
+};
+
+window.loadFromUrl = function() {
+  const urlString = document.getElementById('urlInput').value.trim();
+  if (!urlString) {
+    showToast('❌ URLを入力してください');
+    return;
+  }
+
+  try {
+    const url = new URL(urlString);
+    const sharedData = url.searchParams.get('data');
+    if (!sharedData) {
+      throw new Error('URLにデータパラメータが見つかりません。');
+    }
+    const json = decodeURIComponent(escape(atob(sharedData)));
+    const parsed = JSON.parse(json);
+    if (parsed.type === 'kyudo_all') {
+      userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
+      onDataLoaded('URLから読み込みました');
+      closeUrlModal();
+    } else {
+      throw new Error('サポートされていないデータ形式です。');
+    }
+  } catch (e) {
+    console.error('URLからの読み込みに失敗しました:', e);
+    showToast(`❌ URLからの読み込みに失敗しました: ${e.message || '不正なURLまたはデータ形式です'}`);
+  }
+};
+
+// マイリストからの読み込み用
+function checkLocalId() {
+  const params = new URLSearchParams(window.location.search);
+  const localId = params.get('localId');
+  if (!localId) return;
+  try {
+    const favorites = JSON.parse(localStorage.getItem('kyudo_favorites') || '[]');
+    const fav = favorites.find(f => f.id == localId);
+    if (fav) {
+      userData = fav.data.map(d => ({ ...defaultStage(), ...d }));
+      onDataLoaded('マイリストから読み込みました');
+    } else {
+      throw new Error('お気に入りが見つかりませんでした。');
+    }
+  } catch (e) {
+    console.error('マイリストからの読み込みに失敗しました:', e);
+    showToast(`❌ マイリストからの読み込みに失敗しました: ${e.message || '不正なデータです'}`);
+  }
+}
+window.showToast = showToast;
+
+// ====================================================
+// Three.js
+// ====================================================
+const container = document.getElementById('viewer');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+camera.position.set(0, 1.0, 4.0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+dirLight.position.set(5, 8, 5);
+scene.add(dirLight);
+const backLight = new THREE.DirectionalLight(0x8fb8d8, 0.6);
+backLight.position.set(-4, 3, -6);
+scene.add(backLight);
+
+const clock = new THREE.Clock();
+const loader = new GLTFLoader(manager);
+loader.load('弓道基礎１.glb', (gltf) => {
+  const model = gltf.scene;
+  model.rotation.x = Math.PI / 2;
+  scene.add(model);
+  loadedModel = model;
+
+  model.traverse(obj => {
+    if (!obj.isMesh) return;
+    if (Array.isArray(obj.material)) {
+      obj.material = obj.material.map(mat => {
+        const cloned = mat.clone();
+        originalMaterials.set(cloned.uuid, { color: cloned.color.clone(), transparent: cloned.transparent, opacity: cloned.opacity });
+        return cloned;
+      });
+    } else {
+      const cloned = obj.material.clone();
+      originalMaterials.set(cloned.uuid, { color: cloned.color.clone(), transparent: cloned.transparent, opacity: cloned.opacity });
+      obj.material = cloned;
+    }
+  });
+
+  const box  = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const bodyMesh = model.getObjectByName('kyudo_male_base');
+  let bodyCenterX = bodyMesh
+    ? new THREE.Box3().setFromObject(bodyMesh).getCenter(new THREE.Vector3()).x
+    : box.max.x - size.x * 0.2;
+  const targetY = box.min.y + size.y * 0.52;
+  controls.target.set(bodyCenterX, targetY, 0);
+  const halfH = size.y / 2.2;
+  const dist  = (halfH / Math.tan((camera.fov * Math.PI / 180) / 2)) * 1.15;
+  camera.position.set(bodyCenterX, targetY, dist);
+  controls.update();
+  window._defaultCamPos    = camera.position.clone();
+  window._defaultTargetPos = controls.target.clone();
+
+  mixer = new THREE.AnimationMixer(model);
+  const clip = gltf.animations[0];
+  if (clip) {
+    animationAction = mixer.clipAction(clip);
+    animationAction.setLoop(THREE.LoopOnce, 1);
+    animationAction.clampWhenFinished = true;
+    animationAction.timeScale = 0.25;
+    animationAction.play();
+    document.getElementById('timeline').max = String(Math.min(clip.duration, MAX_TIME));
+  }
+
+  jumpToStage(0);
+  updateMuscles3D();
+});
+
+// ====================================================
+// 筋肉色更新
+// ====================================================
+function updateMuscles3D() {
+  if (!loadedModel) return;
+  const d   = userData ? userData[currentStage] : null;
+  const pri = new Set(d ? (d.primaryMuscles   || []) : []);
+  const sec = new Set(d ? (d.secondaryMuscles || []) : []);
+
+  loadedModel.traverse(obj => {
+    if (obj.name === 'kyudo_male_base') { obj.visible = true; return; }
+    if (!obj.isMesh) return;
+    const mats  = Array.isArray(obj.material) ? obj.material : [obj.material];
+    const group = NODE_TO_GROUP.get(obj.name);
+
+    if (group) {
+      if (pri.has(group)) {
+        obj.visible = true;
+        mats.forEach(mat => { mat.color.copy(COLOR_PRIMARY); mat.transparent = false; mat.opacity = 1; mat.needsUpdate = true; });
+      } else if (sec.has(group)) {
+        obj.visible = true;
+        mats.forEach(mat => { mat.color.copy(COLOR_SECONDARY); mat.transparent = false; mat.opacity = 1; mat.needsUpdate = true; });
+      } else {
+        obj.visible = false;
+      }
+    } else {
+      obj.visible = true;
+      mats.forEach(mat => {
+        const orig = originalMaterials.get(mat.uuid);
+        if (orig) { mat.color.copy(orig.color); mat.transparent = orig.transparent; mat.opacity = orig.opacity; mat.needsUpdate = true; }
+      });
+    }
+  });
+}
+
+// ====================================================
+// フレームジャンプ
+// ====================================================
+function jumpToStage(idx) {
+  if (!animationAction || !mixer) return;
+  const t = STAGES_BASE[idx].frame / FPS;
+  animationAction.paused = false;
+  animationAction.time   = t;
+  mixer.update(0);
+  animationAction.paused = true;
+  document.getElementById('timeline').value = t;
+  document.getElementById('timeLabel').textContent = t.toFixed(2) + 's';
+  document.getElementById('playBtn').classList.remove('active');
+  document.getElementById('pauseBtn').classList.add('active');
+}
+
+// コントロールボタン
+const playBtn  = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const fitBtn   = document.getElementById('fitBtn');
+const timeline = document.getElementById('timeline');
+
+playBtn.addEventListener('click', () => {
+  if (animationAction) { animationAction.timeScale = 0.25; animationAction.paused = false; }
+  playBtn.classList.add('active'); pauseBtn.classList.remove('active');
+});
+pauseBtn.addEventListener('click', () => {
+  if (animationAction) animationAction.paused = true;
+  pauseBtn.classList.add('active'); playBtn.classList.remove('active');
+});
+resetBtn.addEventListener('click', () => {
+  if (animationAction) {
+    animationAction.stop();
+    animationAction.setLoop(THREE.LoopOnce, 1);
+    animationAction.clampWhenFinished = true;
+    animationAction.timeScale = 0.25;
+    animationAction.play();
+    animationAction.paused = false;
+    timeline.value = 0;
+    document.getElementById('timeLabel').textContent = '0.00s';
+    playBtn.classList.add('active'); pauseBtn.classList.remove('active');
+  }
+});
+fitBtn.addEventListener('click', () => {
+  if (window._defaultCamPos) {
+    camera.position.copy(window._defaultCamPos);
+    controls.target.copy(window._defaultTargetPos);
+    controls.update();
+  }
+});
+timeline.addEventListener('input', (e) => {
+  if (animationAction && mixer) {
+    animationAction.paused = false;
+    animationAction.time   = parseFloat(e.target.value);
+    mixer.update(0);
+    animationAction.paused = true;
+    document.getElementById('timeLabel').textContent = animationAction.time.toFixed(2) + 's';
+  }
+});
+
+// ====================================================
+// リサイズ・レンダリングループ
+// ====================================================
+function resizeRenderer() {
+  const rect = container.getBoundingClientRect();
+  const w = Math.floor(rect.width) || 400;
+  const h = Math.floor(rect.height) || 400;
+  if (w > 0 && h > 0) {
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  }
+}
+window.addEventListener('resize', resizeRenderer);
+setTimeout(resizeRenderer, 100);
+
+function animate() {
+  requestAnimationFrame(animate);
+  const delta = clock.getDelta();
+  if (mixer && animationAction && !animationAction.paused) {
+    mixer.update(delta);
+    if (animationAction.time >= MAX_TIME) {
+      animationAction.paused = true;
+      animationAction.time   = MAX_TIME;
+      mixer.update(0);
+      playBtn.classList.remove('active'); pauseBtn.classList.add('active');
+    }
+    const t = Math.min(animationAction.time, MAX_TIME);
+    timeline.value = t;
+    document.getElementById('timeLabel').textContent = t.toFixed(2) + 's';
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// ====================================================
+// ドラッグ&ドロップ
+// ====================================================
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const fakeInput = { files: [file] };
+  window.loadFile(fakeInput);
+});
+
+// 初期タブ構築（データなし状態）
+const stageNav = document.getElementById('stageNav');
+STAGES_BASE.forEach((s, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'stage-tab empty' + (i === 0 ? ' active' : '');
+  btn.textContent = `第${i+1}節 ${s.name}`;
+  btn.onclick = () => { if (userData) selectStage(i); };
+  stageNav.appendChild(btn);
+});
+
+// ページ読み込み時にURLパラメータをチェックし、データを読み込む
+// type="module" のスクリプトはデフォルトで defer されるため、
+// DOMContentLoaded イベントを待たずに直接実行して問題ない。
+// ただし、3Dモデルのロード完了後に selectStage が呼ばれるように調整。
+window.addEventListener('DOMContentLoaded', () => {
+  checkUrlParams(); // 3Dモデルロード前にURLデータがあれば読み込み開始
+  checkLocalId();   // マイリストからの読み込みをチェック
+});
+
+</script>
+</body>
+</html>

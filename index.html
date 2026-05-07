@@ -881,6 +881,19 @@
       border-radius: 20px;
       font-size: 12px;
     }
+
+    .global-nav {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 4px; padding: 6px; border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); z-index: 10000; box-shadow: var(--shadow);
+    }
+    .global-nav a {
+      color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 700;
+      padding: 8px 16px; border-radius: 999px; transition: 0.2s; white-space: nowrap;
+    }
+    .global-nav a:hover { color: var(--accent); background: rgba(255,255,255,0.05); }
+    .global-nav a.active { color: var(--bg); background: var(--accent); }
   </style>
 </head>
 <body>
@@ -893,6 +906,15 @@
       ここに説明文が入ります。
     </div>
   </div>
+
+  <!-- メニューバー -->
+  <nav class="global-nav">
+    <a href="index.html" class="active">一般用</a>
+    <a href="中高生.html">中高生用</a>
+    <a href="カスタム.html">３D編集</a>
+    <a href="プレビュー.html">閲覧用</a>
+    <a href="マイリスト.html">マイリスト</a>
+  </nav>
 
   <!-- 筋肉詳細ポップアップ -->
   <div id="muscle-popup">
@@ -925,26 +947,7 @@
     <!-- 左パネル: 3Dビューア -->
     <section class="panel viewer-panel">
       <div class="header">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-          <div class="eyebrow">3D / 筋肉（きんにく）色分けビューア</div>
-          <a href="中高生.html" id="switchVersionBtn" style="
-            display:inline-flex; align-items:center; gap:8px;
-            padding:9px 16px; border-radius:12px;
-            background:linear-gradient(135deg, rgba(125,211,252,0.28), rgba(125,211,252,0.16));
-            border:1.5px solid rgba(52,211,153,0.55);
-            color:#34d399; font-size:13px; font-weight:800;
-            text-decoration:none; letter-spacing:.03em;
-            transition:.18s ease;
-            white-space:nowrap;
-            box-shadow: 0 0 12px rgba(52,211,153,0.18);
-          " onmouseover="this.style.background='linear-gradient(135deg,rgba(52,211,153,0.42),rgba(52,211,153,0.28))'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.35)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(52,211,153,0.28),rgba(52,211,153,0.16))'; this.style.boxShadow='0 0 12px rgba(52,211,153,0.18)'">
-            <span style="font-size:16px;">📚</span>
-            <span style="display:flex; flex-direction:column; line-height:1.2;">
-              <span style="font-size:10px; opacity:0.75; font-weight:600; letter-spacing:.06em; text-transform:uppercase;">Switch</span>
-              <span>中高生版へ →</span>
-            </span>
-          </a>
-        </div>
+        <div class="eyebrow">3D / 筋肉（きんにく）色分けビューア</div>
         <h1>弓道・射法八節3D解説</h1>
         <p class="sub">右の節ボタンをタップするとその時に使う筋肉とポーズに移動できます。筋肉名をクリックすると詳細とその部位だけの表示が出来ます</p>
       </div>
@@ -2109,12 +2112,6 @@
         target: "tenouchiSection",
         pos: "top",
         arrow: "⤵"
-      },
-      {
-        text: "最後に、より分かりやすい言葉で解説している『中高生版』もあるよ！ここから切り替えられるから見てみてね。",
-        target: "switchVersionBtn",
-        pos: "bottom",
-        arrow: "⤴"
       },
       {
         text: "説明はこれでおしまい！自分のペースで楽しく学んでいこう！",
