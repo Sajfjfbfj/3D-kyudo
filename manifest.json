@@ -1,6 +1,6 @@
 {
-  "name": "弓道 射法八節 3D解説",
-  "short_name": "弓道3D",
+  "name": "リアル八節くん",
+  "short_name": "リアハチ",
   "description": "弓道・射法八節の動作と筋肉を3Dで解説する教材アプリ",
   "start_url": "./index.html",
   "display": "standalone",
