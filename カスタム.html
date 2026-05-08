@@ -851,6 +851,92 @@
       .editor-body { padding: 10px 12px; }
     }
     /* ファイル選択ドロップゾーン（プレビュー流用なしのためカスタムには不要） */
+
+    /* ── フォーカスモード（キーボード表示中）── */
+    .main-layout { transition: grid-template-columns 0.22s ease; }
+    .viewer-side { transition: opacity 0.18s, min-width 0.22s; }
+
+    .keyboard-active .main-layout {
+      grid-template-columns: 0fr 1fr;
+    }
+    .keyboard-active .viewer-side {
+      min-width: 0;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* フォーカス中の欄をハイライト */
+    .field-row.is-focused {
+      background: rgba(125, 211, 252, 0.04);
+      border-radius: 10px;
+      outline: 1px solid rgba(125, 211, 252, 0.25);
+      outline-offset: 2px;
+    }
+
+    /* ツールバー折りたたみ: デフォルトは非表示 */
+    .toolbar {
+      display: none !important;
+    }
+    /* フォーカス中の欄のtoolbarだけ表示 + sticky */
+    .field-row.is-focused .toolbar {
+      display: flex !important;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      backdrop-filter: blur(14px);
+      background: rgba(8,12,22,0.97);
+      border-color: rgba(125,211,252,0.4);
+      box-shadow: 0 3px 16px rgba(0,0,0,0.55);
+    }
+    /* キーボード出てないときは全ツールバー表示に戻す */
+    body:not(.keyboard-active) .toolbar {
+      display: flex !important;
+      position: static;
+    }
+
+    /* 編集中の欄名バッジ */
+    #focusFieldLabel {
+      display: none;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(125,211,252,0.12);
+      border: 1px solid rgba(125,211,252,0.3);
+      border-radius: 999px;
+      padding: 3px 10px;
+      margin-left: 8px;
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    .keyboard-active #focusFieldLabel { display: inline-block; }
+
+    /* フォーカス解除ボタン */
+    #focusExitBtn {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 5000;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 11px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      transition: box-shadow 0.2s, transform 0.15s;
+      letter-spacing: 0.04em;
+    }
+    #focusExitBtn:active { transform: scale(0.94); }
+    .keyboard-active #focusExitBtn { display: flex; align-items: center; gap: 6px; }
   </style>
 </head>
 <body>
@@ -864,6 +950,9 @@
   <p class="sub">この教材は横画面で見やすいように設計されています。</p>
   <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※画面の向きが変わらない場合は、スマホの「縦向きロック」をオフにしてください。</p>
 </div>
+
+<!-- フォーカス解除ボタン（キーボード表示中のみ表示） -->
+<button id="focusExitBtn" onclick="exitFocusMode()" title="入力を終了してビューアに戻る">✕ 閉じる</button>
 
 <!-- ヘッダー -->
 <header class="app-header">
@@ -931,6 +1020,7 @@
         <span class="editor-stage-title" id="editorStageName">足踏み</span>
         <span class="editor-stage-en" id="editorStageEn">Ashibumi</span>
         <span class="stage-done-badge" id="doneBadge" style="display:none;">✓ 記入済み</span>
+        <span id="focusFieldLabel">📝 —</span>
       </div>
     </div>
     <div class="editor-tabs">
@@ -2053,6 +2143,154 @@ resizeRenderer();
   function _closeMenu() { _menuToggle.classList.remove('open'); _sideNav.classList.remove('open'); _overlayMenu.classList.remove('show'); }
   _menuToggle.addEventListener('click', function() { _sideNav.classList.contains('open') ? _closeMenu() : _openMenu(); });
   _overlayMenu.addEventListener('click', _closeMenu);
+</script>
+
+<script>
+// ====================================================
+// キーボードフォーカスモード v2
+// タップ→全画面、ツールバーはフォーカス欄のみ表示、欄名バッジ更新
+// ====================================================
+(function() {
+  var body = document.body;
+  var focusFieldLabel = document.getElementById('focusFieldLabel');
+  var blurTimer = null;
+  var currentFocusedRow = null;
+
+  // フィールドラベルのテキスト取得（emoji除去して短縮）
+  function getFieldName(el) {
+    var row = el.closest('.field-row');
+    if (!row) return null;
+    var lbl = row.querySelector('.field-label');
+    if (!lbl) return null;
+    return lbl.textContent.replace(/[^　-鿿゠-ヿa-zA-Z0-9（）\s]/g, '').trim().slice(0, 20);
+  }
+
+  function setFocusedRow(el) {
+    // 前のハイライトを外す
+    if (currentFocusedRow) {
+      currentFocusedRow.classList.remove('is-focused');
+    }
+    var row = el ? el.closest('.field-row') : null;
+    currentFocusedRow = row;
+    if (row) {
+      row.classList.add('is-focused');
+    }
+  }
+
+  function enterFocusMode(el) {
+    body.classList.add('keyboard-active');
+    setFocusedRow(el);
+
+    var name = getFieldName(el);
+    if (focusFieldLabel) {
+      focusFieldLabel.textContent = name ? ('✏️ ' + name) : '✏️ 編集中';
+    }
+
+    // フォーカスした要素が見えるようにスクロール
+    setTimeout(function() {
+      if (el && el.isConnected) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 280);
+  }
+
+  function exitFocusMode() {
+    body.classList.remove('keyboard-active');
+    setFocusedRow(null);
+    if (focusFieldLabel) focusFieldLabel.textContent = '📝 —';
+    if (document.activeElement && document.activeElement !== document.body) {
+      document.activeElement.blur();
+    }
+  }
+  window.exitFocusMode = exitFocusMode;
+
+  function isEditorEl(el) {
+    return el && (
+      el.classList.contains('rich-editor') ||
+      el.tagName === 'TEXTAREA' ||
+      (el.tagName === 'INPUT' && el.type === 'text')
+    );
+  }
+
+  function onFocus(e) {
+    clearTimeout(blurTimer);
+    enterFocusMode(e.target);
+  }
+
+  function onBlur(e) {
+    // ツールバーボタンを押したときにblurが発火するので少し待つ
+    clearTimeout(blurTimer);
+    blurTimer = setTimeout(function() {
+      var active = document.activeElement;
+      // ツールバーのボタンやselectにフォーカスが移った場合はモード維持
+      if (active && active.closest('.toolbar')) return;
+      // 別のエディタ欄にフォーカスが移った場合も維持（onFocusで更新）
+      if (isEditorEl(active)) return;
+      // それ以外は解除
+      body.classList.remove('keyboard-active');
+      setFocusedRow(null);
+      if (focusFieldLabel) focusFieldLabel.textContent = '📝 —';
+    }, 250);
+  }
+
+  // ツールバーボタンを押した後にエディタへフォーカスを戻す
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.toolbar button, .toolbar select');
+    if (!btn) return;
+    // フォーカス中の rich-editor に戻す
+    if (currentFocusedRow) {
+      var editor = currentFocusedRow.querySelector('.rich-editor');
+      if (editor) {
+        setTimeout(function() { editor.focus(); }, 10);
+      }
+    }
+  }, true);
+
+  function attachHandlers() {
+    var inputs = document.querySelectorAll('.rich-editor, textarea, input[type="text"]');
+    inputs.forEach(function(el) {
+      // 重複付与防止
+      if (el._focusAttached) return;
+      el._focusAttached = true;
+      el.addEventListener('focus', onFocus);
+      el.addEventListener('blur', onBlur);
+    });
+  }
+
+  // 動的追加（チェックポイントなど）にも対応
+  var observer = new MutationObserver(attachHandlers);
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachHandlers);
+  } else {
+    attachHandlers();
+  }
+
+  // visualViewport でキーボード出現を精密検知（iOS/Android）
+  if (window.visualViewport) {
+    var lastVH = window.visualViewport.height;
+    window.visualViewport.addEventListener('resize', function() {
+      var newVH = window.visualViewport.height;
+      var diff = lastVH - newVH;
+      if (diff > 120) {
+        // キーボード出現 → フォーカス中の欄があればモード確定
+        var active = document.activeElement;
+        if (isEditorEl(active)) enterFocusMode(active);
+      } else if (diff < -80) {
+        // キーボード閉じた → フォーカスが残ってなければ解除
+        setTimeout(function() {
+          if (!isEditorEl(document.activeElement)) {
+            body.classList.remove('keyboard-active');
+            setFocusedRow(null);
+            if (focusFieldLabel) focusFieldLabel.textContent = '📝 —';
+          }
+        }, 100);
+      }
+      lastVH = newVH;
+    });
+  }
+})();
 </script>
 </body>
 </html>
