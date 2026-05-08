@@ -871,15 +871,22 @@
       transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
     }
     #tutorial-skip {
-      position: absolute;
-      top: 20px;
+      position: fixed;
+      bottom: 20px;
       right: 20px;
-      background: rgba(255,255,255,0.2);
-      border: 1px solid #fff;
-      color: #fff;
-      padding: 5px 15px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.5);
+      padding: 6px 14px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(6px);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    #tutorial-skip:hover {
+      color: rgba(255,255,255,0.85);
+      border-color: rgba(255,255,255,0.45);
     }
 
 
@@ -934,6 +941,7 @@
       right: -260px;
       width: 240px;
       height: 100vh;
+      height: 100dvh;
       background: rgba(10, 18, 35, 0.97);
       backdrop-filter: blur(20px);
       border-left: 1px solid var(--line);
@@ -944,7 +952,12 @@
       gap: 8px;
       box-shadow: -10px 0 40px rgba(0,0,0,0.4);
       transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
+    .side-nav::-webkit-scrollbar { width: 4px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 2px; }
     .side-nav.open { right: 0; }
     .side-nav-label {
       font-size: 10px;
@@ -953,19 +966,32 @@
       color: var(--muted);
       margin-bottom: 4px;
       padding-left: 4px;
+      flex-shrink: 0;
     }
     .side-nav a {
       color: var(--muted);
       text-decoration: none;
       font-size: 14px;
       font-weight: 700;
-      padding: 12px 16px;
+      padding: 10px 16px;
       border-radius: 12px;
       transition: 0.2s;
       display: block;
+      flex-shrink: 0;
     }
     .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
     .side-nav a.active { color: #0b1220; background: var(--accent); }
+    .side-nav a .nav-title { display: block; }
+    .side-nav a .nav-desc {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.65;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .side-nav a.active .nav-desc { opacity: 0.75; }
+    .side-nav a:hover .nav-desc { opacity: 0.85; }
   
     @media (orientation: portrait) { .menu-toggle { display: none !important; } }
   </style>
@@ -989,11 +1015,26 @@
 <div class="overlay-menu" id="overlayMenu"></div>
 <nav class="side-nav" id="sideNav">
   <div class="side-nav-label">ページ移動</div>
-  <a href="index.html" class="active">一般用</a>
-  <a href="中高生.html">中高生用</a>
-  <a href="カスタム.html">３D編集</a>
-  <a href="プレビュー.html">閲覧用</a>
-  <a href="マイリスト.html">マイリスト</a>
+  <a href="index.html" class="active">
+    <span class="nav-title">🏹 一般用</span>
+    <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説する標準ページ</span>
+  </a>
+  <a href="中高生.html">
+    <span class="nav-title">📚 中高生用</span>
+    <span class="nav-desc">中高生向けにやさしい言葉で筋肉・動作をわかりやすく解説</span>
+  </a>
+  <a href="カスタム.html">
+    <span class="nav-title">✏️ ３D編集</span>
+    <span class="nav-desc">3Dモデルの表示やカメラ設定を自由にカスタマイズできる編集ページ</span>
+  </a>
+  <a href="プレビュー.html">
+    <span class="nav-title">👁 閲覧用</span>
+    <span class="nav-desc">シンプルなレイアウトでアニメーションをゆっくり確認できるページ</span>
+  </a>
+  <a href="マイリスト.html">
+    <span class="nav-title">⭐ マイリスト</span>
+    <span class="nav-desc">お気に入りに登録した節や筋肉をまとめて確認できるページ</span>
+  </a>
 </nav>
 
 
@@ -2179,8 +2220,8 @@
       {
         text: "3Dモデルは指でぐりぐり回したり、広げて大きくしたりできるよ。全方向からチェックしよう！",
         target: "viewer",
-        pos: "center",
-        arrow: "⤵"
+        pos: "right",
+        arrow: "⬅"
       },
       {
         text: "ここには使う筋肉の名前が出るよ。タップすると、その筋肉だけを表示できるんだ！",
@@ -2211,26 +2252,55 @@
       bubble.textContent = step.text;
       
       if (step.target) {
-        overlay.style.backgroundColor = 'rgba(0,0,0,0)'; // 注目させるときはオーバーレイ自体は透明に
+        overlay.style.backgroundColor = 'rgba(0,0,0,0)';
         const el = document.getElementById(step.target);
-        // 対象まで自動でスクロール
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
         const rect = el.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const bubbleW = 280;
+        const bubbleH = 160; // おおよその高さ
+
         focus.style.display = 'block';
         focus.style.top = (rect.top - 5) + 'px';
         focus.style.left = (rect.left - 5) + 'px';
         focus.style.width = (rect.width + 10) + 'px';
         focus.style.height = (rect.height + 10) + 'px';
-        
-        bubble.style.top = step.pos === 'bottom' ? (rect.bottom + 40) + 'px' : (rect.top - 150) + 'px';
-        bubble.style.left = '50%';
-        bubble.style.transform = 'translateX(-50%)';
-        
+
+        let bubbleTop, bubbleLeft, bubbleTransform;
+        let arrowTop, arrowLeft;
+
+        if (step.pos === 'right') {
+          // 右側に表示（画面右端を超えないようクランプ）
+          bubbleLeft = Math.min(rect.right + 16, vw - bubbleW - 12);
+          bubbleTop = Math.max(12, Math.min(rect.top + rect.height / 2 - bubbleH / 2, vh - bubbleH - 12));
+          bubbleTransform = 'none';
+          arrowTop = rect.top + rect.height / 2 + 'px';
+          arrowLeft = rect.right + 8 + 'px';
+        } else if (step.pos === 'bottom') {
+          bubbleLeft = vw / 2;
+          bubbleTop = Math.min(rect.bottom + 40, vh - bubbleH - 12);
+          bubbleTransform = 'translateX(-50%)';
+          arrowTop = rect.bottom + 5 + 'px';
+          arrowLeft = (rect.left + rect.width / 2) + 'px';
+        } else {
+          // top（デフォルト）: 画面外に出ないようクランプ
+          bubbleLeft = vw / 2;
+          bubbleTop = Math.max(12, rect.top - bubbleH - 20);
+          bubbleTransform = 'translateX(-50%)';
+          arrowTop = Math.max(bubbleTop + bubbleH + 4, rect.top - 50) + 'px';
+          arrowLeft = (rect.left + rect.width / 2) + 'px';
+        }
+
+        bubble.style.top = bubbleTop + 'px';
+        bubble.style.left = bubbleLeft + 'px';
+        bubble.style.transform = bubbleTransform;
+
         arrow.style.display = 'block';
         arrow.textContent = step.arrow;
-        arrow.style.top = step.pos === 'bottom' ? (rect.bottom + 5) + 'px' : (rect.top - 50) + 'px';
-        arrow.style.left = (rect.left + rect.width / 2) + 'px';
+        arrow.style.top = arrowTop;
+        arrow.style.left = arrowLeft;
       } else {
         overlay.style.backgroundColor = 'rgba(0,0,0,0.7)'; // ターゲットがない時は全体を暗く
         focus.style.display = 'none';

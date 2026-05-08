@@ -458,9 +458,81 @@
     .modal p { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
     .share-textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 11px; padding: 10px; height: 60px; resize: none; font-family: 'Courier New', monospace; }
     .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+    /* ===== チュートリアル（手書き風・indexと同デザイン） ===== */
+    #tutorial-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,0);
+      display: none; cursor: pointer;
+      font-family: 'Klee One', cursive;
+      transition: background-color 0.4s;
+    }
+    #tutorial-bubble {
+      position: absolute;
+      background: #fff; color: #333;
+      padding: 20px;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      border: 3px solid #333;
+      max-width: 280px;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      font-size: 14px; line-height: 1.6;
+    }
+    #tutorial-bubble::after {
+      content: 'タップで次へ ＞';
+      display: block; font-size: 10px;
+      text-align: right; margin-top: 10px; color: #666;
+    }
+    .tutorial-highlight {
+      position: absolute;
+      border: 4px dashed var(--accent);
+      border-radius: 30px 10px 25px 12px / 12px 25px 10px 30px;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.75);
+    }
+    .hand-arrow {
+      position: absolute; font-size: 40px;
+      pointer-events: none;
+      filter: drop-shadow(2px 2px 0px #000);
+      animation: tut-bounce 1.2s infinite ease-in-out;
+      transform: translateX(-50%);
+    }
+    @keyframes tut-bounce {
+      0%,100% { transform: translate(-50%,0) rotate(-5deg); }
+      50%      { transform: translate(-50%,-15px) rotate(5deg); }
+    }
+    #tutorial-bubble, .tutorial-highlight, .hand-arrow {
+      transition: all 0.4s cubic-bezier(0.18,0.89,0.32,1.28);
+    }
+    #tutorial-skip {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.5);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(6px);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    #tutorial-skip:hover {
+      color: rgba(255,255,255,0.85);
+      border-color: rgba(255,255,255,0.45);
+    }
   </style>
 </head>
 <body>
+
+<!-- チュートリアル用オーバーレイ -->
+<div id="tutorial-overlay">
+  <div id="tutorial-skip">説明をとばす</div>
+  <div class="tutorial-highlight" id="tutorial-focus"></div>
+  <div class="hand-arrow" id="tutorial-arrow">⤴</div>
+  <div id="tutorial-bubble">ここに説明文が入ります。</div>
+</div>
 
 <!-- 縦画面警告オーバーレイ -->
 <div id="orientation-overlay">
@@ -484,7 +556,7 @@
       <span class="progress-label" id="progressLabel"></span>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+  <div id="fileOpenArea" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
     <span class="loaded-info" id="loadedInfo" style="display:none;"></span>
     <button class="btn btn-gold" id="favoriteBtn" style="display:none;" onclick="saveToFavorites()">⭐ お気に入りに保存</button>
     <label class="btn btn-gold" style="cursor:pointer;">
@@ -1279,6 +1351,121 @@ window.addEventListener('DOMContentLoaded', () => {
   function _closeMenu() { _menuToggle.classList.remove('open'); _sideNav.classList.remove('open'); _overlayMenu.classList.remove('show'); }
   _menuToggle.addEventListener('click', function() { _sideNav.classList.contains('open') ? _closeMenu() : _openMenu(); });
   _overlayMenu.addEventListener('click', _closeMenu);
+</script>
+<script>
+// ===== ビューア チュートリアル =====
+(function() {
+  const tutorialSteps = [
+    {
+      text: "ここは閲覧専用のビューアだよ。カスタムエディタで作ったノートを3Dと一緒に見返せるよ！",
+      target: null
+    },
+    {
+      text: "まずここ！「📂 ファイルを開く」または「🔗 URLから開く」でノートデータを読み込んでね。",
+      target: "fileOpenArea",
+      pos: "bottom"
+    },
+    {
+      text: "左の3Dモデルは指で回転・拡大できるよ。ポーズを全方向から確認しよう！",
+      target: "viewer",
+      pos: "right"
+    },
+    {
+      text: "読み込んだノートは右側のここに表示されるよ。節ごとに切り替えて読み返してみてね！",
+      target: "welcomeScreen",
+      pos: "left"
+    },
+    {
+      text: "気に入ったノートは「⭐ お気に入り」に保存！マイリストからすぐ開けるようになるよ。",
+      target: null
+    },
+    {
+      text: "説明はおしまい！ファイルを読み込んで、じっくり復習しよう！",
+      target: null
+    }
+  ];
+
+  const LS_KEY = 'kyudo_viewer_tutorial_done';
+  const overlay = document.getElementById('tutorial-overlay');
+  const bubble  = document.getElementById('tutorial-bubble');
+  const focus   = document.getElementById('tutorial-focus');
+  const arrow   = document.getElementById('tutorial-arrow');
+  let step = 0;
+
+  function showStep() {
+    const s = tutorialSteps[step];
+    bubble.textContent = s.text;
+    if (s.target) {
+      overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+      let el = document.getElementById(s.target);
+      if (!el || el.offsetParent === null) { 
+        // ターゲットが見えない場合は中央表示
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.7)'; focus.style.display='none'; arrow.style.display='none'; bubble.style.top='50%'; bubble.style.left='50%'; bubble.style.transform='translate(-50%,-50%)'; return; 
+      }
+
+      const rect = el.getBoundingClientRect();
+      focus.style.display = 'block';
+      focus.style.top    = (rect.top  - 5) + 'px';
+      focus.style.left   = (rect.left - 5) + 'px';
+      focus.style.width  = (rect.width  + 10) + 'px';
+      focus.style.height = (rect.height + 10) + 'px';
+
+      arrow.style.display = 'block';
+      bubble.style.transform = 'none';
+
+      if (s.pos === 'right') {
+        bubble.style.left = (rect.right + 30) + 'px';
+        bubble.style.top = (rect.top + rect.height / 2 - 50) + 'px';
+        arrow.textContent = '⬅';
+        arrow.style.top = (rect.top + rect.height / 2 - 20) + 'px';
+        arrow.style.left = (rect.right + 5) + 'px';
+      } else if (s.pos === 'left') {
+        bubble.style.left = (rect.left - 310) + 'px';
+        bubble.style.top = (rect.top + rect.height / 2 - 50) + 'px';
+        arrow.textContent = '➡';
+        arrow.style.top = (rect.top + rect.height / 2 - 20) + 'px';
+        arrow.style.left = (rect.left - 35) + 'px';
+      } else {
+        // bottom (default)
+        bubble.style.left = (rect.left + rect.width / 2 - 140) + 'px';
+        bubble.style.top = (rect.bottom + 40) + 'px';
+        arrow.textContent = '⬆';
+        arrow.style.top = (rect.bottom + 5) + 'px';
+        arrow.style.left = (rect.left + rect.width / 2) + 'px';
+      }
+
+      // 画面端の補正
+      if (parseInt(bubble.style.left) < 10) bubble.style.left = '10px';
+      if (parseInt(bubble.style.left) > window.innerWidth - 300) bubble.style.left = (window.innerWidth - 300) + 'px';
+
+    } else {
+      overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
+      focus.style.display = 'none';
+      arrow.style.display = 'none';
+      bubble.style.top = '50%'; bubble.style.left = '50%';
+      bubble.style.transform = 'translate(-50%,-50%)';
+    }
+  }
+
+  overlay.addEventListener('click', function() {
+    step++;
+    if (step < tutorialSteps.length) { showStep(); }
+    else { overlay.style.display = 'none'; localStorage.setItem(LS_KEY, '1'); }
+  });
+
+  document.getElementById('tutorial-skip').addEventListener('click', function(e) {
+    e.stopPropagation();
+    overlay.style.display = 'none';
+    localStorage.setItem(LS_KEY, '1');
+  });
+
+  window.addEventListener('load', function() {
+    if (!localStorage.getItem(LS_KEY)) {
+      overlay.style.display = 'block';
+      showStep();
+    }
+  });
+})();
 </script>
 </body>
 </html>
