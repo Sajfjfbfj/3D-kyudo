@@ -882,18 +882,92 @@
       font-size: 12px;
     }
 
-    .global-nav {
-      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 4px; padding: 6px; border-radius: 999px;
-      background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
-      border: 1px solid var(--line); z-index: 10000; box-shadow: var(--shadow);
+
+  
+    /* ハンバーガーボタン */
+    .menu-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20000;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      box-shadow: var(--shadow);
+      transition: 0.2s;
+      appearance: none;
     }
-    .global-nav a {
-      color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 700;
-      padding: 8px 16px; border-radius: 999px; transition: 0.2s; white-space: nowrap;
+    .menu-toggle:hover { border-color: var(--accent); }
+    .menu-toggle span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: 0.3s;
     }
-    .global-nav a:hover { color: var(--accent); background: rgba(255,255,255,0.05); }
-    .global-nav a.active { color: var(--bg); background: var(--accent); }
+    .menu-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .overlay-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 15000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay-menu.show { opacity: 1; pointer-events: all; }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      right: -260px;
+      width: 240px;
+      height: 100vh;
+      background: rgba(10, 18, 35, 0.97);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--line);
+      z-index: 16000;
+      padding: 80px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .side-nav.open { right: 0; }
+    .side-nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 4px;
+      padding-left: 4px;
+    }
+    .side-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-radius: 12px;
+      transition: 0.2s;
+      display: block;
+    }
+    .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
+    .side-nav a.active { color: #0b1220; background: var(--accent); }
+  
+    @media (orientation: portrait) { .menu-toggle { display: none !important; } }
   </style>
 </head>
 <body>
@@ -908,13 +982,20 @@
   </div>
 
   <!-- メニューバー -->
-  <nav class="global-nav">
-    <a href="index.html" class="active">一般用</a>
-    <a href="中高生.html">中高生用</a>
-    <a href="カスタム.html">３D編集</a>
-    <a href="プレビュー.html">閲覧用</a>
-    <a href="マイリスト.html">マイリスト</a>
-  </nav>
+  
+<button class="menu-toggle" id="menuToggle" aria-label="メニュー">
+  <span></span><span></span><span></span>
+</button>
+<div class="overlay-menu" id="overlayMenu"></div>
+<nav class="side-nav" id="sideNav">
+  <div class="side-nav-label">ページ移動</div>
+  <a href="index.html" class="active">一般用</a>
+  <a href="中高生.html">中高生用</a>
+  <a href="カスタム.html">３D編集</a>
+  <a href="プレビュー.html">閲覧用</a>
+  <a href="マイリスト.html">マイリスト</a>
+</nav>
+
 
   <!-- 筋肉詳細ポップアップ -->
   <div id="muscle-popup">
@@ -2199,5 +2280,14 @@
       });
     }
   </script>
+<script>
+  var _menuToggle = document.getElementById('menuToggle');
+  var _sideNav = document.getElementById('sideNav');
+  var _overlayMenu = document.getElementById('overlayMenu');
+  function _openMenu() { _menuToggle.classList.add('open'); _sideNav.classList.add('open'); _overlayMenu.classList.add('show'); }
+  function _closeMenu() { _menuToggle.classList.remove('open'); _sideNav.classList.remove('open'); _overlayMenu.classList.remove('show'); }
+  _menuToggle.addEventListener('click', function() { _sideNav.classList.contains('open') ? _closeMenu() : _openMenu(); });
+  _overlayMenu.addEventListener('click', _closeMenu);
+</script>
 </body>
 </html>

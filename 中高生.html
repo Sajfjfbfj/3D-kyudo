@@ -861,6 +861,91 @@
       background: var(--accent);
       transition: width 0.3s;
     }
+  
+    /* ハンバーガーボタン */
+    .menu-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20000;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      box-shadow: var(--shadow);
+      transition: 0.2s;
+      appearance: none;
+    }
+    .menu-toggle:hover { border-color: var(--accent); }
+    .menu-toggle span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+    .menu-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .overlay-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 15000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay-menu.show { opacity: 1; pointer-events: all; }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      right: -260px;
+      width: 240px;
+      height: 100vh;
+      background: rgba(10, 18, 35, 0.97);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--line);
+      z-index: 16000;
+      padding: 80px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .side-nav.open { right: 0; }
+    .side-nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 4px;
+      padding-left: 4px;
+    }
+    .side-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-radius: 12px;
+      transition: 0.2s;
+      display: block;
+    }
+    .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
+    .side-nav a.active { color: #0b1220; background: var(--accent); }
+  
+    @media (orientation: portrait) { .menu-toggle { display: none !important; } }
   </style>
 </head>
 <body>
@@ -886,19 +971,26 @@
     <div class="rotate-hint">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
     </div>
-    <h2 style="margin:0 0 10px;">📱 画面を横向きにしてね！</h2>
-    <p class="sub">このアプリは横画面で見るのがおすすめだよ。</p>
-    <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※ 画面が変わらない場合は、スマホの「縦向きロック」をオフにしてみよう。</p>
+    <h2 style="margin:0 0 10px;">画面を横向きにしてください</h2>
+    <p class="sub">この教材は横画面で見やすいように設計されています。</p>
+    <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※画面の向きが変わらない場合は、スマホの「縦向きロック」をオフにしてください。</p>
   </div>
 
   <!-- メニューバー -->
-  <nav class="global-nav">
-    <a href="index.html">一般用</a>
-    <a href="中高生.html" class="active">中高生用</a>
-    <a href="カスタム.html">３D編集</a>
-    <a href="プレビュー.html">閲覧用</a>
-    <a href="マイリスト.html">マイリスト</a>
-  </nav>
+  
+<button class="menu-toggle" id="menuToggle" aria-label="メニュー">
+  <span></span><span></span><span></span>
+</button>
+<div class="overlay-menu" id="overlayMenu"></div>
+<nav class="side-nav" id="sideNav">
+  <div class="side-nav-label">ページ移動</div>
+  <a href="index.html">一般用</a>
+  <a href="中高生.html" class="active">中高生用</a>
+  <a href="カスタム.html">３D編集</a>
+  <a href="プレビュー.html">閲覧用</a>
+  <a href="マイリスト.html">マイリスト</a>
+</nav>
+
 
   <div class="wrap">
     <!-- 左パネル: 3Dビューア -->
@@ -2060,5 +2152,14 @@
       });
     }
   </script>
+<script>
+  var _menuToggle = document.getElementById('menuToggle');
+  var _sideNav = document.getElementById('sideNav');
+  var _overlayMenu = document.getElementById('overlayMenu');
+  function _openMenu() { _menuToggle.classList.add('open'); _sideNav.classList.add('open'); _overlayMenu.classList.add('show'); }
+  function _closeMenu() { _menuToggle.classList.remove('open'); _sideNav.classList.remove('open'); _overlayMenu.classList.remove('show'); }
+  _menuToggle.addEventListener('click', function() { _sideNav.classList.contains('open') ? _closeMenu() : _openMenu(); });
+  _overlayMenu.addEventListener('click', _closeMenu);
+</script>
 </body>
 </html>
