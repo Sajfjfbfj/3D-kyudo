@@ -1830,11 +1830,31 @@ window.closeShare = function() {
 };
 
 window.copyShare = function() {
-  const ta = document.getElementById('shareTextarea');
+  const url = document.getElementById('shareTextarea').value;
+  // navigator.clipboard を使えば ta.select() が不要 → モーダル後ろのエディタが動かない
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('📋 クリップボードにコピーしました');
+    }).catch(() => {
+      // fallback
+      fallbackCopy(url);
+    });
+  } else {
+    fallbackCopy(url);
+  }
+};
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus();
   ta.select();
   document.execCommand('copy');
+  document.body.removeChild(ta);
   showToast('📋 クリップボードにコピーしました');
-};
+}
 
 window.importData = function() {
   document.getElementById('importFileInput').value = '';
@@ -2313,10 +2333,11 @@ resizeRenderer();
   }, true);
 
   function attachHandlers() {
+    // .modal-overlay 内の要素は除外（共有・インポートモーダルの入力欄をフォーカスモードに巻き込まない）
     var inputs = document.querySelectorAll('.rich-editor, textarea, input[type="text"]');
     inputs.forEach(function(el) {
-      // 重複付与防止
       if (el._focusAttached) return;
+      if (el.closest('.modal-overlay')) return; // モーダル内はスキップ
       el._focusAttached = true;
       el.addEventListener('focus', onFocus);
       el.addEventListener('blur', onBlur);
