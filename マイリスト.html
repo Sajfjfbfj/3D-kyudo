@@ -291,22 +291,81 @@
 
 
 <script>
+  // =====================================
+  // 複数ノート対応のマイリスト管理
+  // =====================================
+  
+  const NOTEBOOKS_KEY = 'kyudo_notebooks_v1';
+  const LEGACY_KEY = 'kyudo_custom_notes_v2';
+
+  function getDefaultStageData() {
+    return {
+      desc: '', analogy: '', advice: '', muscleNote: '',
+      memo: '',
+      tenouchiWarning: '',
+      tenouchi: [],
+      miss: [],
+      primaryMuscles: [],
+      secondaryMuscles: [],
+      muscleMemos: {},
+    };
+  }
+
+  function emptyNotebook(name) {
+    return {
+      id: Date.now() + Math.floor(Math.random() * 1000),
+      name: name || 'ノート1',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      data: [], // STAGES_BASE の長さ分初期化される前提
+    };
+  }
+
+  function loadNotebooks() {
+    try {
+      const raw = localStorage.getItem(NOTEBOOKS_KEY);
+      if (raw) {
+        const nbs = JSON.parse(raw);
+        if (Array.isArray(nbs) && nbs.length > 0) return nbs;
+      }
+    } catch(e) {}
+
+    // 旧形式からマイグレーション
+    try {
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      if (legacy) {
+        const data = JSON.parse(legacy);
+        const nb = emptyNotebook('ノート1');
+        nb.data = data.map(d => ({ ...getDefaultStageData(), ...d }));
+        return [nb];
+      }
+    } catch(e) {}
+
+    return [];
+  }
+
+  function formatDate(timestamp) {
+    const d = new Date(timestamp);
+    return d.toLocaleString();
+  }
+
   function render() {
-    // 編集中のデータ
     const editingRoot = document.getElementById('editing-root');
-    const currentEdit = localStorage.getItem('kyudo_custom_notes_v2');
-    if (currentEdit) {
-      editingRoot.innerHTML = `
+    const allNotebooks = loadNotebooks();
+
+    // 複数ノートに対応
+    if (allNotebooks && allNotebooks.length > 0) {
+      editingRoot.innerHTML = allNotebooks.map((nb) => `
         <div class="card">
           <div class="info">
-            <div class="name">現在エディタで編集中のノート</div>
-            <div class="meta">最終更新: ブラウザに自動保存されています</div>
+            <div class="name">📓 ${nb.name}</div>
+            <div class="meta">作成: ${formatDate(nb.createdAt)} | 更新: ${formatDate(nb.updatedAt)}</div>
           </div>
           <div class="actions">
-            <button class="btn btn-view" onclick="location.href='カスタム.html'">編集を続ける</button>
+            <button class="btn btn-view" onclick="editNotebook(${nb.id})">編集を続ける</button>
           </div>
         </div>
-      `;
+      `).join('');
     } else {
       editingRoot.innerHTML = `<div class="empty">編集中のデータはありません</div>`;
     }
@@ -319,8 +378,8 @@
       favRoot.innerHTML = favorites.map((fav, index) => `
         <div class="card">
           <div class="info">
-            <div class="name">${fav.name}</div>
-            <div class="meta">保存日: ${new Date(fav.id).toLocaleString()}</div>
+            <div class="name">⭐ ${fav.name}</div>
+            <div class="meta">保存日: ${formatDate(fav.id)}</div>
           </div>
           <div class="actions">
             <button class="btn btn-view" onclick="viewFavorite(${fav.id})">プレビュー</button>
@@ -332,6 +391,12 @@
       favRoot.innerHTML = `<div class="empty">お気に入りはありません。プレビューページで⭐ボタンを押して保存できます。</div>`;
     }
   }
+
+  window.editNotebook = function(notebookId) {
+    // ノートを切り替えるためにアクティブなノートIDを保存
+    localStorage.setItem('kyudo_active_notebook', String(notebookId));
+    location.href = 'カスタム.html';
+  };
 
   window.viewFavorite = function(id) {
     location.href = `プレビュー.html?localId=${id}`;
@@ -463,4 +528,5 @@
 })();
 </script>
 </body>
+</html>
 </html>
