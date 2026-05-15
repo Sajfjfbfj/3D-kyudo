@@ -1033,6 +1033,65 @@
       color: rgba(255,255,255,0.85);
       border-color: rgba(255,255,255,0.45);
     }
+
+    /* ── ノートセレクター ── */
+    .notebook-selector {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 10px 5px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.15s; white-space: nowrap;
+      max-width: 180px;
+    }
+    .notebook-selector:hover { border-color: var(--accent); background: rgba(125,211,252,0.08); }
+    .notebook-selector .nb-name {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;
+    }
+
+    /* ── ノート管理モーダル ── */
+    .nb-list { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; max-height: 320px; overflow-y: auto; }
+    .nb-list::-webkit-scrollbar { width: 4px; }
+    .nb-list::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+    .nb-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      transition: all 0.15s;
+    }
+    .nb-item.active-nb {
+      border-color: var(--accent);
+      background: rgba(125,211,252,0.08);
+    }
+    .nb-item-info { flex: 1; min-width: 0; }
+    .nb-item-name {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .nb-item-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .nb-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .nb-icon-btn {
+      padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line);
+      background: transparent; color: var(--muted); font-size: 12px;
+      cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .nb-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .nb-icon-btn.danger:hover { border-color: var(--accent-2); color: var(--accent-2); }
+    .nb-new-row {
+      display: flex; gap: 8px; margin-top: 4px;
+    }
+    .nb-new-row input {
+      flex: 1; padding: 8px 12px; border-radius: 8px;
+      border: 1px solid var(--line); background: rgba(255,255,255,0.04);
+      color: var(--text); font-size: 13px; font-family: inherit;
+      outline: none; transition: border-color 0.15s;
+    }
+    .nb-new-row input:focus { border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -1062,6 +1121,9 @@
 <header class="app-header">
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <div class="app-title">リアル八節くん<span>リアハチ・カスタムエディタ</span></div>
+    <button class="notebook-selector" onclick="openNotebookModal()" title="ノートを切り替え">
+      📓 <span class="nb-name" id="currentNotebookName">ノート1</span> ▾
+    </button>
     <div class="progress-bar-wrap">
       <div class="progress-steps" id="progressSteps"></div>
       <span class="progress-label" id="progressLabel">0/8 節</span>
@@ -1214,6 +1276,23 @@
   </div>
 </div>
 
+<!-- ノート管理モーダル -->
+<div class="modal-overlay hidden" id="notebookModal">
+  <div class="modal">
+    <h3>📓 ノート管理</h3>
+    <p>ノートを切り替えたり、新しく作成できます。各ノートは8節ぶんのデータを独立して保存します。</p>
+    <div class="nb-list" id="notebookList"></div>
+    <div class="nb-new-row">
+      <input type="text" id="newNotebookName" placeholder="新しいノートの名前" maxlength="30"
+             onkeydown="if(event.key==='Enter') createNotebook()">
+      <button class="btn btn-gold" onclick="createNotebook()">＋ 作成</button>
+    </div>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn btn-ghost" onclick="closeNotebookModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <!-- 共有モーダル -->
 <div class="modal-overlay hidden" id="shareModal">
   <div class="modal">
@@ -1337,39 +1416,213 @@ const STAGES_BASE = [
 ];
 
 // ====================================================
-// ユーザーデータ（8節分）
+// ノート管理（複数ノート対応）
 // ====================================================
-const STORAGE_KEY = 'kyudo_custom_notes_v2';
-let userData = loadUserData();
+const NOTEBOOKS_KEY   = 'kyudo_notebooks_v1';
+const ACTIVE_NB_KEY   = 'kyudo_active_notebook';
+const LEGACY_KEY      = 'kyudo_custom_notes_v2'; // 旧形式マイグレーション用
 
 function getDefaultStageData() {
   return {
     desc: '', analogy: '', advice: '', muscleNote: '',
     memo: '',
     tenouchiWarning: '',
-    tenouchi: [], // [{icon, text}]
-    miss: [],     // [{type:'warn'|'tip', text}]
+    tenouchi: [],
+    miss: [],
     primaryMuscles: [],
     secondaryMuscles: [],
-    muscleMemos: {}, // { "筋肉名": "意識メモ" }
+    muscleMemos: {},
   };
 }
 
-function loadUserData() {
+function emptyNotebook(name) {
+  return {
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    name: name || 'ノート1',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    data: STAGES_BASE.map(() => getDefaultStageData()),
+  };
+}
+
+// 全ノートをlocalStorageから読み込む（旧形式があればマイグレーション）
+function loadNotebooks() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(NOTEBOOKS_KEY);
     if (raw) {
-      const data = JSON.parse(raw);
-      // 古いデータに新しいフィールドをマージ
-      return data.map(d => ({ ...getDefaultStageData(), ...d }));
+      const nbs = JSON.parse(raw);
+      if (Array.isArray(nbs) && nbs.length > 0) return nbs;
     }
   } catch(e) {}
-  return STAGES_BASE.map(() => getDefaultStageData());
+
+  // 旧形式からマイグレーション
+  try {
+    const legacy = localStorage.getItem(LEGACY_KEY);
+    if (legacy) {
+      const data = JSON.parse(legacy);
+      const nb = emptyNotebook('ノート1');
+      nb.data = data.map(d => ({ ...getDefaultStageData(), ...d }));
+      return [nb];
+    }
+  } catch(e) {}
+
+  return [emptyNotebook('ノート1')];
+}
+
+function saveNotebooks() {
+  localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(allNotebooks));
+}
+
+// アクティブなノートのIDを取得・設定
+function getActiveId() {
+  const saved = localStorage.getItem(ACTIVE_NB_KEY);
+  if (saved && allNotebooks.find(n => String(n.id) === saved)) return Number(saved);
+  return allNotebooks[0].id;
+}
+function setActiveId(id) {
+  localStorage.setItem(ACTIVE_NB_KEY, String(id));
+}
+
+let allNotebooks = loadNotebooks();
+let activeNotebookId = getActiveId();
+
+// 現在のノートの data 配列への参照を返す
+function currentNotebook() {
+  return allNotebooks.find(n => n.id === activeNotebookId) || allNotebooks[0];
+}
+
+let userData = currentNotebook().data.map(d => ({ ...getDefaultStageData(), ...d }));
+
+function loadUserData() {
+  userData = currentNotebook().data.map(d => ({ ...getDefaultStageData(), ...d }));
 }
 
 function saveUserData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+  const nb = currentNotebook();
+  nb.data = userData;
+  nb.updatedAt = Date.now();
+  saveNotebooks();
 }
+
+// ── ノートUI ──
+function updateNotebookNameLabel() {
+  const nb = currentNotebook();
+  document.getElementById('currentNotebookName').textContent = nb.name;
+}
+
+function openNotebookModal() {
+  renderNotebookList();
+  document.getElementById('notebookModal').classList.remove('hidden');
+  document.getElementById('newNotebookName').value = '';
+  setTimeout(() => document.getElementById('newNotebookName').focus(), 100);
+}
+window.openNotebookModal = openNotebookModal;
+
+function closeNotebookModal() {
+  document.getElementById('notebookModal').classList.add('hidden');
+}
+window.closeNotebookModal = closeNotebookModal;
+
+function renderNotebookList() {
+  const list = document.getElementById('notebookList');
+  list.innerHTML = '';
+
+  allNotebooks.forEach(nb => {
+    const isActive = nb.id === activeNotebookId;
+    const updated = new Date(nb.updatedAt).toLocaleDateString('ja-JP', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    const filledCount = nb.data.filter(d => d.desc || (d.primaryMuscles && d.primaryMuscles.length)).length;
+
+    const item = document.createElement('div');
+    item.className = 'nb-item' + (isActive ? ' active-nb' : '');
+    item.innerHTML = `
+      <div class="nb-item-info">
+        <div class="nb-item-name">${escHtml(nb.name)}${isActive ? ' <span style="font-size:10px;color:var(--accent);">● 編集中</span>' : ''}</div>
+        <div class="nb-item-meta">更新: ${updated}　記入済み: ${filledCount}/8節</div>
+      </div>
+      <div class="nb-item-actions">
+        ${!isActive ? `<button class="nb-icon-btn" onclick="switchNotebook(${nb.id})">開く</button>` : ''}
+        <button class="nb-icon-btn" onclick="renameNotebook(${nb.id})">✏️</button>
+        ${allNotebooks.length > 1 ? `<button class="nb-icon-btn danger" onclick="deleteNotebook(${nb.id})">🗑</button>` : ''}
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+window.createNotebook = function() {
+  const input = document.getElementById('newNotebookName');
+  const name = input.value.trim() || `ノート${allNotebooks.length + 1}`;
+  // 現在のノートを先に保存
+  collectEditorFields();
+  saveUserData();
+  const nb = emptyNotebook(name);
+  allNotebooks.push(nb);
+  activeNotebookId = nb.id;
+  setActiveId(activeNotebookId);
+  loadUserData();
+  saveNotebooks();
+  currentStage = 0;
+  loadEditorFields();
+  buildMuscleGrid();
+  updateProgress();
+  updateMuscles3D();
+  updateNotebookNameLabel();
+  renderNotebookList();
+  input.value = '';
+  showToast(`📓 「${name}」を作成しました`);
+};
+
+window.switchNotebook = function(id) {
+  if (id === activeNotebookId) { closeNotebookModal(); return; }
+  // 現在のノートを保存してから切り替え
+  collectEditorFields();
+  saveUserData();
+  activeNotebookId = id;
+  setActiveId(id);
+  loadUserData();
+  currentStage = 0;
+  loadEditorFields();
+  buildMuscleGrid();
+  updateProgress();
+  updateMuscles3D();
+  updateNotebookNameLabel();
+  closeNotebookModal();
+  showToast(`📓 「${currentNotebook().name}」に切り替えました`);
+};
+
+window.renameNotebook = function(id) {
+  const nb = allNotebooks.find(n => n.id === id);
+  if (!nb) return;
+  const newName = prompt('ノート名を変更', nb.name);
+  if (!newName || !newName.trim()) return;
+  nb.name = newName.trim();
+  saveNotebooks();
+  updateNotebookNameLabel();
+  renderNotebookList();
+  showToast('✏️ 名前を変更しました');
+};
+
+window.deleteNotebook = function(id) {
+  if (allNotebooks.length <= 1) return;
+  const nb = allNotebooks.find(n => n.id === id);
+  if (!nb) return;
+  if (!confirm(`「${nb.name}」を削除します。この操作は元に戻せません。`)) return;
+  allNotebooks = allNotebooks.filter(n => n.id !== id);
+  if (activeNotebookId === id) {
+    activeNotebookId = allNotebooks[0].id;
+    setActiveId(activeNotebookId);
+    loadUserData();
+    currentStage = 0;
+    loadEditorFields();
+    buildMuscleGrid();
+    updateProgress();
+    updateMuscles3D();
+    updateNotebookNameLabel();
+  }
+  saveNotebooks();
+  renderNotebookList();
+  showToast('🗑 削除しました');
+};
 
 // ====================================================
 // 現在の状態
@@ -2219,6 +2472,7 @@ loadEditorFields();
 buildMuscleGrid();
 updateProgress();
 resizeRenderer();
+updateNotebookNameLabel();
 
 </script>
 <script>
