@@ -655,7 +655,7 @@
   <div class="modal">
     <h3>🔗 URLからノートを読み込む</h3>
     <p>カスタムエディタで発行された共有URLをここに貼り付けてください。<br>
-       例: <code>https://example.com/プレビュー.html?data=...</code></p>
+       例: <code>https://example.com/プレビュー.html?d=...</code></p>
     <textarea class="share-textarea" id="urlInput" placeholder="共有URLを貼り付けてください" rows="3"></textarea>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeUrlModal()">キャンセル</button>
@@ -1071,11 +1071,23 @@ window.loadFromUrl = function() {
 
   try {
     const url = new URL(urlString);
-    const sharedData = url.searchParams.get('data');
-    if (!sharedData) {
+
+    // 新形式 ?d=（LZ-String圧縮）・旧形式 ?data=（Base64）どちらも対応
+    const dParam    = url.searchParams.get('d');
+    const dataParam = url.searchParams.get('data');
+
+    if (!dParam && !dataParam) {
       throw new Error('URLにデータパラメータが見つかりません。');
     }
-    const json = decodeURIComponent(escape(atob(sharedData)));
+
+    let json;
+    if (dParam) {
+      json = LZString.decompressFromEncodedURIComponent(dParam);
+      if (!json) throw new Error('データの展開に失敗しました。');
+    } else {
+      json = decodeURIComponent(escape(atob(dataParam)));
+    }
+
     const parsed = JSON.parse(json);
     if (parsed.type === 'kyudo_all') {
       userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
@@ -1480,5 +1492,4 @@ window.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 </body>
-</html>
 </html>
