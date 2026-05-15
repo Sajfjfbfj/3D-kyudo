@@ -21,6 +21,8 @@
   <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
   <title>リアル八節くん ─ ビューア</title>
+  <!-- LZ-String: 圧縮共有URLの展開に使用 -->
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -790,23 +792,33 @@ manager.onLoad = () => {
  */
 function checkUrlParams() {
   const params = new URLSearchParams(window.location.search);
-  const sharedData = params.get('data');
-  if (sharedData) {
-    try {
-      const json = decodeURIComponent(escape(atob(sharedData)));
-      const parsed = JSON.parse(json);
-      if (parsed.type === 'kyudo_all' && Array.isArray(parsed.data)) {
-        userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
-        onDataLoaded('共有リンクから読み込みました');
-        // URLに stage パラメータがあれば、その節に移動
-        const stageParam = params.get('stage');
-        if (stageParam !== null) {
-          currentStage = parseInt(stageParam, 10) || 0; // 無効な値なら0
-        }
-      }
-    } catch (e) {
-      console.error('URLデータの解析に失敗しました', e);
+
+  // 新形式: ?d=（LZ-String圧縮）、旧形式: ?data=（Base64）どちらも対応
+  const raw = params.get('d') || params.get('data');
+  if (!raw) return;
+
+  try {
+    let json;
+    if (params.get('d')) {
+      // 新形式: LZ-Stringで展開
+      json = LZString.decompressFromEncodedURIComponent(raw);
+      if (!json) throw new Error('LZ decompress failed');
+    } else {
+      // 旧形式: Base64デコード（後方互換）
+      json = decodeURIComponent(escape(atob(raw)));
     }
+
+    const parsed = JSON.parse(json);
+    if (parsed.type === 'kyudo_all' && Array.isArray(parsed.data)) {
+      userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
+      onDataLoaded('共有リンクから読み込みました');
+      const stageParam = params.get('stage');
+      if (stageParam !== null) {
+        currentStage = parseInt(stageParam, 10) || 0;
+      }
+    }
+  } catch (e) {
+    console.error('URLデータの解析に失敗しました', e);
   }
 }
 
@@ -1468,4 +1480,5 @@ window.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 </body>
+</html>
 </html>
