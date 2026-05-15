@@ -1245,6 +1245,33 @@
 <!-- トースト通知 -->
 <div id="toast">保存しました</div>
 
+<script>
+// =====================================================
+// 共有URLからの自動リダイレクト
+// ?data= パラメータがある = 誰かがカスタムページのURLを共有してしまった
+// → プレビューページに転送して正しく表示させる
+// =====================================================
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  if (!params.get('data')) return; // dataなし → 通常どおり編集画面を表示
+
+  var loc = window.location;
+  var pathname = loc.pathname;
+
+  // パスの末尾ファイル名部分をプレビュー.html に差し替え
+  var previewPath;
+  if (pathname.includes('カスタム.html')) {
+    previewPath = pathname.replace('カスタム.html', 'プレビュー.html');
+  } else {
+    // ファイル名が含まれないURL（ディレクトリindex等）への対策
+    previewPath = pathname.replace(/[^\/]*$/, '') + 'プレビュー.html';
+  }
+
+  // クエリ文字列はそのまま引き継いでリダイレクト
+  window.location.replace(loc.origin + previewPath + loc.search);
+})();
+</script>
+
 <script type="importmap">
 {
   "imports": {
@@ -1782,11 +1809,17 @@ window.openShare = function() {
   const json = JSON.stringify({ type: 'kyudo_all', version: 2, data: userData });
   const b64 = btoa(unescape(encodeURIComponent(json)));
   
-  // 現在のURLからプレビュー用URLを構築
-  const currentUrl = window.location.href;
-  const previewUrl = currentUrl.replace('カスタム.html', 'プレビュー.html');
-  
-  // URLパラメータにBase64データを付与
+  // プレビューURLをより堅牢に構築
+  // replace() だけでは URLに 'カスタム.html' が含まれないケース（ディレクトリindexなど）で失敗するため
+  const loc = window.location;
+  let previewPath = loc.pathname;
+  if (previewPath.includes('カスタム.html')) {
+    previewPath = previewPath.replace('カスタム.html', 'プレビュー.html');
+  } else {
+    // ファイル名なし or 別ファイル名 → ディレクトリ直下の プレビュー.html を指す
+    previewPath = previewPath.replace(/[^\/]*$/, '') + 'プレビュー.html';
+  }
+  const previewUrl = loc.origin + previewPath;
   const shareUrl = `${previewUrl}?data=${encodeURIComponent(b64)}`;
   
   document.getElementById('shareTextarea').value = shareUrl;
