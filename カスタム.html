@@ -1245,29 +1245,27 @@
 <!-- トースト通知 -->
 <div id="toast">保存しました</div>
 
+<!-- LZ-String: JSONを圧縮してURLを短縮するライブラリ -->
+<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 <script>
 // =====================================================
 // 共有URLからの自動リダイレクト
-// ?data= パラメータがある = 誰かがカスタムページのURLを共有してしまった
-// → プレビューページに転送して正しく表示させる
+// ?d= または ?data= パラメータがある場合はプレビューページへ転送
 // =====================================================
 (function () {
   var params = new URLSearchParams(window.location.search);
-  if (!params.get('data')) return; // dataなし → 通常どおり編集画面を表示
+  if (!params.get('d') && !params.get('data')) return;
 
   var loc = window.location;
   var pathname = loc.pathname;
 
-  // パスの末尾ファイル名部分をプレビュー.html に差し替え
   var previewPath;
   if (pathname.includes('カスタム.html')) {
     previewPath = pathname.replace('カスタム.html', 'プレビュー.html');
   } else {
-    // ファイル名が含まれないURL（ディレクトリindex等）への対策
     previewPath = pathname.replace(/[^\/]*$/, '') + 'プレビュー.html';
   }
 
-  // クエリ文字列はそのまま引き継いでリダイレクト
   window.location.replace(loc.origin + previewPath + loc.search);
 })();
 </script>
@@ -1807,21 +1805,22 @@ window.openShare = function() {
   collectEditorFields();
   saveUserData();
   const json = JSON.stringify({ type: 'kyudo_all', version: 2, data: userData });
-  const b64 = btoa(unescape(encodeURIComponent(json)));
-  
-  // プレビューURLをより堅牢に構築
-  // replace() だけでは URLに 'カスタム.html' が含まれないケース（ディレクトリindexなど）で失敗するため
+
+  // LZ-Stringで圧縮 → URLセーフな文字列に変換（旧Base64より60〜80%短い）
+  const compressed = LZString.compressToEncodedURIComponent(json);
+
+  // プレビューURLを堅牢に構築
   const loc = window.location;
   let previewPath = loc.pathname;
   if (previewPath.includes('カスタム.html')) {
     previewPath = previewPath.replace('カスタム.html', 'プレビュー.html');
   } else {
-    // ファイル名なし or 別ファイル名 → ディレクトリ直下の プレビュー.html を指す
     previewPath = previewPath.replace(/[^\/]*$/, '') + 'プレビュー.html';
   }
-  const previewUrl = loc.origin + previewPath;
-  const shareUrl = `${previewUrl}?data=${encodeURIComponent(b64)}`;
-  
+
+  // パラメータ名を ?d= に短縮（encodeURIComponent不要・lz-stringがURLセーフ済み）
+  const shareUrl = `${loc.origin + previewPath}?d=${compressed}`;
+
   document.getElementById('shareTextarea').value = shareUrl;
   document.getElementById('shareModal').classList.remove('hidden');
 };
