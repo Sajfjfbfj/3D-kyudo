@@ -937,13 +937,24 @@
       text-decoration: none;
       font-size: 14px;
       font-weight: 700;
-      padding: 12px 16px;
+      padding: 10px 16px;
       border-radius: 12px;
       transition: 0.2s;
       display: block;
     }
     .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
     .side-nav a.active { color: #0b1220; background: var(--accent); }
+    .side-nav a .nav-title { display: block; }
+    .side-nav a .nav-desc {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.65;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .side-nav a.active .nav-desc { opacity: 0.75; }
+    .side-nav a:hover .nav-desc { opacity: 0.85; }
   
     @media (orientation: portrait) { .menu-toggle { display: none !important; } }
   </style>
@@ -984,11 +995,26 @@
 <div class="overlay-menu" id="overlayMenu"></div>
 <nav class="side-nav" id="sideNav">
   <div class="side-nav-label">ページ移動</div>
-  <a href="index.html">一般用</a>
-  <a href="中高生.html" class="active">中高生用</a>
-  <a href="カスタム.html">３D編集</a>
-  <a href="プレビュー.html">閲覧用</a>
-  <a href="マイリスト.html">マイリスト</a>
+  <a href="index.html">
+    <span class="nav-title">🏹 一般用</span>
+    <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説する標準ページ</span>
+  </a>
+  <a href="中高生.html" class="active">
+    <span class="nav-title">📚 中高生用</span>
+    <span class="nav-desc">中高生向けにやさしい言葉で筋肉・動作をわかりやすく解説</span>
+  </a>
+  <a href="カスタム.html">
+    <span class="nav-title">✏️ ３D編集</span>
+    <span class="nav-desc">3Dモデルの表示やカメラ設定を自由にカスタマイズできる編集ページ</span>
+  </a>
+  <a href="プレビュー.html">
+    <span class="nav-title">👁 閲覧用</span>
+    <span class="nav-desc">シンプルなレイアウトでアニメーションをゆっくり確認できるページ</span>
+  </a>
+  <a href="マイリスト.html">
+    <span class="nav-title">⭐ マイリスト</span>
+    <span class="nav-desc">お気に入りに登録した節や筋肉をまとめて確認できるページ</span>
+  </a>
 </nav>
 
 
