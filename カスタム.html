@@ -3386,7 +3386,10 @@ updateNotebookNameLabel();
 <script>
 // ===== カスタムエディタ チュートリアル =====
 (function() {
-  const tutorialSteps = [
+  var isPortrait = window.matchMedia('(orientation: portrait)').matches;
+
+  // 横画面用ステップ
+  const tutorialStepsLandscape = [
     {
       text: "こんにちは！ここは３Dカスタムエディタだよ。使いかたをさっと説明するね！",
       target: null
@@ -3419,6 +3422,44 @@ updateNotebookNameLabel();
     }
   ];
 
+  // 縦画面用ステップ
+  const tutorialStepsPortrait = [
+    {
+      text: "こんにちは！縦向き対応の３Dカスタムエディタだよ。さっと使いかたを説明するね！",
+      target: null
+    },
+    {
+      text: "上のバーで節を選ぶと、ポーズが切り替わるよ。▼ ビューアを表示 を押すと3Dモデルが見られるよ！",
+      target: "viewerToggleBtn",
+      pos: "bottom",
+      arrow: "⤴"
+    },
+    {
+      text: "筋肉分担セクションまでスクロールすると、3Dビューアが自動で出てくるよ！選んだ筋肉が3Dで確認できるよ。",
+      target: "muscleFieldGroup",
+      pos: "top",
+      arrow: "⤵"
+    },
+    {
+      text: "ここに自分の気づきや解説を書き込んでいこう！",
+      target: "editorBody",
+      pos: "top",
+      arrow: "⤵"
+    },
+    {
+      text: "書き終わったら「💾 保存・共有 ▾」から保存してね！",
+      target: "portraitActionWrap",
+      pos: "bottom",
+      arrow: "⤴"
+    },
+    {
+      text: "説明はおしまい！どんどん書き込んで、自分だけのノートを作ろう！",
+      target: null
+    }
+  ];
+
+  const tutorialSteps = isPortrait ? tutorialStepsPortrait : tutorialStepsLandscape;
+
   const LS_KEY = 'kyudo_editor_tutorial_done';
   const overlay = document.getElementById('tutorial-overlay');
   const bubble  = document.getElementById('tutorial-bubble');
@@ -3430,6 +3471,13 @@ updateNotebookNameLabel();
     const currentStep = tutorialSteps[step];
     bubble.textContent = currentStep.text;
     bubble.style.display = 'block'; // 一時的に表示して寸法を取得
+
+    // 縦画面で muscleFieldGroup を指すステップはビューアを展開してから位置計算
+    if (currentStep.target === 'muscleFieldGroup') {
+      var vs = document.querySelector('.viewer-side');
+      if (vs) { vs.classList.remove('viewer-collapsed'); vs.classList.add('viewer-half'); }
+      if (typeof resizeRenderer === 'function') setTimeout(resizeRenderer, 350);
+    }
 
     if (currentStep.target) {
       overlay.style.backgroundColor = 'rgba(0,0,0,0)'; // ターゲットがある場合はオーバーレイを透明に
