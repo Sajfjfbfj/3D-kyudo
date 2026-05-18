@@ -285,10 +285,13 @@
       transform: translateX(-50%) translateY(80px);
       background: var(--panel); border: 1px solid var(--accent);
       border-radius: 10px; padding: 10px 20px; font-size: 13px; color: var(--gold-light);
-      box-shadow: var(--shadow); z-index: 2000;
+      box-shadow: var(--shadow); z-index: 25001; /* メニューより前面に表示 */
       transition: transform 0.3s cubic-bezier(0.18,0.89,0.32,1.28); white-space: nowrap;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      #toast { bottom: 64px; } /* ボトムナビを避けて上に表示 */
+    }
 
     /* ── グローバルナビ ── */
 
@@ -1016,7 +1019,7 @@ function hasContent(d) {
   if (!d) return false;
   return !!(d.desc || (d.primaryMuscles && d.primaryMuscles.length) ||
             (d.secondaryMuscles && d.secondaryMuscles.length) ||
-            (d.tenouchi && d.tenouchi.length) || (d.miss && d.miss.length));
+            (d.tenouchi && d.tenouchi.length) || (d.miss && d.miss.length) || d.tenouchiWarning);
 }
 
 function selectStage(idx) {
