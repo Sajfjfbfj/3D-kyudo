@@ -286,9 +286,13 @@
       background: var(--panel); border: 1px solid var(--accent);
       border-radius: 10px; padding: 10px 20px; font-size: 13px; color: var(--gold-light);
       box-shadow: var(--shadow); z-index: 25001; /* メニューより前面に表示 */
-      transition: transform 0.3s cubic-bezier(0.18,0.89,0.32,1.28); white-space: nowrap;
+      transform: translateX(-50%) translateY(100px);
+      opacity: 0;
+      transition: transform 0.38s cubic-bezier(0.18,0.89,0.32,1.28), opacity 0.25s ease;
+      white-space: nowrap;
+      pointer-events: none;
     }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     @media screen and (orientation: landscape) and (max-height: 600px) {
       #toast { bottom: 64px; } /* ボトムナビを避けて上に表示 */
     }
@@ -786,8 +790,7 @@
   </div>
 </div>
 
-
-<div id="toast">読み込みました</div>
+<div id="toast"></div>
 
 <script type="importmap">
 {
@@ -1168,8 +1171,11 @@ function buildProgress() {
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
+  t.classList.remove('show');
+  void t.offsetHeight; // 強制リフロー
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2600);
+  if (t._timer) clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
 // ====================================================
