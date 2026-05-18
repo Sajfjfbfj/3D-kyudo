@@ -3425,32 +3425,33 @@ updateNotebookNameLabel();
   // 縦画面用ステップ
   const tutorialStepsPortrait = [
     {
-      text: "こんにちは！縦向き対応の３Dカスタムエディタだよ。さっと使いかたを説明するね！",
+      text: "こんにちは！ここは３Dカスタムエディタだよ。使いかたをさっと説明するね！",
       target: null
     },
     {
-      text: "上のバーで節を選ぶと、ポーズが切り替わるよ。▼ ビューアを表示 を押すと3Dモデルが見られるよ！",
-      target: "viewerToggleBtn",
+      // ビューアを開いてから stageNav を指す（showStepで特別処理）
+      text: "上のタブで節を切り替えられるよ。3Dモデルでポーズも確認できるよ！",
+      target: "stageNav",
       pos: "bottom",
-      arrow: "⤴"
+      openViewer: true
     },
     {
-      text: "筋肉分担セクションまでスクロールすると、3Dビューアが自動で出てくるよ！選んだ筋肉が3Dで確認できるよ。",
-      target: "muscleFieldGroup",
-      pos: "top",
-      arrow: "⤵"
+      // ビューアそのものを指す
+      text: "ここが3Dビューア。指でぐりぐり回せるよ！",
+      target: "viewer",
+      pos: "center"
     },
     {
-      text: "ここに自分の気づきや解説を書き込んでいこう！",
+      // ビューアを閉じてエディタを指す
+      text: "下のエディタに、自分の気づきや解説を書き込んでいこう！",
       target: "editorBody",
       pos: "top",
-      arrow: "⤵"
+      closeViewer: true
     },
     {
-      text: "書き終わったら「💾 保存・共有 ▾」から保存してね！",
+      text: "書き終わったら「💾 保存・共有 ▾」ボタンから保存・共有できるよ！",
       target: "portraitActionWrap",
-      pos: "bottom",
-      arrow: "⤴"
+      pos: "bottom"
     },
     {
       text: "説明はおしまい！どんどん書き込んで、自分だけのノートを作ろう！",
@@ -3467,98 +3468,122 @@ updateNotebookNameLabel();
   const arrow   = document.getElementById('tutorial-arrow');
   let step = 0;
 
+  // 吹き出し・枠・矢印の位置を要素に合わせて配置する（スクロール後に呼ぶ）
+  function positionBubble(el, pos) {
+    const rect = el.getBoundingClientRect();
+    const viewportPadding = 10;
+
+    focus.style.display = 'block';
+    focus.style.top    = (rect.top  - 5) + 'px';
+    focus.style.left   = (rect.left - 5) + 'px';
+    focus.style.width  = (rect.width  + 10) + 'px';
+    focus.style.height = (rect.height + 10) + 'px';
+
+    arrow.style.display = 'block';
+    bubble.style.transform = 'none';
+
+    const bubbleWidth  = bubble.offsetWidth;
+    const bubbleHeight = bubble.offsetHeight;
+    let bubbleLeft, bubbleTop, arrowLeft, arrowTop, arrowText;
+
+    if (pos === 'right') {
+      bubbleLeft = rect.right + 30;
+      bubbleTop  = rect.top + rect.height / 2 - bubbleHeight / 2;
+      arrowText  = '⬅';
+      arrowLeft  = rect.right + 5;
+      arrowTop   = rect.top + rect.height / 2 - 20;
+    } else if (pos === 'left') {
+      bubbleLeft = rect.left - bubbleWidth - 30;
+      bubbleTop  = rect.top + rect.height / 2 - bubbleHeight / 2;
+      arrowText  = '➡';
+      arrowLeft  = rect.left - 35;
+      arrowTop   = rect.top + rect.height / 2 - 20;
+    } else if (pos === 'top') {
+      bubbleLeft = rect.left + rect.width / 2 - bubbleWidth / 2;
+      bubbleTop  = rect.top - bubbleHeight - 40;
+      arrowText  = '⬇';
+      arrowLeft  = rect.left + rect.width / 2;
+      arrowTop   = rect.top - 50;
+    } else { // bottom
+      bubbleLeft = rect.left + rect.width / 2 - bubbleWidth / 2;
+      bubbleTop  = rect.bottom + 40;
+      arrowText  = '⬆';
+      arrowLeft  = rect.left + rect.width / 2;
+      arrowTop   = rect.bottom + 5;
+    }
+
+    // 垂直クランプ
+    if (bubbleTop < viewportPadding) {
+      bubbleTop = rect.bottom + 40; arrowTop = rect.bottom + 5; arrowText = '⬆';
+    }
+    if (bubbleTop + bubbleHeight > window.innerHeight - viewportPadding) {
+      bubbleTop = rect.top - bubbleHeight - 40; arrowTop = rect.top - 50; arrowText = '⬇';
+    }
+    if (bubbleTop < viewportPadding) bubbleTop = viewportPadding;
+    if (bubbleTop + bubbleHeight > window.innerHeight - viewportPadding)
+      bubbleTop = window.innerHeight - bubbleHeight - viewportPadding;
+
+    // 水平クランプ
+    if (bubbleLeft < viewportPadding) bubbleLeft = viewportPadding;
+    if (bubbleLeft + bubbleWidth > window.innerWidth - viewportPadding)
+      bubbleLeft = window.innerWidth - bubbleWidth - viewportPadding;
+
+    bubble.style.left = bubbleLeft + 'px';
+    bubble.style.top  = bubbleTop  + 'px';
+    arrow.style.left  = arrowLeft  + 'px';
+    arrow.style.top   = arrowTop   + 'px';
+    arrow.textContent = arrowText;
+  }
+
   function showStep() {
     const currentStep = tutorialSteps[step];
     bubble.textContent = currentStep.text;
-    bubble.style.display = 'block'; // 一時的に表示して寸法を取得
-
-    // 縦画面で muscleFieldGroup を指すステップはビューアを展開してから位置計算
-    if (currentStep.target === 'muscleFieldGroup') {
-      var vs = document.querySelector('.viewer-side');
-      if (vs) { vs.classList.remove('viewer-collapsed'); vs.classList.add('viewer-half'); }
-      if (typeof resizeRenderer === 'function') setTimeout(resizeRenderer, 350);
-    }
+    bubble.style.display = 'block';
 
     if (currentStep.target) {
-      overlay.style.backgroundColor = 'rgba(0,0,0,0)'; // ターゲットがある場合はオーバーレイを透明に
+      overlay.style.backgroundColor = 'rgba(0,0,0,0)';
       const el = document.getElementById(currentStep.target);
-      // ターゲット要素までスクロール
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const vs = document.querySelector('.viewer-side');
 
-      const rect = el.getBoundingClientRect();
-      focus.style.display = 'block';
-      focus.style.top    = (rect.top  - 5) + 'px';
-      focus.style.left   = (rect.left - 5) + 'px';
-      focus.style.width  = (rect.width  + 10) + 'px';
-      focus.style.height = (rect.height + 10) + 'px';
-
-      arrow.style.display = 'block';
-      bubble.style.transform = 'none'; // 正確な位置計算のためにtransformをリセット
-
-      const bubbleWidth = bubble.offsetWidth;
-      const bubbleHeight = bubble.offsetHeight;
-      const viewportPadding = 10; // 画面端からの最小パディング
-
-      let bubbleLeft, bubbleTop, arrowLeft, arrowTop, arrowText;
-      let finalPos = currentStep.pos;
-
-      // 初期推奨位置を決定
-      if (currentStep.pos === 'right') {
-        bubbleLeft = rect.right + 30;
-        bubbleTop = rect.top + rect.height / 2 - bubbleHeight / 2;
-        arrowText = '⬅';
-        arrowLeft = rect.right + 5;
-        arrowTop = rect.top + rect.height / 2 - 20;
-      } else if (currentStep.pos === 'left') {
-        bubbleLeft = rect.left - bubbleWidth - 30;
-        bubbleTop = rect.top + rect.height / 2 - bubbleHeight / 2;
-        arrowText = '➡';
-        arrowLeft = rect.left - 35;
-        arrowTop = rect.top + rect.height / 2 - 20;
-      } else if (currentStep.pos === 'top') {
-        bubbleLeft = rect.left + rect.width / 2 - bubbleWidth / 2;
-        bubbleTop = rect.top - bubbleHeight - 40;
-        arrowText = '⬇';
-        arrowLeft = rect.left + rect.width / 2;
-        arrowTop = rect.top - 50;
-      } else { // default to bottom
-        bubbleLeft = rect.left + rect.width / 2 - bubbleWidth / 2;
-        bubbleTop = rect.bottom + 40;
-        arrowText = '⬆';
-        arrowLeft = rect.left + rect.width / 2;
-        arrowTop = rect.bottom + 5;
-        finalPos = 'bottom';
+      function doScroll() {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function() { positionBubble(el, currentStep.pos || 'bottom'); }, 500);
       }
 
-      // 垂直方向の境界チェックと調整
-      if (bubbleTop < viewportPadding) { // 上にはみ出す場合、下へ移動
-        bubbleTop = rect.bottom + 40;
-        arrowTop = rect.bottom + 5;
-        arrowText = '⬆';
-        finalPos = 'bottom';
+      // ビューアを開いてから指す
+      if (currentStep.openViewer && vs) {
+        vs.classList.remove('viewer-collapsed');
+        vs.classList.add('viewer-half');
+        setTimeout(function() {
+          if (typeof resizeRenderer === 'function') resizeRenderer();
+          doScroll();
+        }, 350);
+        return;
       }
-      if (bubbleTop + bubbleHeight > window.innerHeight - viewportPadding) { // 下にはみ出す場合、上へ移動
-        bubbleTop = rect.top - bubbleHeight - 40;
-        arrowTop = rect.top - 50;
-        arrowText = '⬇';
-        finalPos = 'top';
+
+      // ビューアを閉じてから指す
+      if (currentStep.closeViewer && vs) {
+        vs.classList.add('viewer-collapsed');
+        vs.classList.remove('viewer-half');
+        setTimeout(doScroll, 350);
+        return;
       }
-      // 最終的なクランプ
-      if (bubbleTop < viewportPadding) bubbleTop = viewportPadding;
-      if (bubbleTop + bubbleHeight > window.innerHeight - viewportPadding) bubbleTop = window.innerHeight - bubbleHeight - viewportPadding;
 
-      // 水平方向の境界チェックと調整
-      if (bubbleLeft < viewportPadding) bubbleLeft = viewportPadding;
-      if (bubbleLeft + bubbleWidth > window.innerWidth - viewportPadding) bubbleLeft = window.innerWidth - bubbleWidth - viewportPadding;
+      // muscleFieldGroup は旧来の互換処理
+      if (currentStep.target === 'muscleFieldGroup') {
+        if (vs) { vs.classList.remove('viewer-collapsed'); vs.classList.add('viewer-half'); }
+        setTimeout(function() {
+          if (typeof resizeRenderer === 'function') resizeRenderer();
+          doScroll();
+        }, 350);
+        return;
+      }
 
-      bubble.style.left = bubbleLeft + 'px';
-      bubble.style.top = bubbleTop + 'px';
-      arrow.style.left = arrowLeft + 'px';
-      arrow.style.top = arrowTop + 'px';
-      arrow.textContent = arrowText;
+      // 通常: スクロール後に位置計算
+      doScroll();
 
     } else {
-      // ターゲットがない場合、中央に表示
+      // ターゲットなし → 中央表示
       overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
       focus.style.display = 'none';
       arrow.style.display = 'none';
