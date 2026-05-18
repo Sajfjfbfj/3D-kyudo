@@ -256,6 +256,70 @@
       color: rgba(255,255,255,0.85);
       border-color: rgba(255,255,255,0.45);
     }
+  
+    /* ================================================================
+       ボトムタブバー（横画面スマホ専用）
+       ================================================================ */
+    .btm-nav {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 25000;
+      height: 48px;
+      background: rgba(6, 11, 22, 0.97);
+      border-top: 1px solid rgba(148, 163, 184, 0.22);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    }
+    .btm-nav a {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 700;
+      transition: color 0.18s, background 0.18s;
+      letter-spacing: 0.03em;
+      -webkit-tap-highlight-color: transparent;
+      padding: 4px 2px;
+      min-width: 0;
+    }
+    .btm-nav a.active {
+      color: var(--accent);
+      background: rgba(125, 211, 252, 0.08);
+    }
+    .btm-nav a:active { background: rgba(125, 211, 252, 0.14); }
+    .btm-icon { font-size: 18px; line-height: 1; display: block; }
+    .btm-label { display: block; line-height: 1; }
+
+    /* 横画面スマホ（高さ600px以下）のみ表示 */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      .btm-nav { display: flex; }
+      /* ハンバーガーボタンを非表示 */
+      .menu-toggle { display: none !important; }
+    }
+
+    /* ── 横画面スマホ：ボトムナビ分 ── */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      body { padding-bottom: 56px !important; padding-top: 12px !important; }
+      h1 { font-size: 16px !important; margin-bottom: 12px !important; }
+      h2 { font-size: 11px !important; margin-bottom: 8px !important; }
+      .card {
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+      }
+      .name { font-size: 14px !important; }
+      .meta { font-size: 10px !important; }
+      .btn { padding: 7px 12px !important; font-size: 11px !important; min-height: 34px !important; }
+      section { margin-bottom: 16px !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -559,5 +623,15 @@
   });
 })();
 </script>
+
+<!-- ボトムタブバー（横画面スマホ用） -->
+<nav class="btm-nav">
+  <a href="index.html"><span class="btm-icon">🏹</span><span class="btm-label">一般用</span></a>
+  <a href="中高生.html"><span class="btm-icon">📚</span><span class="btm-label">中高生</span></a>
+  <a href="カスタム.html"><span class="btm-icon">✏️</span><span class="btm-label">3D編集</span></a>
+  <a href="プレビュー.html"><span class="btm-icon">👁</span><span class="btm-label">閲覧用</span></a>
+  <a href="マイリスト.html" class="active"><span class="btm-icon">⭐</span><span class="btm-label">リスト</span></a>
+</nav>
+
 </body>
 </html>
