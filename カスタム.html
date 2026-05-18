@@ -654,7 +654,7 @@
         0 8px 32px rgba(0,0,0,0.55),
         0 0 0 1px rgba(125, 211, 252, 0.08),
         inset 0 1px 0 rgba(255,255,255,0.06);
-      z-index: 24000;
+      z-index: 25001; /* ボトムナビより上に表示 */
       transition:
         transform 0.38s cubic-bezier(0.18,0.89,0.32,1.28),
         opacity 0.28s ease;
@@ -959,16 +959,6 @@
     .main-layout { transition: grid-template-columns 0.22s ease; }
     .viewer-side { transition: opacity 0.18s, min-width 0.22s; }
 
-    .keyboard-active .main-layout {
-      grid-template-columns: 0fr 1fr;
-    }
-    .keyboard-active .viewer-side {
-      min-width: 0;
-      overflow: hidden;
-      opacity: 0;
-      pointer-events: none;
-    }
-
     /* フォーカス中の欄をハイライト */
     .field-row.is-focused {
       background: rgba(125, 211, 252, 0.04);
@@ -1017,62 +1007,10 @@
     }
     .keyboard-active #focusFieldLabel { display: inline-block; }
 
-    /* フォーカス解除ボタン */
-    .focus-overlay-close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(255,255,255,0.1);
-        border: none;
-        color: white;
-        padding: 5px;
-    }
-    #focusExitBtn {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 30000;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1.5px solid var(--accent);
-      color: var(--accent);
-      border-radius: 999px;
-      padding: 11px 20px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: inherit;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-      transition: box-shadow 0.2s, transform 0.15s;
-      letter-spacing: 0.04em;
-    }
-    #focusExitBtn:active { transform: scale(0.94); }
-    .keyboard-active #focusExitBtn { display: flex; align-items: center; gap: 6px; }
-
     /* ── 横画面スマホ：キーボード表示中の特別対応 ── */
     @media screen and (orientation: landscape) and (max-height: 600px) {
       /* キーボード出現中はボトムタブバーを隠す（画面スペース確保） */
       body.keyboard-active .btm-nav { display: none !important; }
-
-      /* 閉じるボタン：全幅バー形式に変更（キーボードの上に固定） */
-      body.keyboard-active #focusExitBtn {
-        bottom: 0 !important;
-        right: 0 !important;
-        left: 0 !important;
-        border-radius: 0 !important;
-        width: 100% !important;
-        justify-content: center !important;
-        padding: 10px 20px !important;
-        font-size: 13px !important;
-        border-top: 1.5px solid rgba(125,211,252,0.4) !important;
-        border-left: none !important;
-        border-right: none !important;
-        border-bottom: none !important;
-        background: rgba(8, 14, 28, 0.98) !important;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.5) !important;
-        gap: 8px !important;
-      }
 
       /* エディタ本体：visualViewport に合わせた高さで収まるようにする */
       body.keyboard-active .editor-body {
@@ -1330,30 +1268,51 @@
         height: 100% !important;
       }
 
-      /* ビューアサイド: 縦画面デフォルトは折りたたみ */
+      /* ビューアサイド: 縦画面デフォルト50%、ドラッグで可変 */
       .viewer-side {
-        height: 44px !important;
-        max-height: 44px !important;
+        height: 50% !important;
+        min-height: 44px !important;
+        max-height: 85% !important;
         flex-shrink: 0 !important;
         border-right: none !important;
         border-bottom: 1px solid var(--line) !important;
-        transition: height 0.28s ease, max-height 0.28s ease !important;
         overflow: hidden !important;
         position: relative !important;
+        transition: none !important;
       }
       .viewer-side.viewer-collapsed {
-        height: auto !important;
-        max-height: none !important;
+        height: auto !important; /* コンテンツの高さに合わせる */
+        max-height: none !important; /* 最大高さの制限を解除 */
+        flex-grow: 0 !important;   /* 余分なスペースを占有しない */
+        flex-shrink: 0 !important;  /* コンテンツの高さに合わせて縮む */
       }
-      .viewer-side.viewer-collapsed #viewer {
-        display: none !important;
-      }
+      .viewer-side.viewer-collapsed #viewer,
       .viewer-side.viewer-collapsed .viewer-controls {
         display: none !important;
       }
-      .viewer-side.viewer-half {
-        height: 45% !important;
-        max-height: 45% !important;
+      /* ドラッグハンドル */
+      .viewer-resize-handle {
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 18px !important;
+        cursor: ns-resize !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(125,211,252,0.08) !important;
+        border-top: 1px solid rgba(125,211,252,0.25) !important;
+        z-index: 10 !important;
+        touch-action: none !important;
+        flex-shrink: 0 !important;
+      }
+      .viewer-resize-handle::before {
+        content: '' !important;
+        width: 36px !important;
+        height: 3px !important;
+        border-radius: 2px !important;
+        background: rgba(125,211,252,0.5) !important;
       }
 
       /* 折りたたみボタン */
@@ -1376,23 +1335,7 @@
         scroll-padding-bottom: 80px !important;
       }
 
-      /* キーボード出現時：ビューアを完全に畳んでエディタ最大化 */
-      body.keyboard-active .viewer-side {
-        height: 0 !important;
-        max-height: 0 !important;
-        overflow: hidden !important;
-        border-bottom: none !important;
-      }
-      /* 筋肉セクションならビューアを展開状態に */
-      body.keyboard-active.muscle-focus .viewer-side {
-        height: 45% !important;
-        max-height: 45% !important;
-        overflow: hidden !important;
-        border-bottom: 1px solid var(--line) !important;
-      }
-      body.keyboard-active .viewer-toggle-btn {
-        display: none !important;
-      }
+      /* キーボード出現時もビューアはユーザー設定の高さを維持 */
       /* 縦画面ではフォーカス解除ボタンを右下の浮きボタンに */
       body.keyboard-active #focusExitBtn {
         bottom: 16px !important;
@@ -1574,9 +1517,6 @@
   <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※画面の向きが変わらない場合は、スマホの「縦向きロック」をオフにしてください。</p>
 </div>
 
-<!-- フォーカス解除ボタン（キーボード表示中のみ表示） -->
-<button id="focusExitBtn" onclick="exitFocusMode()" title="入力を終了してビューアに戻る">✕ 閉じる</button>
-
 <!-- ヘッダー -->
 <header class="app-header">
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -1705,8 +1645,9 @@
   <div class="viewer-side">
     <!-- 縦画面専用：ビューア折りたたみボタン（常に先頭で見える） -->
     <button class="viewer-toggle-btn" id="viewerToggleBtn">
-      <span id="viewerToggleIcon">▼ ビューアを表示</span>
+      <span id="viewerToggleIcon">▲ ビューアを隠す</span>
     </button>
+    <div class="viewer-resize-handle" id="viewerResizeHandle"></div>
     <div class="stage-nav" id="stageNav"></div>
     <div id="viewer">
       <div id="loading-screen">
@@ -1795,7 +1736,7 @@
           <div class="field-group-label">🤚 手の内チェックポイント</div>
           <div class="checkpoint-list" id="tenouchiList"></div>
           <button class="add-btn" onclick="addCheckpoint('tenouchi')">＋ チェックポイントを追加</button>
-          <div style="margin-top:10px;">
+          <div class="field-row" style="margin-top:10px;">
             <div class="field-label">⚠ 手の内 注意メモ（装飾可能）</div>
             <div class="toolbar" id="toolbar-tenouchiWarning"></div>
             <div id="f-tenouchiWarning" class="rich-editor rich-editor-sm" contenteditable="true"></div>
@@ -2405,7 +2346,7 @@ function collectEditorFields() {
 
 function isStageHasData(i) {
   const d = userData[i];
-  return !!(d.desc || d.primaryMuscles.length || d.secondaryMuscles.length || d.tenouchi.length || d.miss.length);
+  return !!(d.desc || d.primaryMuscles.length || d.secondaryMuscles.length || d.tenouchi.length || d.miss.length || d.tenouchiWarning);
 }
 
 function isStageComplete(i) {
@@ -3123,25 +3064,8 @@ updateNotebookNameLabel();
 
   var prevMuscleFocus = false;
   function updateMuscleViewerMode(el) {
-    if (!el) { body.classList.remove('muscle-focus'); prevMuscleFocus = false; return; }
-    var isPortrait = window.matchMedia('(orientation: portrait)').matches;
-    var next = isPortrait && isInMuscleSection(el);
-    if (next === prevMuscleFocus) return; // 変化なし → スクロール競合させない
-    prevMuscleFocus = next;
-    if (next) {
-      body.classList.add('muscle-focus');
-      // 筋肉セクション時は確実にビューアを展開
-      var viewerSide = document.querySelector('.viewer-side');
-      if (viewerSide) {
-        viewerSide.classList.remove('viewer-collapsed');
-      }
-    } else {
-      body.classList.remove('muscle-focus');
-    }
-    // ビューア高さ変化後にリサイズ（transitionが0.28sなので少し後）
-    setTimeout(function() {
-      if (typeof resizeRenderer === 'function') resizeRenderer();
-    }, 300);
+    // ビューアの自動開閉を無効化（編集してないモードと同じ挙動にする）
+    return; // This function is effectively disabled now.
   }
 
   function enterFocusMode(el) {
@@ -3153,31 +3077,7 @@ updateNotebookNameLabel();
       focusFieldLabel.textContent = name ? ('✏️ ' + name) : '✏️ 編集中';
     }
 
-    // ビューア高さが変わるかどうかで scrollDelay を分ける
-    var isPortrait = window.matchMedia('(orientation: portrait)').matches;
-    var nextMuscle = isPortrait && isInMuscleSection(el);
-    var changingViewerHeight = (nextMuscle !== prevMuscleFocus);
-    updateMuscleViewerMode(el);
-    
-    // 筋肉セクション以外ならビューアを折りたたむ
-    if (isPortrait && !nextMuscle) {
-      var viewerSide = document.querySelector('.viewer-side');
-      if (viewerSide) {
-        viewerSide.classList.add('viewer-collapsed');
-        viewerSide.classList.remove('viewer-half');
-      }
-    } else if (isPortrait && nextMuscle) {
-      // 筋肉セクションならビューアを展開
-      var viewerSide = document.querySelector('.viewer-side');
-      if (viewerSide) {
-        viewerSide.classList.remove('viewer-collapsed');
-        viewerSide.classList.add('viewer-half');
-      }
-    }
-
-    // ビューア高さが変わるときは transition 完了後にスクロール
-    // 変わらないときはキーボードアニメ待ちの 280ms
-    var scrollDelay = changingViewerHeight ? 340 : 280;
+    var scrollDelay = 280;
     setTimeout(function() {
       if (el && el.isConnected) {
         el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -3192,12 +3092,6 @@ updateNotebookNameLabel();
     if (focusFieldLabel) focusFieldLabel.textContent = '📝 —';
     if (document.activeElement && document.activeElement !== document.body) {
       document.activeElement.blur();
-    }
-    // ビューアを折りたたむ
-    var viewerSide = document.querySelector('.viewer-side');
-    if (viewerSide) {
-      viewerSide.classList.add('viewer-collapsed');
-      viewerSide.classList.remove('viewer-half');
     }
     prevMuscleFocus = false;
   }
@@ -3231,17 +3125,14 @@ updateNotebookNameLabel();
       if (active && active.closest('.toolbar')) return;
       // 別のエディタ欄にフォーカスが移った場合も維持（onFocusで更新）
       if (isEditorEl(active)) return;
+      // ドラッグ操作中ならモードを維持
+      if (window._isDraggingResizeHandle) return;
+
       // それ以外は解除
       body.classList.remove('keyboard-active');
       body.classList.remove('muscle-focus');
       setFocusedRow(null);
       if (focusFieldLabel) focusFieldLabel.textContent = '📝 —';
-      // 筋肉セクション外に移ったらビューアを折りたたむ
-      var viewerSide = document.querySelector('.viewer-side');
-      if (viewerSide && !isInMuscleSection(active)) {
-        viewerSide.classList.add('viewer-collapsed');
-        viewerSide.classList.remove('viewer-half');
-      }
     }, 250);
   }
 
@@ -3280,18 +3171,31 @@ updateNotebookNameLabel();
       // input/textareaのクリックは onFocus 側で処理するのでスキップ（ビューアは隠したまま）
       if (isEditorEl(e.target)) return;
       // 筋肉グリッド（チップ）内のクリックのみビューアを表示
-      var inGrid = (primaryMuscleGrid && primaryMuscleGrid.contains(e.target)) ||
-                   (secondaryMuscleGrid && secondaryMuscleGrid.contains(e.target));
-      if (!inGrid) return;
+      // クリックされた要素が筋肉チップ自体か、その子孫であるかを確認
+      var clickedChip = e.target.closest('.muscle-chip');
+      if (!clickedChip) return; // 筋肉チップ以外がクリックされたら何もしない
+
       // メモ欄からチップへ移ったときにblurタイマーがビューアを隠さないようキャンセル
       clearTimeout(blurTimer);
-      // ビューアを展開（prevMuscleFocusに関わらず確実に表示）
-      prevMuscleFocus = true;
-      body.classList.add('muscle-focus');
+
+      // キーボードフォーカスモードを解除し、ビューアを展開
+      body.classList.remove('keyboard-active');
+      setFocusedRow(null);
+      if (focusFieldLabel) focusFieldLabel.textContent = '📝 —';
+
       var viewerSide = document.querySelector('.viewer-side');
       if (viewerSide) {
         viewerSide.classList.remove('viewer-collapsed');
-        viewerSide.classList.add('viewer-half');
+        // savedHeight があれば復元、なければCSSのデフォルトに任せる
+        var viewerState = window.getViewerState ? window.getViewerState() : { collapsed: false, savedHeight: null };
+        if (viewerState.savedHeight) {
+          viewerSide.style.setProperty('height', viewerState.savedHeight, 'important');
+        } else {
+          viewerSide.style.removeProperty('height'); // Let default CSS apply
+        }
+        var toggleIcon = document.getElementById('viewerToggleIcon');
+        if (toggleIcon) toggleIcon.textContent = '▲ ビューアを隠す';
+        if (window.setViewerState) window.setViewerState(false, viewerState.savedHeight); // 状態を外部に同期
       }
       // transitionが完了するまで複数タイミングでリサイズをかける
       [100, 300, 500].forEach(function(delay) {
@@ -3331,13 +3235,8 @@ updateNotebookNameLabel();
             setFocusedRow(null);
             if (focusFieldLabel) focusFieldLabel.textContent = '📝 —';
             prevMuscleFocus = false;
-            // キーボード閉じた時はビューアを折りたたむ
-            var viewerSide = document.querySelector('.viewer-side');
-            if (viewerSide) {
-              viewerSide.classList.add('viewer-collapsed');
-              viewerSide.classList.remove('viewer-half');
-            }
           }
+          setTimeout(function() { if (typeof resizeRenderer === 'function') resizeRenderer(); }, 300);
         }, 100);
       }
       lastVH = newVH;
@@ -3345,44 +3244,7 @@ updateNotebookNameLabel();
   }
 })();
 </script>
-<script>
-// ===== 筋肉分担セクション：スクロールで自動ビューア表示 =====
-(function() {
-  var muscleGroup = document.getElementById('muscleFieldGroup');
-  if (!muscleGroup) return;
 
-  function showViewer() {
-    if (!window.matchMedia('(orientation: portrait)').matches) return;
-    var vs = document.querySelector('.viewer-side');
-    if (!vs) return;
-    vs.classList.remove('viewer-collapsed');
-    vs.classList.add('viewer-half');
-    document.body.classList.add('muscle-focus');
-    [100, 300, 500].forEach(function(d) {
-      setTimeout(function() { if (typeof resizeRenderer === 'function') resizeRenderer(); }, d);
-    });
-  }
-
-  function hideViewer() {
-    if (!window.matchMedia('(orientation: portrait)').matches) return;
-    // キーボード入力中は他のロジックに任せる
-    if (document.body.classList.contains('keyboard-active')) return;
-    var vs = document.querySelector('.viewer-side');
-    if (!vs) return;
-    vs.classList.add('viewer-collapsed');
-    vs.classList.remove('viewer-half');
-    document.body.classList.remove('muscle-focus');
-  }
-
-  var io = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) { showViewer(); } else { hideViewer(); }
-    });
-  }, { threshold: 0.1 });
-
-  io.observe(muscleGroup);
-})();
-</script>
 <script>
 // ===== カスタムエディタ チュートリアル =====
 (function() {
@@ -3635,37 +3497,110 @@ updateNotebookNameLabel();
 
 <script>
 // ================================================================
-// 縦画面：ビューア折りたたみトグル（シンプル版）
+// 縦画面：ビューア折りたたみ＋ドラッグリサイズ
 // ================================================================
 (function() {
   var toggleBtn  = document.getElementById('viewerToggleBtn');
   var toggleIcon = document.getElementById('viewerToggleIcon');
   var viewerSide = document.querySelector('.viewer-side');
-  var editorBody = document.getElementById('editorBody');
-  var collapsed  = true; // 縦画面デフォルトは折りたたみ
+  var handle     = document.getElementById('viewerResizeHandle');
 
   if (!toggleBtn || !viewerSide) return;
 
-  // 初期状態：折りたたみ
-  viewerSide.classList.add('viewer-collapsed');
-  viewerSide.classList.remove('viewer-half');
+  window._isDraggingResizeHandle = false;
 
+  // 初期状態：50%表示（collapsed ではない）
+  var collapsed = false;
+  viewerSide.classList.remove('viewer-collapsed');
+
+  // ドラッグで調節した高さを記憶する変数
+  var savedHeight = null;
+
+  // 外部（フォーカスモード等）から状態を参照・更新できるように関数を定義
+  window.getViewerState = function() { return { collapsed: collapsed, savedHeight: savedHeight }; };
+  window.setViewerState = function(newCollapsed, newSavedHeight) {
+    collapsed = newCollapsed;
+    savedHeight = newSavedHeight;
+  };
+
+  // 折りたたみトグル
   toggleBtn.addEventListener('click', function() {
-    var prevH = viewerSide.offsetHeight;
-    var prevScroll = editorBody ? editorBody.scrollTop : 0;
-
     collapsed = !collapsed;
-    viewerSide.classList.toggle('viewer-collapsed', collapsed);
-    viewerSide.classList.toggle('viewer-half', !collapsed);
-    toggleIcon.textContent = collapsed ? '▼ ビューアを表示' : '▲ ビューアを隠す';
-
-    // スクロール位置の補正
-    setTimeout(function() {
-      var delta = viewerSide.offsetHeight - prevH;
-      if (delta !== 0 && editorBody) editorBody.scrollTop = prevScroll + delta;
-      if (typeof resizeRenderer === 'function') resizeRenderer();
-    }, 300);
+    if (collapsed) {
+      savedHeight = viewerSide.style.height; // 現在の調節された高さを保存
+      viewerSide.classList.add('viewer-collapsed');
+      // ドラッグで付与された「height: ...px !important」を削除することで、
+      // CSSの「height: auto !important」を有効にし、空白を消す
+      viewerSide.style.removeProperty('height');
+      toggleIcon.textContent = '▼ ビューアを表示';
+    } else {
+      viewerSide.classList.remove('viewer-collapsed');
+      // 保存していた高さがあれば復元する（なければデフォルトのCSS設定に戻る）
+      if (savedHeight) {
+        viewerSide.style.setProperty('height', savedHeight, 'important');
+      }
+      toggleIcon.textContent = '▲ ビューアを隠す';
+      setTimeout(function() { if (typeof resizeRenderer === 'function') resizeRenderer(); }, 50);
+    }
+    window.setViewerState(collapsed, savedHeight); // 状態を外部に同期
   });
+
+  // ドラッグリサイズ
+  if (handle) {
+    var startY = null, startH = 0;
+    var mainLayout = viewerSide.parentElement;
+
+    function onMove(clientY) {
+      var delta = clientY - startY;
+      var newH = Math.min(Math.max(startH + delta, 80), mainLayout.offsetHeight * 0.85);
+      
+      savedHeight = newH + 'px'; // ドラッグ中の高さを常に記憶
+
+      // 折りたたみ中に下にドラッグ（拡大）されたら、自動で展開状態に戻す
+      if (collapsed && delta > 5) {
+        collapsed = false;
+        viewerSide.classList.remove('viewer-collapsed');
+        toggleIcon.textContent = '▲ ビューアを隠す';
+        window.setViewerState(collapsed, savedHeight);
+      }
+
+      viewerSide.style.setProperty('height', newH + 'px', 'important');
+      if (typeof resizeRenderer === 'function') resizeRenderer();
+    }
+    window.setViewerState(collapsed, savedHeight); // 状態を外部に同期
+
+    // タッチ
+    handle.addEventListener('touchstart', function(e) {
+      window._isDraggingResizeHandle = true;
+      startY = e.touches[0].clientY;
+      startH = viewerSide.offsetHeight;
+      e.preventDefault();
+    }, { passive: false });
+    document.addEventListener('touchmove', function(e) {
+      if (startY == null) return;
+      onMove(e.touches[0].clientY);
+      e.preventDefault();
+    }, { passive: false });
+    document.addEventListener('touchend', function() { 
+      startY = null; 
+      window._isDraggingResizeHandle = false;
+    });
+
+    // マウス（デスクトップ確認用）
+    handle.addEventListener('mousedown', function(e) {
+      window._isDraggingResizeHandle = true;
+      startY = e.clientY;
+      startH = viewerSide.offsetHeight;
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (startY == null) return;
+      onMove(e.clientY);
+    });
+    document.addEventListener('mouseup', function() { 
+      startY = null; 
+      window._isDraggingResizeHandle = false;
+    });
+  }
 
   // キーボード表示変化時にrendererリサイズ
   document.addEventListener('visibilitychange', function() {
@@ -3673,9 +3608,6 @@ updateNotebookNameLabel();
       setTimeout(function() { if (typeof resizeRenderer === 'function') resizeRenderer(); }, 400);
     }
   });
-  new MutationObserver(function() {
-    setTimeout(function() { if (typeof resizeRenderer === 'function') resizeRenderer(); }, 320);
-  }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 })();
 </script>
 
