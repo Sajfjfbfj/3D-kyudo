@@ -1,73 +1,117 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>リアル八節くん ─ マイリスト</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg: #0b1220;
-      --panel: rgba(15, 23, 42, 0.88);
-      --panel-2: rgba(30, 41, 59, 0.82);
-      --line: rgba(148, 163, 184, 0.18);
-      --text: #f1f5f9;
-      --muted: #a9b6cd;
-      --accent: #7dd3fc;
-      --accent-2: #fb7185;
-      --shadow: 0 10px 30px rgba(0,0,0,.3);
+      --bg: #fdf8f8;
+      --panel: #ffffff;
+      --panel-2: #f7f3f2;
+      --line: #e0dedd;
+      --text: #1c1b1b;
+      --muted: #616363;
+      --accent: #1c1b1b;
+      --accent-2: #ba1a1a;
+      --accent-3: #c0392b;
+      --ok: #2d7a3e;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --surface: #fdf8f8;
+      --on-surface: #1c1b1b;
+      --primary: #000000;
+      --on-primary: #ffffff;
+      --surface-container: #f1edec;
+      --surface-container-low: #f7f3f2;
+      --surface-container-high: #ebe7e6;
+      --outline-variant: #e5e2e1;
+      --cinnabar: #ba1a1a;
+      --kyudo-gold: #c0392b;
+      --viewer-bg: #0d1b2a;
+      --font-scale: 1;
     }
-    /* 縦画面警告オーバーレイ */
-    #orientation-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 9999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 24px;
+    /* ダークモード変数 */
+    [data-theme="dark"] {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --panel-2: #2a2a2a;
+      --line: #3a3a3a;
+      --text: #f0ece9;
+      --muted: #a0a0a0;
+      --accent: #f0ece9;
+      --accent-2: #e05555;
+      --accent-3: #d4af37;
+      --ok: #4caf70;
+      --shadow: 0 2px 8px rgba(0,0,0,0.4);
+      --surface: #121212;
+      --on-surface: #f0ece9;
+      --primary: #f0ece9;
+      --on-primary: #121212;
+      --surface-container: #2a2a2a;
+      --surface-container-low: #1e1e1e;
+      --surface-container-high: #333333;
+      --outline-variant: #444444;
+      --cinnabar: #e05555;
+      --kyudo-gold: #d4af37;
+      --viewer-bg: #07111c;
     }
-    .rotate-hint {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 24px;
-      color: var(--accent);
-      animation: rotate-anim 2s ease-in-out infinite;
-    }
-    @keyframes rotate-anim {
-      0%   { transform: rotate(0deg); }
-      70%  { transform: rotate(-90deg); }
-      100% { transform: rotate(-90deg); }
-    }
-    @media (orientation: portrait)  { #orientation-overlay { display: flex; } }
-    @media (orientation: landscape) { #orientation-overlay { display: none; } }
     body {
-      margin: 0; font-family: Inter, sans-serif; background: var(--bg); color: var(--text);
-      background: radial-gradient(circle at top left, rgba(125, 211, 252, 0.14), transparent 28%), linear-gradient(180deg, #08101d 0%, #0b1220 100%);
-      min-height: 100vh; padding: 20px 20px 100px;
+      margin: 0; font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif; background: var(--bg); color: var(--text);
+      background: var(--bg);
+      height: 100dvh; padding: 20px 20px 80px;
+      overflow-y: auto;
+      font-size: calc(14px * var(--font-scale, 1));
+    }
+    /* 縦向きレイアウト */
+    @media (orientation: portrait) {
+      body { padding: 12px 14px 90px; }
+      .container { max-width: 100%; }
+      .card { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .actions { width: 100%; justify-content: flex-end; }
     }
     .container { max-width: 800px; margin: 0 auto; }
-    h1 { font-size: 24px; font-weight: 800; color: var(--accent); margin-bottom: 24px; }
+    h1 { font-size: calc(24px * var(--font-scale, 1)); font-weight: 800; color: var(--text); margin-bottom: 24px; }
     section { margin-bottom: 32px; }
-    h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+    h2 { font-size: calc(14px * var(--font-scale, 1)); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
     .card {
       background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px;
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; transition: 0.2s;
     }
-    .card:hover { border-color: var(--accent); background: rgba(125, 211, 252, 0.05); }
+    .card:hover { border-color: var(--accent-2); }
     .info { display: flex; flex-direction: column; gap: 4px; }
-    .name { font-weight: 700; font-size: 16px; }
-    .meta { font-size: 11px; color: var(--muted); }
-    .actions { display: flex; gap: 8px; }
+    .name { font-weight: 700; font-size: calc(16px * var(--font-scale, 1)); color: var(--text); }
+    .meta { font-size: calc(11px * var(--font-scale, 1)); color: var(--muted); }
+    .actions { display: flex; gap: 8px; flex-shrink: 0; }
     .btn {
-      padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s;
+      padding: 8px 16px; border-radius: 8px; font-size: calc(12px * var(--font-scale, 1)); font-weight: 600; cursor: pointer; border: none; transition: 0.2s;
     }
-    .btn-view { background: var(--accent); color: var(--bg); }
-    .btn-del { background: rgba(251, 113, 133, 0.1); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.2); }
-    .empty { padding: 40px; text-align: center; color: var(--muted); font-size: 14px; border: 1px dashed var(--line); border-radius: 16px; }
+    .btn-view { background: var(--accent-2); color: #fff; }
+    [data-theme="dark"] .btn-view { background: var(--accent-2); color: #fff; }
+    .btn-del { background: rgba(251, 113, 133, 0.1); color: #e05555; border: 1px solid rgba(251, 113, 133, 0.3); }
+    [data-theme="dark"] .btn-del { background: rgba(224, 85, 85, 0.15); color: #ff8a80; border-color: rgba(224,85,85,0.4); }
+    .empty { padding: 40px; text-align: center; color: var(--muted); font-size: calc(14px * var(--font-scale, 1)); border: 1px dashed var(--line); border-radius: 16px; }
 
 
   
@@ -80,7 +124,7 @@
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--bg);
       border: 1px solid var(--line);
       backdrop-filter: blur(12px);
       cursor: pointer;
@@ -122,7 +166,7 @@
       width: 240px;
       height: 100vh;
       height: 100dvh;
-      background: rgba(10, 18, 35, 0.97);
+      background: var(--panel);
       backdrop-filter: blur(20px);
       border-left: 1px solid var(--line);
       z-index: 16000;
@@ -158,7 +202,7 @@
       display: block;
     }
     .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
-    .side-nav a.active { color: #0b1220; background: var(--accent); }
+    .side-nav a.active { color: var(--on-primary); background: var(--primary); }
     .side-nav a .nav-title { display: block; }
     .side-nav a .nav-desc {
       display: block;
@@ -171,7 +215,7 @@
     .side-nav a.active .nav-desc { opacity: 0.75; }
     .side-nav a:hover .nav-desc { opacity: 0.85; }
   
-    @media (orientation: portrait) { .menu-toggle { display: none !important; } }
+    @media (orientation: portrait) { .menu-toggle { display: flex !important; } }
 
     .sub {
       color: var(--muted);
@@ -258,19 +302,21 @@
     }
   
     /* ================================================================
-       ボトムタブバー（横画面スマホ専用）
+       ボトムタブバー
        ================================================================ */
     .btm-nav {
-      display: none;
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      z-index: 25000;
-      height: 48px;
-      background: rgba(6, 11, 22, 0.97);
-      border-top: 1px solid rgba(148, 163, 184, 0.22);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+      z-index: 400;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: none !important;
+    }
+    [data-theme="dark"] .btm-nav {
+      background: rgba(18,18,18,0.97);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
     }
     .btm-nav a {
       flex: 1;
@@ -281,27 +327,40 @@
       gap: 2px;
       text-decoration: none;
       color: var(--muted);
-      font-size: 8px;
-      font-weight: 700;
-      transition: color 0.18s, background 0.18s;
-      letter-spacing: 0.03em;
+      font-size: 10px;
+      font-weight: 500;
+      font-family: "Noto Sans JP", sans-serif;
+      transition: color 0.18s;
       -webkit-tap-highlight-color: transparent;
       padding: 4px 2px;
       min-width: 0;
     }
-    .btm-nav a.active {
-      color: var(--accent);
-      background: rgba(125, 211, 252, 0.08);
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: background 0.2s;
     }
-    .btm-nav a:active { background: rgba(125, 211, 252, 0.14); }
-    .btm-icon { font-size: 18px; line-height: 1; display: block; }
+    .btm-nav a.active {
+      color: var(--accent-2);
+    }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
     .btm-label { display: block; line-height: 1; }
 
-    /* 横画面スマホ（高さ600px以下）のみ表示 */
-    @media screen and (orientation: landscape) and (max-height: 600px) {
-      .btm-nav { display: flex; }
-      /* ハンバーガーボタンを非表示 */
-      .menu-toggle { display: none !important; }
+
+    /* ── ナビゲーション表示制御 ── */
+    .app-icon-btn#menuToggle { display: flex !important; }
+
+    @media (min-width: 1025px) {
+      .btm-nav { display: flex !important; }
+      .app-icon-btn#menuToggle { display: none !important; }
+      .app-header { justify-content: center; }
+      /* 右側の余白調整用 spacer を隠す */
+      .app-header div[style*="width:40px"] { display: none !important; }
     }
 
     /* ── 横画面スマホ：ボトムナビ分 ── */
@@ -320,9 +379,211 @@
       section { margin-bottom: 16px !important; }
     }
 
+  
+    /* ── REDESIGNED NAVIGATION SYSTEM ── */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 400;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      width: 100%;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .app-header-title {
+      font-family: "Noto Serif JP", serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+    .app-icon-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      color: var(--text);
+      transition: background 0.2s;
+      appearance: none;
+      flex-shrink: 0;
+    }
+    .app-icon-btn:hover { background: var(--panel-2); }
+
+    /* ── DRAWER ── */
+    .overlay-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay-menu.show { opacity: 1; pointer-events: all; }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 260px;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--bg);
+      border-right: 1px solid var(--line);
+      z-index: 600;
+      padding: 0 0 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .side-nav::-webkit-scrollbar { width: 4px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+    .side-nav.open { left: 0; }
+    .side-nav-header {
+      font-family: "Noto Serif JP", serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--primary);
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+    .side-nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 8px 20px 4px;
+    }
+    .side-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: "Noto Sans JP", sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 16px;
+      margin: 2px 8px;
+      border-radius: 24px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .side-nav a:hover { color: var(--text); background: var(--panel-2); }
+    .side-nav a.active {
+      color: var(--on-surface);
+      background: var(--surface-container-high);
+      font-weight: 700;
+    }
+    .side-nav a .nav-icon { font-size: 22px; flex-shrink: 0; }
+    .side-nav a .nav-content { display: flex; flex-direction: column; gap: 1px; }
+    .side-nav a .nav-title { display: block; }
+    .side-nav a .nav-desc {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.65;
+      line-height: 1.4;
+    }
+    .side-nav a.active .nav-desc { opacity: 0.75; }
+
+    /* ── BOTTOM NAV ── */
+    .btm-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 400;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: flex;
+    }
+    [data-theme="dark"] .btm-nav {
+      background: rgba(18,18,18,0.97);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
+    }
+    .btm-nav a {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      font-family: "Noto Sans JP", sans-serif;
+      transition: color 0.18s;
+      -webkit-tap-highlight-color: transparent;
+      padding: 4px 2px;
+      min-width: 0;
+    }
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: background 0.2s;
+    }
+    .btm-nav a.active { color: var(--accent-2); }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
+    .btm-label { display: block; line-height: 1; }
+
+    /* ── HAMBURGER TOGGLE (top app bar uses icon, old toggle hidden) ── */
+    .menu-toggle { display: none !important; }
+
+    /* Landscape layout bottom-nav support */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      .btm-nav { height: 48px; }
+      .btm-nav a .btm-icon-wrap { height: 28px; }
+    }
+
   </style>
+  <!-- リデザイン用オーバーライド（視覚のみ） -->
+  <link rel="stylesheet" href="redesign.css">
+  <script>
+    // 設定をページ読み込み時に即時適用（チラつき防止）
+    (function() {
+      var dark  = localStorage.getItem('kyudo_dark_mode') === '1';
+      var scale = parseFloat(localStorage.getItem('kyudo_font_scale') || '1.0');
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.setProperty('--font-scale', scale);
+    })();
+  </script>
 </head>
 <body>
+<!-- Top App Bar -->
+<header class="app-header">
+  <button class="app-icon-btn" id="menuToggle" onclick="toggleDrawer()" aria-label="メニュー">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+  <h1 class="app-header-title">リアル八節くん</h1>
+  <div style="width:40px;flex-shrink:0;"></div>
+</header>
+<div class="overlay-menu" id="overlayMenu" onclick="toggleDrawer()"></div>
 
 <!-- チュートリアル用オーバーレイ -->
 <div id="tutorial-overlay">
@@ -330,16 +591,6 @@
   <div class="tutorial-highlight" id="tutorial-focus"></div>
   <div class="hand-arrow" id="tutorial-arrow">⤴</div>
   <div id="tutorial-bubble">ここに説明文が入ります。</div>
-</div>
-
-<!-- 縦画面警告オーバーレイ -->
-<div id="orientation-overlay">
-  <div class="rotate-hint">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-  </div>
-  <h2 style="margin:0 0 10px;">画面を横向きにしてください</h2>
-  <p class="sub">この教材は横画面で見やすいように設計されています。</p>
-  <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※画面の向きが変わらない場合は、スマホの「縦向きロック」をオフにしてください。</p>
 </div>
 
 <div class="container">
@@ -357,33 +608,9 @@
 </div>
 
 
-<button class="menu-toggle" id="menuToggle" aria-label="メニュー">
-  <span></span><span></span><span></span>
-</button>
-<div class="overlay-menu" id="overlayMenu"></div>
-<nav class="side-nav" id="sideNav">
-  <div class="side-nav-label">ページ移動</div>
-  <a href="index.html">
-    <span class="nav-title">🏹 一般用</span>
-    <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説する標準ページ</span>
-  </a>
-  <a href="中高生.html">
-    <span class="nav-title">📚 中高生用</span>
-    <span class="nav-desc">中高生向けにやさしい言葉で筋肉・動作をわかりやすく解説</span>
-  </a>
-  <a href="カスタム.html">
-    <span class="nav-title">✏️ ３D編集</span>
-    <span class="nav-desc">3Dモデルの表示やカメラ設定を自由にカスタマイズできる編集ページ</span>
-  </a>
-  <a href="プレビュー.html">
-    <span class="nav-title">👁 閲覧用</span>
-    <span class="nav-desc">シンプルなレイアウトでアニメーションをゆっくり確認できるページ</span>
-  </a>
-  <a href="マイリスト.html" class="active">
-    <span class="nav-title">⭐ マイリスト</span>
-    <span class="nav-desc">お気に入りに登録した節や筋肉をまとめて確認できるページ</span>
-  </a>
-</nav>
+
+
+
 
 
 <script>
@@ -509,15 +736,7 @@
   render();
 </script>
 
-<script>
-  var _menuToggle = document.getElementById('menuToggle');
-  var _sideNav = document.getElementById('sideNav');
-  var _overlayMenu = document.getElementById('overlayMenu');
-  function _openMenu() { _menuToggle.classList.add('open'); _sideNav.classList.add('open'); _overlayMenu.classList.add('show'); }
-  function _closeMenu() { _menuToggle.classList.remove('open'); _sideNav.classList.remove('open'); _overlayMenu.classList.remove('show'); }
-  _menuToggle.addEventListener('click', function() { _sideNav.classList.contains('open') ? _closeMenu() : _openMenu(); });
-  _overlayMenu.addEventListener('click', _closeMenu);
-</script>
+
 <script>
 // ===== マイリスト チュートリアル =====
 (function() {
@@ -625,13 +844,88 @@
 </script>
 
 <!-- ボトムタブバー（横画面スマホ用） -->
-<nav class="btm-nav">
-  <a href="index.html"><span class="btm-icon">🏹</span><span class="btm-label">一般用</span></a>
-  <a href="中高生.html"><span class="btm-icon">📚</span><span class="btm-label">中高生</span></a>
-  <a href="カスタム.html"><span class="btm-icon">✏️</span><span class="btm-label">3D編集</span></a>
-  <a href="プレビュー.html"><span class="btm-icon">👁</span><span class="btm-label">閲覧用</span></a>
-  <a href="マイリスト.html" class="active"><span class="btm-icon">⭐</span><span class="btm-label">リスト</span></a>
-</nav>
 
+
+<nav class="side-nav" id="sideNav">
+  <div class="side-nav-header">Kyudo Learning</div>
+  <div class="side-nav-label">ページ移動</div>
+  <a href="index.html">
+    <span class="material-symbols-outlined nav-icon">accessibility_new</span>
+    <div class="nav-content">
+      <span class="nav-title">一般用</span>
+      <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説</span>
+    </div>
+  </a>
+  <a href="中高生.html">
+    <span class="material-symbols-outlined nav-icon">school</span>
+    <div class="nav-content">
+      <span class="nav-title">中高生用</span>
+      <span class="nav-desc">やさしい言葉で筋肉・動作をわかりやすく解説</span>
+    </div>
+  </a>
+  <a href="カスタム.html">
+    <span class="material-symbols-outlined nav-icon">edit_note</span>
+    <div class="nav-content">
+      <span class="nav-title">３D編集</span>
+      <span class="nav-desc">3Dモデルをカスタマイズできる編集ページ</span>
+    </div>
+  </a>
+  <a href="プレビュー.html">
+    <span class="material-symbols-outlined nav-icon">visibility</span>
+    <div class="nav-content">
+      <span class="nav-title">閲覧用</span>
+      <span class="nav-desc">アニメーションをゆっくり確認できるページ</span>
+    </div>
+  </a>
+  <a href="マイリスト.html" class="active">
+    <span class="material-symbols-outlined nav-icon">bookmarks</span>
+    <div class="nav-content">
+      <span class="nav-title">マイリスト</span>
+      <span class="nav-desc">お気に入りをまとめて確認できるページ</span>
+    </div>
+  </a>
+  <a href="設定.html">
+    <span class="material-symbols-outlined nav-icon">settings</span>
+    <div class="nav-content">
+      <span class="nav-title">設定</span>
+      <span class="nav-desc">テーマ・文字サイズなどを変更</span>
+    </div>
+  </a>
+</nav>
+<nav class="btm-nav">
+  <a href="index.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">accessibility_new</span></span>
+    <span class="btm-label">一般用</span>
+  </a>
+  <a href="中高生.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">school</span></span>
+    <span class="btm-label">中高生</span>
+  </a>
+  <a href="カスタム.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_note</span></span>
+    <span class="btm-label">3D編集</span>
+  </a>
+  <a href="プレビュー.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">visibility</span></span>
+    <span class="btm-label">閲覧用</span>
+  </a>
+  <a href="マイリスト.html" class="active">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">bookmarks</span></span>
+    <span class="btm-label">リスト</span>
+  </a>
+  <a href="設定.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">settings</span></span>
+    <span class="btm-label">設定</span>
+  </a>
+</nav>
+<script>
+function toggleDrawer() {
+  var sideNav = document.getElementById('sideNav');
+  var overlay = document.getElementById('overlayMenu');
+  var isOpen = sideNav.classList.contains('open');
+  if (isOpen) { sideNav.classList.remove('open'); overlay.classList.remove('show'); }
+  else { sideNav.classList.add('open'); overlay.classList.add('show'); }
+}
+</script>
 </body>
 </html>
