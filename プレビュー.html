@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
@@ -23,39 +25,68 @@
   <title>リアル八節くん ─ ビューア</title>
   <!-- LZ-String: 圧縮共有URLの展開に使用 -->
   <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg: #0b1220;
-      --panel: rgba(15, 23, 42, 0.88);
-      --panel-2: rgba(30, 41, 59, 0.82);
-      --line: rgba(148, 163, 184, 0.18);
-      --text: #f1f5f9;
-      --muted: #a9b6cd;
-      --accent: #7dd3fc;
-      --accent-2: #fb7185;
-      --accent-3: #fbbf24;
-      --ok: #34d399;
-      --shadow: 0 10px 30px rgba(0,0,0,.3);
+      --bg: #fdf8f8;
+      --panel: #ffffff;
+      --panel-2: #f7f3f2;
+      --line: #e0dedd;
+      --text: #1c1b1b;
+      --muted: #616363;
+      --accent: #1c1b1b;
+      --accent-2: #ba1a1a;
+      --accent-3: #c0392b;
+      --ok: #2d7a3e;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --surface: #fdf8f8;
+      --on-surface: #1c1b1b;
+      --primary: #000000;
+      --on-primary: #ffffff;
+      --surface-container: #f1edec;
+      --surface-container-low: #f7f3f2;
+      --surface-container-high: #ebe7e6;
+      --outline-variant: #e5e2e1;
+      --cinnabar: #ba1a1a;
+      --kyudo-gold: #c0392b;
+      --gold: #8b2020;
+      --gold-light: var(--text);
+      --viewer-bg: #0d1b2a;
+      --font-scale: 1;
+    }
+    /* ダークモード変数 */
+    [data-theme="dark"] {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --panel-2: #2a2a2a;
+      --line: #3a3a3a;
+      --text: #f0ece9;
+      --muted: #a0a0a0;
+      --accent: #f0ece9;
+      --accent-2: #e05555;
+      --accent-3: #d4af37;
+      --ok: #4caf70;
+      --shadow: 0 2px 8px rgba(0,0,0,0.4);
+      --surface: #121212;
+      --on-surface: #f0ece9;
+      --primary: #f0ece9;
+      --on-primary: #121212;
+      --surface-container: #2a2a2a;
+      --surface-container-low: #1e1e1e;
+      --surface-container-high: #333333;
+      --outline-variant: #444444;
+      --cinnabar: #e05555;
+      --kyudo-gold: #d4af37;
+      --gold: #d4af37;
+      --gold-light: #f0ece9;
+      --viewer-bg: #07111c;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; }
-    body {
-      font-family: Inter, "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      user-select: none;
     }
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(circle at top left, rgba(125, 211, 252, 0.14), transparent 28%),
-        radial-gradient(circle at top right, rgba(251, 113, 133, 0.10), transparent 24%),
-        linear-gradient(180deg, #08101d 0%, #0b1220 100%);
-      pointer-events: none; z-index: 0;
-    }
+    body::before { display: none; }
     b, strong { font-weight: 800; }
     /* ── ヘッダー ── */
     .app-header {
@@ -63,8 +94,8 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 68px 10px 20px;
       border-bottom: 1px solid var(--line);
-      background: var(--panel);
-      backdrop-filter: blur(16px);
+      background: var(--bg);
+      backdrop-filter: none;
       flex-shrink: 0; gap: 12px; flex-wrap: wrap;
     }
     .app-title {
@@ -74,9 +105,9 @@
     .app-title span { font-size: 13px; color: var(--muted); font-family: 'Noto Sans JP', sans-serif; margin-left: 8px; }
     .viewer-badge {
       display: inline-flex; align-items: center; gap: 5px;
-      font-size: 11px; color: var(--accent);
-      background: rgba(125, 211, 252, 0.1);
-      border: 1px solid var(--accent);
+      font-size: 11px; color: var(--accent-2);
+      background: rgba(186,26,26,0.07);
+      border: 1px solid var(--accent-2);
       border-radius: 999px; padding: 3px 10px; margin-left: 8px;
     }
     .btn {
@@ -85,10 +116,10 @@
       cursor: pointer; border: none; font-family: 'Noto Sans JP', sans-serif;
       transition: all 0.18s; white-space: nowrap;
     }
-    .btn-gold { background: linear-gradient(135deg, var(--accent), #3b82f6); color: #0b1220; font-weight: 700; }
+    .btn-gold { background: var(--primary); color: var(--on-primary); font-weight: 700; }
     .btn-gold:hover { filter: brightness(1.15); transform: translateY(-1px); }
     .btn-ghost { background: rgba(255,255,255,0.06); border: 1px solid var(--line); color: var(--text); }
-    .btn-ghost:hover { background: rgba(255,255,255,0.12); }
+    .btn-ghost:hover { background: var(--surface-container-high); }
 
     /* ── メインレイアウト ── */
     .main-layout {
@@ -105,7 +136,7 @@
     .stage-nav {
       display: flex; gap: 4px; padding: 8px 12px;
       border-bottom: 1px solid var(--line);
-      background: rgba(10,14,22,0.8);
+      background: var(--bg);
       overflow-x: auto; flex-shrink: 0;
     }
     .stage-nav::-webkit-scrollbar { height: 3px; }
@@ -117,15 +148,11 @@
       cursor: pointer; font-family: inherit;
       transition: all 0.18s; white-space: nowrap;
     }
-    .stage-tab:hover { border-color: var(--accent); color: var(--accent); }
-    .stage-tab.active {
-      background: rgba(125, 211, 252, 0.15);
-      border-color: var(--accent); color: var(--accent);
-    }
+    .stage-tab:hover { border-color: var(--accent-2); color: var(--accent-2); }
+    .stage-tab.active { background: rgba(186,26,26,0.07); border-color: var(--accent-2); color: var(--accent-2); }
     #viewer {
       position: relative; flex: 1; overflow: hidden;
-      background: radial-gradient(circle at 50% 15%, rgba(125, 211, 252, 0.13), transparent 32%),
-                  linear-gradient(180deg, rgba(18,26,40,0.3), rgba(4,8,16,0.9));
+      background: var(--viewer-bg);
     }
     #viewer canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; touch-action: none; }
     #loading-screen {
@@ -135,23 +162,23 @@
     }
     .loader-title { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 16px; }
     .loader-bar-wrap { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-    #loader-bar { height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
+    #loader-bar { height: 100%; width: 0; background: var(--accent-2); transition: width 0.3s; }
     #loader-text { font-size: 11px; color: var(--muted); margin-top: 8px; }
 
     .viewer-controls {
-      padding: 8px 12px; border-top: 1px solid var(--border);
-      background: rgba(10,14,22,0.9); flex-shrink: 0;
+      padding: 8px 12px; border-top: 1px solid var(--line);
+      background: var(--bg); flex-shrink: 0;
     }
     .ctrl-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
     .ctrl-row::-webkit-scrollbar { display: none; }
     .ctrl-btn {
       flex-shrink: 0; padding: 6px 11px; border-radius: 7px;
-      border: 1px solid var(--line); background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line); background: var(--panel-2);
       color: var(--text); font-size: 11px; font-weight: 600; cursor: pointer;
       font-family: inherit; transition: all 0.15s;
     }
-    .ctrl-btn:hover { background: rgba(255,255,255,0.12); border-color: var(--accent); }
-    .ctrl-btn.active { background: rgba(125, 211, 252, 0.2); border-color: var(--accent); color: var(--accent); }
+    .ctrl-btn:hover { background: var(--surface-container-high); border-color: var(--accent); }
+    .ctrl-btn.active { background: rgba(125, 211, 252, 0.2); border-color: var(--accent-2); color: var(--accent-2); }
     .time-label { font-size: 12px; color: var(--muted); margin-left: auto; flex-shrink: 0; font-variant-numeric: tabular-nums; }
     .slider-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
     .slider-row input[type="range"] { flex: 1; accent-color: var(--accent); }
@@ -162,14 +189,14 @@
     }
     .content-header {
       padding: 10px 16px; border-bottom: 1px solid var(--line);
-      background: rgba(10,14,22,0.8); flex-shrink: 0;
+      background: var(--bg); flex-shrink: 0;
       display: flex; align-items: center; justify-content: space-between;
     }
     .content-stage-title {
       font-weight: 800;
-      font-size: 22px; color: var(--text); letter-spacing: 0.08em;
+      font-size: calc(22px * var(--font-scale, 1)); color: var(--text); letter-spacing: 0.08em;
     }
-    .content-stage-en { font-size: 12px; color: var(--muted); margin-left: 10px; font-weight: 300; }
+    .content-stage-en { font-size: calc(12px * var(--font-scale, 1)); color: var(--muted); margin-left: 10px; font-weight: 300; }
 
     /* コンテンツ本体 */
     .content-body {
@@ -216,34 +243,36 @@
       border-radius: 12px; padding: 14px;
     }
     .note-section-title {
-      font-size: 11px; font-weight: 700; color: var(--gold);
+      font-size: calc(11px * var(--font-scale, 1)); font-weight: 700; color: var(--accent-2);
       letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;
     }
-    .note-text { font-size: 12.5px; line-height: 1.7; color: var(--text); }
+    .note-text { font-size: calc(12.5px * var(--font-scale, 1)); line-height: 1.7; color: var(--text); }
     .note-analogy {
-      background: rgba(125, 211, 252, 0.08); border-left: 3px solid var(--accent);
+      background: rgba(186,26,26,0.06); border-left: 3px solid var(--accent-2);
       padding: 7px 11px; border-radius: 0 8px 8px 0;
-      font-size: 12px; color: var(--accent); margin-top: 6px;
+      font-size: calc(12px * var(--font-scale, 1)); color: var(--accent-2); margin-top: 6px;
     }
+    [data-theme="dark"] .note-analogy { background: rgba(224,85,85,0.1); }
     .note-advice {
       background: rgba(52, 211, 153, 0.08); border-left: 3px solid var(--ok);
       padding: 7px 11px; border-radius: 0 8px 8px 0;
-      font-size: 12px; color: var(--ok); margin-top: 6px;
+      font-size: calc(12px * var(--font-scale, 1)); color: var(--ok); margin-top: 6px;
     }
     .muscle-tag {
       display: inline-flex; align-items: center; gap: 4px;
       padding: 4px 9px; border-radius: 999px;
-      font-size: 11px; font-weight: 600; margin: 3px 2px;
+      font-size: calc(11px * var(--font-scale, 1)); font-weight: 600; margin: 3px 2px;
     }
-    .muscle-tag.primary { background: rgba(251, 113, 133, 0.15); border: 1px solid var(--accent-2); color: var(--accent-2); }
-    .muscle-tag.secondary { background: rgba(251, 191, 36, 0.15); border: 1px solid var(--accent-3); color: var(--accent-3); }
+    .muscle-tag.primary { background: rgba(186,26,26,0.1); border: 1px solid var(--accent-2); color: var(--accent-2); }
+    .muscle-tag.secondary { background: rgba(186,26,26,0.06); border: 1px solid var(--muted); color: var(--muted); }
+    [data-theme="dark"] .muscle-tag.secondary { background: rgba(212,175,55,0.15); border-color: var(--kyudo-gold); color: var(--kyudo-gold); }
     .checkpoint-view-item {
       display: flex; gap: 8px; align-items: flex-start;
       font-size: 12px; line-height: 1.6; margin-bottom: 6px;
     }
     .checkpoint-icon {
       flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(125, 211, 252, 0.12); border: 1px solid var(--accent);
+      background: rgba(186,26,26,0.08); border: 1px solid var(--accent);
       display: flex; align-items: center; justify-content: center;
       font-size: 11px; margin-top: 1px;
     }
@@ -279,6 +308,34 @@
       border-radius: 999px; padding: 2px 8px;
     }
 
+    /* ── 統合データメニュー ── */
+    .data-menu-wrap { position: relative; }
+    .data-menu-popup {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      min-width: 220px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      z-index: 3000;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+    }
+    .data-menu-popup.open { display: flex; }
+    .data-menu-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: transparent; border: none; border-bottom: 1px solid var(--line);
+      color: var(--text); font-family: inherit; cursor: pointer;
+      transition: background 0.15s; text-align: left; width: 100%;
+    }
+    .data-menu-item:last-child { border-bottom: none; }
+    .data-menu-item:hover { background: var(--panel-2); }
+    .data-menu-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+    .data-menu-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .data-menu-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
     /* トースト */
     #toast {
       position: fixed; bottom: 24px; left: 50%;
@@ -300,25 +357,26 @@
     /* ── グローバルナビ ── */
 
 
-    /* 縦画面 */
-    #orientation-overlay {
-      display: none; position: fixed; inset: 0; background: var(--bg);
-      z-index: 9999; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 24px;
+    html, body { height: 100%; overflow: hidden; padding-bottom: 64px; }
+    body {
+      font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      font-size: calc(14px * var(--font-scale, 1));
     }
-    .rotate-hint {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 24px;
-      color: var(--accent);
-      animation: rotate-anim 2s ease-in-out infinite;
+    /* 縦向きレイアウト */
+    @media (orientation: portrait) {
+      html, body { overflow: auto; height: auto; padding-bottom: 70px; }
+      .main-layout { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
+      .viewer-side { height: 65vw; min-height: 300px; max-height: 520px; border-right: none !important; border-bottom: 1px solid var(--line); }
+      .content-side { overflow: visible !important; }
+      .content-body { overflow: visible !important; }
     }
-    @keyframes rotate-anim { 0%{transform:rotate(0)} 70%{transform:rotate(-90deg)} 100%{transform:rotate(-90deg)} }
-    @media (orientation: portrait)  { #orientation-overlay { display: flex; } }
-    @media (orientation: landscape) { #orientation-overlay { display: none; } }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--accent-2); border-radius: 3px; }
 
     /* 未記入の節を薄く */
     .stage-tab.empty { opacity: 0.45; }
@@ -332,7 +390,7 @@
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--bg);
       border: 1px solid var(--line);
       backdrop-filter: blur(12px);
       cursor: pointer;
@@ -374,7 +432,7 @@
       width: 240px;
       height: 100vh;
       height: 100dvh;
-      background: rgba(10, 18, 35, 0.97);
+      background: var(--panel);
       backdrop-filter: blur(20px);
       border-left: 1px solid var(--line);
       z-index: 16000;
@@ -410,7 +468,7 @@
       display: block;
     }
     .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
-    .side-nav a.active { color: #0b1220; background: var(--accent); }
+    .side-nav a.active { color: var(--on-primary); background: var(--primary); }
     .side-nav a .nav-title { display: block; }
     .side-nav a .nav-desc {
       display: block;
@@ -458,49 +516,41 @@
     /* ================================================================
        ボトムタブバー（横画面スマホ専用）
        ================================================================ */
-    .btm-nav {
-      display: none;
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      z-index: 25000;
-      height: 48px;
-      background: rgba(6, 11, 22, 0.97);
-      border-top: 1px solid rgba(148, 163, 184, 0.22);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    .btm-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 400; height: 64px; background: var(--bg); border-top: 1px solid var(--line); box-shadow: 0 -2px 8px rgba(0,0,0,0.06); display: none !important; }
+    [data-theme="dark"] .btm-nav { background: rgba(18,18,18,0.97); box-shadow: 0 -2px 8px rgba(0,0,0,0.4); }
+    .btm-nav a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: var(--muted); font-size: 10px; font-weight: 500; font-family: "Noto Sans JP", sans-serif; transition: color 0.18s; -webkit-tap-highlight-color: transparent; padding: 4px 2px; min-width: 0; }
+    .btm-nav a .btm-icon-wrap { width: 64px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 16px; transition: background 0.2s; }
+    .btm-nav a.active { color: var(--accent-2); }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
+    .btm-label { display: block; line-height: 1; }
+
+    /* ── ナビゲーション表示制御 ── */
+    .app-icon-btn#menuToggle { display: flex !important; }
+
+    @media (min-width: 1025px) {
+      .btm-nav { display: flex !important; }
+      .app-icon-btn#menuToggle { display: none !important; }
+      .app-header { justify-content: center; }
+      .app-header div[style*="width:40px"] { display: none !important; }
     }
-    .btm-nav a {
-      flex: 1;
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 8px;
-      font-weight: 700;
-      transition: color 0.18s, background 0.18s;
-      letter-spacing: 0.03em;
-      -webkit-tap-highlight-color: transparent;
-      padding: 4px 2px;
-      min-width: 0;
+      border-radius: 16px;
+      transition: background 0.2s;
     }
     .btm-nav a.active {
-      color: var(--accent);
-      background: rgba(125, 211, 252, 0.08);
+      color: var(--accent-2);
     }
-    .btm-nav a:active { background: rgba(125, 211, 252, 0.14); }
-    .btm-icon { font-size: 18px; line-height: 1; display: block; }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
     .btm-label { display: block; line-height: 1; }
 
     /* 横画面スマホ（高さ600px以下）のみ表示 */
-    @media screen and (orientation: landscape) and (max-height: 600px) {
-      .btm-nav { display: flex; }
-      /* ハンバーガーボタンを非表示 */
-      .menu-toggle { display: none !important; }
-    }
 
     /* ── 横画面スマホ：ボトムナビ分 ── */
     @media screen and (orientation: landscape) and (max-height: 600px) {
@@ -635,10 +685,219 @@
       color: rgba(255,255,255,0.85);
       border-color: rgba(255,255,255,0.45);
     }
+  
+    /* ── REDESIGNED NAVIGATION SYSTEM ── */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 400;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      width: 100%;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .app-header-title {
+      font-family: "Noto Serif JP", serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+    .app-icon-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      color: var(--text);
+      transition: background 0.2s;
+      appearance: none;
+      flex-shrink: 0;
+    }
+    .app-icon-btn:hover { background: var(--panel-2); }
+
+    /* ── DRAWER ── */
+    .overlay-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay-menu.show { opacity: 1; pointer-events: all; }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 260px;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--bg);
+      border-right: 1px solid var(--line);
+      z-index: 600;
+      padding: 0 0 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .side-nav::-webkit-scrollbar { width: 4px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+    .side-nav.open { left: 0; }
+    .side-nav-header {
+      font-family: "Noto Serif JP", serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--primary);
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+    .side-nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 8px 20px 4px;
+    }
+    .side-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: "Noto Sans JP", sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 16px;
+      margin: 2px 8px;
+      border-radius: 24px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .side-nav a:hover { color: var(--text); background: var(--panel-2); }
+    .side-nav a.active {
+      color: var(--on-surface);
+      background: var(--surface-container-high);
+      font-weight: 700;
+    }
+    .side-nav a .nav-icon { font-size: 22px; flex-shrink: 0; }
+    .side-nav a .nav-content { display: flex; flex-direction: column; gap: 1px; }
+    .side-nav a .nav-title { display: block; }
+    .side-nav a .nav-desc {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.65;
+      line-height: 1.4;
+    }
+    .side-nav a.active .nav-desc { opacity: 0.75; }
+
+    /* ── BOTTOM NAV ── */
+    .btm-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 400;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: flex;
+    }
+    [data-theme="dark"] .btm-nav {
+      background: rgba(18,18,18,0.97);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
+    }
+    .btm-nav a {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      font-family: "Noto Sans JP", sans-serif;
+      transition: color 0.18s;
+      -webkit-tap-highlight-color: transparent;
+      padding: 4px 2px;
+      min-width: 0;
+    }
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: background 0.2s;
+    }
+    .btm-nav a.active { color: var(--accent-2); }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
+    .btm-label { display: block; line-height: 1; }
+
+    /* ── HAMBURGER TOGGLE (top app bar uses icon, old toggle hidden) ── */
+    .menu-toggle { display: none !important; }
+
+    /* Landscape layout bottom-nav support */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      .btm-nav { height: 48px; }
+      .btm-nav a .btm-icon-wrap { height: 28px; }
+    }
+
+  /* ── ダークモード：固定色の補正 ── */
+  [data-theme="dark"] .viewer-controls,
+  [data-theme="dark"] .stage-nav {
+    background: var(--bg) !important;
+  }
+  [data-theme="dark"] .ctrl-btn {
+    background: var(--panel-2) !important;
+    border-color: var(--line) !important;
+    color: var(--text) !important;
+  }
+  [data-theme="dark"] .content-header {
+    background: var(--bg) !important;
+  }
+  [data-theme="dark"] #loading-screen {
+    background: var(--bg);
+    color: var(--text);
+  }
   </style>
+  <!-- リデザイン用オーバーライド（視覚のみ） -->
+  <link rel="stylesheet" href="redesign.css">
+  <script>
+    // 設定をページ読み込み時に即時適用（チラつき防止）
+    (function() {
+      var dark  = localStorage.getItem('kyudo_dark_mode') === '1';
+      var scale = parseFloat(localStorage.getItem('kyudo_font_scale') || '1.0');
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.setProperty('--font-scale', scale);
+    })();
+  </script>
 </head>
 <body>
-
 <!-- チュートリアル用オーバーレイ -->
 <div id="tutorial-overlay">
   <div id="tutorial-skip">説明をとばす</div>
@@ -647,22 +906,14 @@
   <div id="tutorial-bubble">ここに説明文が入ります。</div>
 </div>
 
-<!-- 縦画面警告オーバーレイ -->
-<div id="orientation-overlay">
-  <div class="rotate-hint">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-  </div>
-  <h2 style="margin:0 0 10px;">画面を横向きにしてください</h2>
-  <p class="sub">この教材は横画面で見やすいように設計されています。</p>
-  <p class="sub" style="margin-top: 15px; font-size: 11px; color: var(--accent-2);">※画面の向きが変わらない場合は、スマホの「縦向きロック」をオフにしてください。</p>
-</div>
-
 <!-- ヘッダー -->
 <header class="app-header">
-  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+  <button class="app-icon-btn" id="menuToggle" onclick="toggleDrawer()" aria-label="メニュー">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1;">
     <div class="app-title">
-      リアル八節くん<span>リアハチ・ビューア</span>
-      <span class="viewer-badge">👁 閲覧専用</span>
+      リアル八節くん
     </div>
     <div class="progress-bar-wrap" id="progressWrap" style="display:none;">
       <div class="progress-steps" id="progressSteps"></div>
@@ -671,46 +922,36 @@
   </div>
   <div id="fileOpenArea" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
     <span class="loaded-info" id="loadedInfo" style="display:none;"></span>
-    <button class="btn btn-gold" id="favoriteBtn" style="display:none;" onclick="saveToFavorites()">⭐ お気に入りに保存</button>
-    <label class="btn btn-gold" style="cursor:pointer;">
-      📂 ファイルを開く
-      <input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="loadFile(this)">
-      </label>
-    <button class="btn btn-gold" onclick="openUrlModal()">
-      🔗 URLから開く
-    </button>
+    <!-- 統合ボタン -->
+    <div class="data-menu-wrap" id="dataMenuWrap">
+      <button class="btn btn-gold" id="dataMenuBtn" onclick="toggleDataMenu(event)">
+        📁 <span id="dataMenuLabel">データを開く</span> <span style="font-size:10px;opacity:0.7;margin-left:2px;">▾</span>
+      </button>
+      <div class="data-menu-popup" id="dataMenuPopup">
+        <button class="data-menu-item" id="favMenuItem" style="display:none;" onclick="saveToFavorites();closeDataMenu()">
+          <span class="data-menu-icon">⭐</span>
+          <div><div class="data-menu-title">お気に入りに保存</div><div class="data-menu-sub">現在のデータを保存</div></div>
+        </button>
+        <label class="data-menu-item" style="cursor:pointer;">
+          <span class="data-menu-icon">📂</span>
+          <div><div class="data-menu-title">ファイルを開く</div><div class="data-menu-sub">.json ファイルを選択</div></div>
+          <input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="loadFile(this);closeDataMenu()">
+        </label>
+        <button class="data-menu-item" onclick="openUrlModal();closeDataMenu()">
+          <span class="data-menu-icon">🔗</span>
+          <div><div class="data-menu-title">URLから開く</div><div class="data-menu-sub">共有リンクを貼り付け</div></div>
+        </button>
+      </div>
+    </div>
   </div>
 </header>
+<div class="overlay-menu" id="overlayMenu" onclick="toggleDrawer()"></div>
 
 <!-- メニューバー -->
 
-<button class="menu-toggle" id="menuToggle" aria-label="メニュー">
-  <span></span><span></span><span></span>
-</button>
-<div class="overlay-menu" id="overlayMenu"></div>
-<nav class="side-nav" id="sideNav">
-  <div class="side-nav-label">ページ移動</div>
-  <a href="index.html">
-    <span class="nav-title">🏹 一般用</span>
-    <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説する標準ページ</span>
-  </a>
-  <a href="中高生.html">
-    <span class="nav-title">📚 中高生用</span>
-    <span class="nav-desc">中高生向けにやさしい言葉で筋肉・動作をわかりやすく解説</span>
-  </a>
-  <a href="カスタム.html">
-    <span class="nav-title">✏️ ３D編集</span>
-    <span class="nav-desc">3Dモデルの表示やカメラ設定を自由にカスタマイズできる編集ページ</span>
-  </a>
-  <a href="プレビュー.html" class="active">
-    <span class="nav-title">👁 閲覧用</span>
-    <span class="nav-desc">シンプルなレイアウトでアニメーションをゆっくり確認できるページ</span>
-  </a>
-  <a href="マイリスト.html">
-    <span class="nav-title">⭐ マイリスト</span>
-    <span class="nav-desc">お気に入りに登録した節や筋肉をまとめて確認できるページ</span>
-  </a>
-</nav>
+
+
+
 
 
 <!-- メインレイアウト -->
@@ -791,6 +1032,22 @@
 </div>
 
 <div id="toast"></div>
+
+<script>
+// ── 統合データメニュー開閉 ──
+function toggleDataMenu(e) {
+  e.stopPropagation();
+  document.getElementById('dataMenuPopup').classList.toggle('open');
+}
+function closeDataMenu() {
+  document.getElementById('dataMenuPopup').classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  if (!document.getElementById('dataMenuWrap').contains(e.target)) {
+    closeDataMenu();
+  }
+});
+</script>
 
 <script type="importmap">
 {
@@ -992,7 +1249,8 @@ function onDataLoaded(label) {
 
   // 進捗表示
   document.getElementById('progressWrap').style.display = 'flex';
-  document.getElementById('favoriteBtn').style.display = 'inline-flex';
+  document.getElementById('favMenuItem').style.display = 'flex';
+  document.getElementById('dataMenuLabel').textContent = 'データ操作';
   buildProgress();
 
   // ステージタブ構築
@@ -1298,17 +1556,19 @@ loader.load('弓道基礎１.glb', (gltf) => {
     }
   });
 
-  const box  = new THREE.Box3().setFromObject(model);
+  const box = new THREE.Box3().setFromObject(model);
   const size = box.getSize(new THREE.Vector3());
-  const bodyMesh = model.getObjectByName('kyudo_male_base');
-  let bodyCenterX = bodyMesh
-    ? new THREE.Box3().setFromObject(bodyMesh).getCenter(new THREE.Vector3()).x
-    : box.max.x - size.x * 0.2;
-  const targetY = box.min.y + size.y * 0.52;
-  controls.target.set(bodyCenterX, targetY, 0);
-  const halfH = size.y / 2.2;
-  const dist  = (halfH / Math.tan((camera.fov * Math.PI / 180) / 2)) * 1.15;
-  camera.position.set(bodyCenterX, targetY, dist);
+  const center = box.getCenter(new THREE.Vector3());
+  
+  const fov = camera.fov;
+  const aspect = camera.aspect;
+  let dist = (size.y / 2) / Math.tan(Math.PI * fov / 360);
+  const horizontalFov = 2 * Math.atan(Math.tan(Math.PI * fov / 360) * aspect);
+  const distW = (size.x / 2) / Math.tan(horizontalFov / 2);
+  dist = Math.max(dist, distW) * 1.3;
+
+  controls.target.set(center.x, center.y, 0);
+  camera.position.set(center.x, center.y, dist);
   controls.update();
   window._defaultCamPos    = camera.position.clone();
   window._defaultTargetPos = controls.target.clone();
@@ -1495,15 +1755,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
-<script>
-  var _menuToggle = document.getElementById('menuToggle');
-  var _sideNav = document.getElementById('sideNav');
-  var _overlayMenu = document.getElementById('overlayMenu');
-  function _openMenu() { _menuToggle.classList.add('open'); _sideNav.classList.add('open'); _overlayMenu.classList.add('show'); }
-  function _closeMenu() { _menuToggle.classList.remove('open'); _sideNav.classList.remove('open'); _overlayMenu.classList.remove('show'); }
-  _menuToggle.addEventListener('click', function() { _sideNav.classList.contains('open') ? _closeMenu() : _openMenu(); });
-  _overlayMenu.addEventListener('click', _closeMenu);
-</script>
+
 <script>
 // ===== ビューア チュートリアル =====
 (function() {
@@ -1621,13 +1873,88 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <!-- ボトムタブバー（横画面スマホ用） -->
-<nav class="btm-nav">
-  <a href="index.html"><span class="btm-icon">🏹</span><span class="btm-label">一般用</span></a>
-  <a href="中高生.html"><span class="btm-icon">📚</span><span class="btm-label">中高生</span></a>
-  <a href="カスタム.html"><span class="btm-icon">✏️</span><span class="btm-label">3D編集</span></a>
-  <a href="プレビュー.html" class="active"><span class="btm-icon">👁</span><span class="btm-label">閲覧用</span></a>
-  <a href="マイリスト.html"><span class="btm-icon">⭐</span><span class="btm-label">リスト</span></a>
-</nav>
 
+
+<nav class="side-nav" id="sideNav">
+  <div class="side-nav-header">Kyudo Learning</div>
+  <div class="side-nav-label">ページ移動</div>
+  <a href="index.html">
+    <span class="material-symbols-outlined nav-icon">accessibility_new</span>
+    <div class="nav-content">
+      <span class="nav-title">一般用</span>
+      <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説</span>
+    </div>
+  </a>
+  <a href="中高生.html">
+    <span class="material-symbols-outlined nav-icon">school</span>
+    <div class="nav-content">
+      <span class="nav-title">中高生用</span>
+      <span class="nav-desc">やさしい言葉で筋肉・動作をわかりやすく解説</span>
+    </div>
+  </a>
+  <a href="カスタム.html">
+    <span class="material-symbols-outlined nav-icon">edit_note</span>
+    <div class="nav-content">
+      <span class="nav-title">３D編集</span>
+      <span class="nav-desc">3Dモデルをカスタマイズできる編集ページ</span>
+    </div>
+  </a>
+  <a href="プレビュー.html" class="active">
+    <span class="material-symbols-outlined nav-icon">visibility</span>
+    <div class="nav-content">
+      <span class="nav-title">閲覧用</span>
+      <span class="nav-desc">アニメーションをゆっくり確認できるページ</span>
+    </div>
+  </a>
+  <a href="マイリスト.html">
+    <span class="material-symbols-outlined nav-icon">bookmarks</span>
+    <div class="nav-content">
+      <span class="nav-title">マイリスト</span>
+      <span class="nav-desc">お気に入りをまとめて確認できるページ</span>
+    </div>
+  </a>
+  <a href="設定.html">
+    <span class="material-symbols-outlined nav-icon">settings</span>
+    <div class="nav-content">
+      <span class="nav-title">設定</span>
+      <span class="nav-desc">テーマ・文字サイズなどを変更</span>
+    </div>
+  </a>
+</nav>
+<nav class="btm-nav">
+  <a href="index.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">accessibility_new</span></span>
+    <span class="btm-label">一般用</span>
+  </a>
+  <a href="中高生.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">school</span></span>
+    <span class="btm-label">中高生</span>
+  </a>
+  <a href="カスタム.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_note</span></span>
+    <span class="btm-label">3D編集</span>
+  </a>
+  <a href="プレビュー.html" class="active">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">visibility</span></span>
+    <span class="btm-label">閲覧用</span>
+  </a>
+  <a href="マイリスト.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">bookmarks</span></span>
+    <span class="btm-label">リスト</span>
+  </a>
+  <a href="設定.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">settings</span></span>
+    <span class="btm-label">設定</span>
+  </a>
+</nav>
+<script>
+function toggleDrawer() {
+  var sideNav = document.getElementById('sideNav');
+  var overlay = document.getElementById('overlayMenu');
+  var isOpen = sideNav.classList.contains('open');
+  if (isOpen) { sideNav.classList.remove('open'); overlay.classList.remove('show'); }
+  else { sideNav.classList.add('open'); overlay.classList.add('show'); }
+}
+</script>
 </body>
 </html>
