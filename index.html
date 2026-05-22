@@ -551,9 +551,12 @@
       border-radius: 0 8px 8px 0;
       padding: 8px 12px;
       font-size: 12px;
-      color: #c7d2fe;
+      color: #312e81;
       line-height: 1.6;
       margin: 8px 0 10px;
+    }
+    [data-theme="dark"] .muscle-note-box {
+      color: #c7d2fe;
     }
     .footer-note { border-top: 1px solid var(--line); background: var(--surface-container-low); }
     .footer-note-header {
@@ -1048,22 +1051,31 @@
     .side-nav a.active .nav-desc { opacity: 0.75; }
     .side-nav a:hover .nav-desc { opacity: 0.85; }
   
-    @media (orientation: portrait) { .menu-toggle { display: none !important; } }
-  
-    /* ================================================================
-       ボトムタブバー（横画面スマホ専用）
-       ================================================================ */
+    /* ── HAMBURGER TOGGLE (top app bar uses icon, old toggle hidden) ── */
+    .menu-toggle { display: none !important; }
+
+    /* ナビゲーション表示制御 */
+    @media (max-width: 1024px) {
+      .btm-nav { display: none !important; }
+      .app-icon-btn#menuToggle { display: flex !important; }
+    }
+    @media (min-width: 1025px) {
+      .btm-nav { display: flex !important; }
+      .app-icon-btn#menuToggle { display: none !important; }
+      .app-header { justify-content: center; }
+      .app-header div[style*="width:40px"] { display: none !important; }
+    }
+
+    /* ── BOTTOM NAV ── */
     .btm-nav {
-      display: none;
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      z-index: 25000;
-      height: 48px;
-      background: rgba(6, 11, 22, 0.97);
-      border-top: 1px solid rgba(148, 163, 184, 0.22);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+      z-index: 400;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: none;
     }
     .btm-nav a {
       flex: 1;
@@ -1074,24 +1086,32 @@
       gap: 2px;
       text-decoration: none;
       color: var(--muted);
-      font-size: 8px;
-      font-weight: 700;
-      transition: color 0.18s, background 0.18s;
-      letter-spacing: 0.03em;
+      font-size: 10px;
+      font-weight: 500;
+      font-family: "Noto Sans JP", sans-serif;
+      transition: color 0.18s;
       -webkit-tap-highlight-color: transparent;
       padding: 4px 2px;
       min-width: 0;
     }
-    .btm-nav a.active {
-      color: var(--accent);
-      background: rgba(125, 211, 252, 0.08);
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: background 0.2s;
     }
-    .btm-nav a:active { background: rgba(125, 211, 252, 0.14); }
-    .btm-icon { font-size: 18px; line-height: 1; display: block; }
+    .btm-nav a.active { color: var(--accent-2); }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
     .btm-label { display: block; line-height: 1; }
 
-    /* 横画面スマホ（高さ600px以下）のみ表示 */
+    /* Landscape layout bottom-nav support */
     @media screen and (orientation: landscape) and (max-height: 600px) {
+      .btm-nav { height: 48px; }
+      .btm-nav a .btm-icon-wrap { height: 28px; }
     }
 
     /* ── 横画面スマホ：ボトムナビ分の余白 ── */
@@ -2751,7 +2771,7 @@
 
 
 <nav class="side-nav" id="sideNav">
-  <div class="side-nav-header">Kyudo Learning</div>
+  <div class="side-nav-header">RIA HACHI</div>
   <div class="side-nav-label">ページ移動</div>
   <a href="index.html" class="active">
     <span class="material-symbols-outlined nav-icon">accessibility_new</span>
@@ -2815,7 +2835,7 @@
   </a>
   <a href="マイリスト.html" class="">
     <span class="btm-icon-wrap"><span class="material-symbols-outlined">bookmarks</span></span>
-    <span class="btm-label">リスト</span>
+    <span class="btm-label">マイリスト</span>
   </a>
   <a href="設定.html" class="">
     <span class="btm-icon-wrap"><span class="material-symbols-outlined">settings</span></span>
