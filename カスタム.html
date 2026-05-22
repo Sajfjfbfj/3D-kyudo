@@ -1553,10 +1553,13 @@
     .btm-nav a .btm-icon-wrap { width: 64px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 16px; transition: background 0.2s; }
 
     /* ── ナビゲーション表示制御 ── */
-    .app-icon-btn#menuToggle { display: flex !important; }
-
+    @media (max-width: 1024px) {
+      .btm-nav { display: none !important; }
+      .app-icon-btn#menuToggle { display: flex !important; }
+    }
     @media (min-width: 1025px) {
       .btm-nav { display: flex !important; }
+      .app-icon-btn#menuToggle { display: none !important; }
       .app-header { justify-content: center; }
       .app-header div[style*="width:40px"] { display: none !important; }
     }
@@ -3702,7 +3705,7 @@ document.addEventListener('click', function(e) {
 </script>
 
 <nav class="side-nav" id="sideNav">
-  <div class="side-nav-header">Kyudo Learning</div>
+  <div class="side-nav-header">RIA HACHI</div>
   <div class="side-nav-label">ページ移動</div>
   <a href="index.html">
     <span class="material-symbols-outlined nav-icon">accessibility_new</span>
