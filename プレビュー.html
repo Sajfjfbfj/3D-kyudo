@@ -357,7 +357,7 @@
     /* ── グローバルナビ ── */
 
 
-    html, body { height: 100%; overflow: hidden; padding-bottom: 64px; }
+    html, body { height: 100%; overflow: hidden; padding-bottom: 0; }
     body {
       font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
       background: var(--bg);
@@ -368,7 +368,7 @@
     }
     /* 縦向きレイアウト */
     @media (orientation: portrait) {
-      html, body { overflow: auto; height: auto; padding-bottom: 70px; }
+      html, body { overflow: auto; height: auto; padding-bottom: 0; }
       .main-layout { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
       .viewer-side { height: 65vw; min-height: 300px; max-height: 520px; border-right: none !important; border-bottom: 1px solid var(--line); }
       .content-side { overflow: visible !important; }
@@ -533,6 +533,7 @@
       .app-icon-btn#menuToggle { display: none !important; }
       .app-header { justify-content: center; }
       .app-header div[style*="width:40px"] { display: none !important; }
+      html, body { padding-bottom: 64px; }
     }
     .btm-nav a .btm-icon-wrap {
       width: 64px;
@@ -554,7 +555,7 @@
 
     /* ── 横画面スマホ：ボトムナビ分 ── */
     @media screen and (orientation: landscape) and (max-height: 600px) {
-      body { padding-bottom: 48px !important; }
+      body { padding-bottom: 0 !important; }
 
       /* アプリヘッダー */
       .app-header { padding: 7px 16px 7px 16px !important; }
@@ -1876,7 +1877,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 <nav class="side-nav" id="sideNav">
-  <div class="side-nav-header">Kyudo Learning</div>
+  <div class="side-nav-header">RIA HACHI</div>
   <div class="side-nav-label">ページ移動</div>
   <a href="index.html">
     <span class="material-symbols-outlined nav-icon">accessibility_new</span>
