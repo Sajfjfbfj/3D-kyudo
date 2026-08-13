@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="sync.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>リアル八節くん ─ 動画比較</title>
+  <meta name="description" content="弓道の稽古動画を2本並べて再生・比較できるページです。過去の自分やお手本との違いをチェックできます。" />
+  
+  <style>
+    :root {
+      --bg: #fdf8f8;
+      --panel: #ffffff;
+      --panel-2: #f7f3f2;
+      --line: #e0dedd;
+      --text: #1c1b1b;
+      --muted: #616363;
+      --accent: #1c1b1b;
+      --accent-2: #ba1a1a;
+      --accent-3: #c0392b;
+      --ok: #2d7a3e;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --surface: #fdf8f8;
+      --on-surface: #1c1b1b;
+      --primary: #000000;
+      --on-primary: #ffffff;
+      --surface-container: #f1edec;
+      --surface-container-low: #f7f3f2;
+      --surface-container-high: #ebe7e6;
+      --outline-variant: #e5e2e1;
+      --cinnabar: #ba1a1a;
+      --kyudo-gold: #c0392b;
+      --viewer-bg: #0d1b2a;
+      --font-scale: 1;
+    }
+    /* ダークモード変数 */
+    [data-theme="dark"] {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --panel-2: #2a2a2a;
+      --line: #3a3a3a;
+      --text: #f0ece9;
+      --muted: #a0a0a0;
+      --accent: #f0ece9;
+      --accent-2: #e05555;
+      --accent-3: #d4af37;
+      --ok: #4caf70;
+      --shadow: 0 2px 8px rgba(0,0,0,0.4);
+      --surface: #121212;
+      --on-surface: #f0ece9;
+      --primary: #f0ece9;
+      --on-primary: #121212;
+      --surface-container: #2a2a2a;
+      --surface-container-low: #1e1e1e;
+      --surface-container-high: #333333;
+      --outline-variant: #444444;
+      --cinnabar: #e05555;
+      --kyudo-gold: #d4af37;
+      --viewer-bg: #07111c;
+    }
+    body {
+      margin: 0; font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif; background: var(--bg); color: var(--text);
+      background: var(--bg);
+      min-height: 100dvh; padding: 20px 20px 80px;
+      overflow-y: auto;
+      font-size: calc(14px * var(--font-scale, 1));
+    }
+    /* 縦向きレイアウト */
+    @media (orientation: portrait) {
+      body { padding: 12px 14px 90px; }
+      .container { max-width: 100%; }
+      .card { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .actions { width: 100%; justify-content: flex-end; }
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: calc(24px * var(--font-scale, 1)); font-weight: 800; color: var(--text); margin-bottom: 24px; }
+    section { margin-bottom: 32px; }
+    h2 { font-size: calc(14px * var(--font-scale, 1)); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; transition: 0.2s;
+    }
+    .card:hover { border-color: var(--accent-2); }
+    .info { display: flex; flex-direction: column; gap: 4px; }
+    .name { font-weight: 700; font-size: calc(16px * var(--font-scale, 1)); color: var(--text); }
+    .meta { font-size: calc(11px * var(--font-scale, 1)); color: var(--muted); }
+    .actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn {
+      padding: 8px 16px; border-radius: 8px; font-size: calc(12px * var(--font-scale, 1)); font-weight: 600; cursor: pointer; border: none; transition: 0.2s;
+    }
+    .btn-view { background: var(--accent-2); color: #fff; }
+    [data-theme="dark"] .btn-view { background: var(--accent-2); color: #fff; }
+    .btn-del { background: rgba(251, 113, 133, 0.1); color: #e05555; border: 1px solid rgba(251, 113, 133, 0.3); }
+    [data-theme="dark"] .btn-del { background: rgba(224, 85, 85, 0.15); color: #ff8a80; border-color: rgba(224,85,85,0.4); }
+    .empty { padding: 40px; text-align: center; color: var(--muted); font-size: calc(14px * var(--font-scale, 1)); border: 1px dashed var(--line); border-radius: 16px; }
+
+    /* ===== 動画比較 専用スタイル ===== */
+    .compare-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-small {
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: calc(12px * var(--font-scale, 1));
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .compare-grid {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .compare-grid.vertical { flex-direction: column; }
+    .video-slot {
+      flex: 1;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      position: relative;
+    }
+    .slot-label {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 2;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      color: #fff;
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .slot-select {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: calc(12px * var(--font-scale, 1));
+    }
+    .video-frame {
+      width: 100%;
+      /* 動画を読み込むまでの仮の比率。読み込み後はJSで実際の動画比率に自動調整される */
+      aspect-ratio: 16 / 9;
+      max-height: 60vh;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* 上下（縦積み）レイアウトのときは、動画1本あたりの高さに上限を設けて
+       縦動画を2本積んでも画面内に収まりやすくする */
+    .compare-grid.vertical .video-frame { max-height: 38vh; }
+    /* 左右レイアウトのときは横幅が半分になる分、高さの上限を少し緩める */
+    .compare-grid:not(.vertical) .video-frame { max-height: 65vh; }
+    .video-frame video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+    .compare-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 28px;
+    }
+    .seek-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .seek-time {
+      font-size: calc(11px * var(--font-scale, 1));
+      color: var(--muted);
+      min-width: 38px;
+      text-align: center;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .seek-bar {
+      flex: 1;
+      appearance: none;
+      -webkit-appearance: none;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--line);
+      accent-color: var(--accent-2);
+      cursor: pointer;
+    }
+    .seek-bar:disabled { cursor: default; opacity: 0.5; }
+    .seek-bar::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      cursor: pointer;
+      margin-top: -1px;
+    }
+    .seek-bar::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border: none;
+      border-radius: 50%;
+      background: var(--accent-2);
+      cursor: pointer;
+    }
+    .btn-ctrl {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .btn-ctrl:hover { border-color: var(--accent-2); }
+    .speed-group { margin-left: auto; }
+    .speed-select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: calc(12px * var(--font-scale, 1));
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-add {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent-2);
+      color: #fff;
+      font-size: calc(14px * var(--font-scale, 1));
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 18px;
+    }
+    .btn-add:hover { opacity: 0.9; }
+    .video-lib-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .video-lib-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .video-lib-title { font-weight: 700; font-size: calc(14px * var(--font-scale, 1)); }
+    .video-lib-meta { font-size: calc(11px * var(--font-scale, 1)); color: var(--muted); }
+    .video-lib-tag {
+      display: inline-block;
+      margin-top: 2px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: calc(10px * var(--font-scale, 1));
+      width: fit-content;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .video-lib-tag:hover { border-color: var(--accent-2); color: var(--accent-2); }
+    .video-lib-tag.active { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+    .tag-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: calc(12px * var(--font-scale, 1));
+    }
+    .tag-filter-bar .tag-filter-clear {
+      margin-left: auto;
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: calc(11px * var(--font-scale, 1));
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .tag-filter-bar .tag-filter-clear:hover { border-color: var(--accent-2); color: var(--accent-2); }
+    .tag-filter-select {
+      width: 100%;
+      max-width: 280px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: calc(12px * var(--font-scale, 1));
+      box-sizing: border-box;
+    }
+    /* ---- タグの横スクロール行（折り返さず1行に収めて画面を圧迫しない） ---- */
+    .tag-scroll-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 2px 2px 8px;
+      margin: 0 -2px 8px;
+      /* 右端に少しフェードをかけて「まだ続きがある」ことを示す */
+      mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+    }
+    .tag-scroll-row::-webkit-scrollbar { display: none; }
+    .tag-scroll-row > * { flex-shrink: 0; }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tag-cloud .video-lib-tag { margin-top: 0; flex-shrink: 0; }
+    .tag-cloud .tag-count { opacity: 0.7; font-size: 0.9em; margin-left: 2px; }
+    .video-lib-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* ---- タグピッカー（動画追加モーダル内：これまで使ったタグから選べる） ---- */
+    .tag-picker {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .tag-picker .tag-chip {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--muted);
+      font-size: calc(12px * var(--font-scale, 1));
+      cursor: pointer;
+      transition: 0.15s;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .tag-picker .tag-chip.selected {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* ---- モーダル（動画追加時のタイトル入力） ---- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 20000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 22px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    .modal-box .form-row { margin-bottom: 14px; }
+    .modal-box label {
+      display: block;
+      font-size: calc(12px * var(--font-scale, 1));
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .modal-box input[type="text"], .modal-box input[type="date"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: calc(14px * var(--font-scale, 1));
+      box-sizing: border-box;
+    }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+    .btn-cancel {
+      padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line);
+      background: transparent; color: var(--muted); font-weight: 700; cursor: pointer;
+      font-size: calc(13px * var(--font-scale, 1));
+    }
+    .btn-save {
+      padding: 10px 22px; border-radius: 10px; border: none;
+      background: var(--accent-2); color: #fff; font-weight: 700; cursor: pointer;
+      font-size: calc(13px * var(--font-scale, 1));
+    }
+
+
+  
+    /* ハンバーガーボタン */
+    .menu-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20000;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      box-shadow: var(--shadow);
+      transition: 0.2s;
+      appearance: none;
+    }
+    .menu-toggle:hover { border-color: var(--accent); }
+    .menu-toggle span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+    .menu-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .overlay-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 15000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay-menu.show { opacity: 1; pointer-events: all; }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      right: -260px;
+      width: 240px;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--line);
+      z-index: 16000;
+      padding: 80px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .side-nav::-webkit-scrollbar { width: 4px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 2px; }
+    .side-nav.open { right: 0; }
+    .side-nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 4px;
+      padding-left: 4px;
+    }
+    .side-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 12px;
+      transition: 0.2s;
+      display: block;
+    }
+    .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
+    .side-nav a.active { color: var(--on-primary); background: var(--primary); }
+    .side-nav a .nav-title { display: block; }
+    .side-nav a .nav-desc {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.65;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .side-nav a.active .nav-desc { opacity: 0.75; }
+    .side-nav a:hover .nav-desc { opacity: 0.85; }
+  
+    @media (orientation: portrait) { .menu-toggle { display: flex !important; } }
+
+    .sub {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 12.5px;
+      margin: 0;
+      display: block;
+    }
+    /* ===== 横画面・小さい画面対応（縦画面オーバーレイはそのまま） ===== */
+    @media screen and (orientation: landscape) and (max-height: 500px) {
+      body { padding: 10px 16px 60px; }
+      h1 { font-size: 18px; margin-bottom: 14px; }
+      .card { padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; }
+      .name { font-size: 14px; }
+      .btn { padding: 6px 12px; font-size: 11px; }
+    }
+    @media screen and (orientation: landscape) and (max-width: 900px) {
+      body { padding: 16px 20px 80px; }
+      .container { max-width: 100%; }
+    }
+    /* ===== チュートリアル（手書き風・indexと同デザイン） ===== */
+    #tutorial-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,0);
+      display: none; cursor: pointer;
+      font-family: 'Klee One', cursive;
+      transition: background-color 0.4s;
+    }
+    #tutorial-bubble {
+      position: absolute;
+      background: #fff; color: #333;
+      padding: 20px;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      border: 3px solid #333;
+      max-width: 280px;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      font-size: 14px; line-height: 1.6;
+    }
+    #tutorial-bubble::after {
+      content: 'タップで次へ ＞';
+      display: block; font-size: 10px;
+      text-align: right; margin-top: 10px; color: #666;
+    }
+    .tutorial-highlight {
+      position: absolute;
+      border: 4px dashed var(--accent);
+      border-radius: 30px 10px 25px 12px / 12px 25px 10px 30px;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.75);
+    }
+    .hand-arrow {
+      position: absolute; font-size: 40px;
+      pointer-events: none;
+      filter: drop-shadow(2px 2px 0px #000);
+      animation: tut-bounce 1.2s infinite ease-in-out;
+      transform: translateX(-50%);
+    }
+    @keyframes tut-bounce {
+      0%,100% { transform: translate(-50%,0) rotate(-5deg); }
+      50%      { transform: translate(-50%,-15px) rotate(5deg); }
+    }
+    #tutorial-bubble, .tutorial-highlight, .hand-arrow {
+      transition: all 0.4s cubic-bezier(0.18,0.89,0.32,1.28);
+    }
+    #tutorial-skip {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.5);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(6px);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    #tutorial-skip:hover {
+      color: rgba(255,255,255,0.85);
+      border-color: rgba(255,255,255,0.45);
+    }
+  
+    /* ================================================================
+       ボトムタブバー
+       ================================================================ */
+    .btm-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 400;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: none !important;
+    }
+    [data-theme="dark"] .btm-nav {
+      background: rgba(18,18,18,0.97);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    }
+    .btm-nav a {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      font-family: "Noto Sans JP", sans-serif;
+      transition: color 0.18s;
+      -webkit-tap-highlight-color: transparent;
+      padding: 4px 2px;
+      min-width: 0;
+    }
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: background 0.2s;
+    }
+    .btm-nav a.active {
+      color: var(--accent-2);
+    }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
+    .btm-label { display: block; line-height: 1; }
+
+
+    /* ── ナビゲーション表示制御 ── */
+    .app-icon-btn#menuToggle { display: flex !important; }
+
+    @media (min-width: 1025px) {
+      .btm-nav { display: flex !important; }
+      .app-icon-btn#menuToggle { display: none !important; }
+      .app-header { justify-content: center; }
+      /* 右側の余白調整用 spacer を隠す */
+      .app-header div[style*="width:40px"] { display: none !important; }
+    }
+
+    /* ── 横画面スマホ：ボトムナビ分 ── */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      body { padding-bottom: 56px !important; padding-top: 12px !important; }
+      h1 { font-size: 16px !important; margin-bottom: 12px !important; }
+      h2 { font-size: 11px !important; margin-bottom: 8px !important; }
+      .card {
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+      }
+      .name { font-size: 14px !important; }
+      .meta { font-size: 10px !important; }
+      .btn { padding: 7px 12px !important; font-size: 11px !important; min-height: 34px !important; }
+      section { margin-bottom: 16px !important; }
+    }
+
+  
+    /* ── REDESIGNED NAVIGATION SYSTEM ── */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 400;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      width: 100%;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .app-header-title {
+      font-family: "Noto Serif JP", serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+    .app-icon-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      color: var(--text);
+      transition: background 0.2s;
+      appearance: none;
+      flex-shrink: 0;
+    }
+    .app-icon-btn:hover { background: var(--panel-2); }
+
+    /* ── DRAWER ── */
+    .overlay-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay-menu.show { opacity: 1; pointer-events: all; }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 260px;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--bg);
+      border-right: 1px solid var(--line);
+      z-index: 600;
+      padding: 0 0 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .side-nav::-webkit-scrollbar { width: 4px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+    .side-nav.open { left: 0; }
+    .side-nav-header {
+      font-family: "Noto Serif JP", serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--primary);
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+    .side-nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 8px 20px 4px;
+    }
+    .side-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: "Noto Sans JP", sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 16px;
+      margin: 2px 8px;
+      border-radius: 24px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .side-nav a:hover { color: var(--text); background: var(--panel-2); }
+    .side-nav a.active {
+      color: var(--on-surface);
+      background: var(--surface-container-high);
+      font-weight: 700;
+    }
+    .side-nav a .nav-icon { font-size: 22px; flex-shrink: 0; }
+    .side-nav a .nav-content { display: flex; flex-direction: column; gap: 1px; }
+    .side-nav a .nav-title { display: block; }
+    .side-nav a .nav-desc {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.65;
+      line-height: 1.4;
+    }
+    .side-nav a.active .nav-desc { opacity: 0.75; }
+
+    /* ── BOTTOM NAV ── */
+    .btm-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 400;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: flex;
+    }
+    [data-theme="dark"] .btm-nav {
+      background: rgba(18,18,18,0.97);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
+    }
+    .btm-nav a {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      font-family: "Noto Sans JP", sans-serif;
+      transition: color 0.18s;
+      -webkit-tap-highlight-color: transparent;
+      padding: 4px 2px;
+      min-width: 0;
+    }
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: background 0.2s;
+    }
+    .btm-nav a.active { color: var(--accent-2); }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
+    .btm-label { display: block; line-height: 1; }
+
+    /* ── HAMBURGER TOGGLE (top app bar uses icon, old toggle hidden) ── */
+    .menu-toggle { display: none !important; }
+
+    /* Landscape layout bottom-nav support */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      .btm-nav { height: 48px; }
+      .btm-nav a .btm-icon-wrap { height: 28px; }
+    }
+
+      /* ナビ項目が8個に増えたため、ボトムナビの幅を可変にしてはみ出しを防止 */
+    .btm-nav a .btm-icon-wrap { width: auto !important; min-width: 34px; max-width: 52px; padding: 0 4px; }
+    .btm-nav a { padding: 4px 1px; }
+    .btm-nav a .btm-label { font-size: 9px; }
+    @media (max-width: 400px) {
+      .btm-nav a .btm-label { font-size: 8px; }
+      .btm-nav a .material-symbols-outlined { font-size: 20px; }
+    }
+</style>
+  <!-- リデザイン用オーバーライド（視覚のみ） -->
+  <link rel="stylesheet" href="redesign.css">
+  <script>
+    // 設定をページ読み込み時に即時適用（チラつき防止）
+    (function() {
+      var dark  = localStorage.getItem('kyudo_dark_mode') === '1';
+      var scale = parseFloat(localStorage.getItem('kyudo_font_scale') || '1.0');
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.setProperty('--font-scale', scale);
+    })();
+  </script>
+</head>
+<body>
+<!-- Top App Bar -->
+<header class="app-header">
+  <button class="app-icon-btn" id="menuToggle" onclick="toggleDrawer()" aria-label="メニュー">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+  <h1 class="app-header-title">リアル八節くん</h1>
+  <div style="width:40px;flex-shrink:0;"></div>
+</header>
+<div class="overlay-menu" id="overlayMenu" onclick="toggleDrawer()"></div>
+
+<!-- チュートリアル用オーバーレイ -->
+<div id="tutorial-overlay">
+  <div id="tutorial-skip">説明をとばす</div>
+  <div class="tutorial-highlight" id="tutorial-focus"></div>
+  <div class="hand-arrow" id="tutorial-arrow">⤴</div>
+  <div id="tutorial-bubble">ここに説明文が入ります。</div>
+</div>
+
+<div class="container">
+  <h1>動画比較</h1>
+  <p class="sub" style="margin-bottom:16px;">2つの動画を並べて再生し、フォームの違いをチェックできます。動画はこの端末のブラウザ内だけに保存され、サーバーには送信されません。</p>
+
+  <section id="section-compare">
+    <div class="compare-toolbar">
+      <button class="btn-small" id="layoutToggleBtn" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">splitscreen</span>
+        左右／上下を切り替え
+      </button>
+    </div>
+
+    <div class="compare-grid" id="compareGrid">
+      <div class="video-slot" id="slotA">
+        <div class="slot-label">A</div>
+        <select class="slot-select" id="selectA"><option value="">動画を選択…</option></select>
+        <div class="video-frame">
+          <video id="videoA" playsinline></video>
+        </div>
+      </div>
+      <div class="video-slot" id="slotB">
+        <div class="slot-label">B</div>
+        <select class="slot-select" id="selectB"><option value="">動画を選択…</option></select>
+        <div class="video-frame">
+          <video id="videoB" playsinline></video>
+        </div>
+      </div>
+    </div>
+
+    <div class="seek-row">
+      <span class="seek-time" id="seekCurrent">0:00</span>
+      <input type="range" class="seek-bar" id="seekBar" min="0" max="0" step="0.01" value="0" disabled>
+      <span class="seek-time" id="seekDuration">0:00</span>
+    </div>
+
+    <div class="compare-controls">
+      <button class="btn-ctrl" id="playPauseBtn" type="button">
+        <span class="material-symbols-outlined">play_arrow</span>
+      </button>
+      <button class="btn-ctrl" id="resetSyncBtn" type="button" title="両方を先頭に戻す">
+        <span class="material-symbols-outlined">restart_alt</span>
+      </button>
+      <button class="btn-ctrl" id="frameBackBtn" type="button" title="1コマ戻す">
+        <span class="material-symbols-outlined">skip_previous</span>
+      </button>
+      <button class="btn-ctrl" id="frameFwdBtn" type="button" title="1コマ進める">
+        <span class="material-symbols-outlined">skip_next</span>
+      </button>
+      <div class="speed-group">
+        <select class="speed-select" id="speedSelect">
+          <option value="0.1">0.1倍速</option>
+          <option value="0.25">0.25倍速</option>
+          <option value="0.5">0.5倍速</option>
+          <option value="0.75">0.75倍速</option>
+          <option value="1" selected>1倍速（通常）</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section id="section-library">
+    <h2>保存済みの動画ライブラリ</h2>
+    <button class="btn-add" id="addVideoBtn" type="button">
+      <span class="material-symbols-outlined" style="font-size:18px;">video_call</span>
+      動画を追加する
+    </button>
+    <input type="file" id="fileInput" accept="video/*" style="display:none;">
+    <div id="library-root"></div>
+  </section>
+</div>
+
+<!-- 動画追加時のタイトル/タグ入力ダイアログ -->
+<div class="modal-overlay" id="addModalOverlay">
+  <div class="modal-box">
+    <h2 style="margin-top:0;">動画の情報</h2>
+    <div class="form-row">
+      <label for="mTitle">タイトル</label>
+      <input type="text" id="mTitle" placeholder="例：2026/08 会の確認">
+    </div>
+    <div class="form-row">
+      <label for="mDate">日付</label>
+      <input type="date" id="mDate">
+    </div>
+    <div class="form-row">
+      <label for="mTag">タグ（任意）</label>
+      <div class="tag-picker tag-scroll-row" id="mTagPicker"></div>
+      <input type="text" id="mTag" placeholder="例：早気気味">
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" id="mCancelBtn">キャンセル</button>
+      <button type="button" class="btn-save" id="mSaveBtn">保存する</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<script>
+  // =====================================
+  // 動画比較（IndexedDBに動画本体、localStorageにメタ情報を保存）
+  // =====================================
+  const DB_NAME = 'kyudo_video_db';
+  const STORE_NAME = 'videos';
+  const META_KEY = 'kyudo_video_meta_v1';
+
+  function openVideoDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  async function idbPutVideo(id, blob) {
+    const db = await openVideoDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put({ id, blob });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  async function idbGetVideo(id) {
+    const db = await openVideoDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const req = tx.objectStore(STORE_NAME).get(id);
+      req.onsuccess = () => resolve(req.result ? req.result.blob : null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  async function idbDeleteVideo(id) {
+    const db = await openVideoDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).delete(id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  function loadMeta() {
+    try {
+      const raw = localStorage.getItem(META_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+  function saveMeta(list) {
+    localStorage.setItem(META_KEY, JSON.stringify(list));
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"\']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function todayStr() {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+  function formatDateJp(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return dateStr;
+    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  }
+
+  const videoA = document.getElementById('videoA');
+  const videoB = document.getElementById('videoB');
+  const selectA = document.getElementById('selectA');
+  const selectB = document.getElementById('selectB');
+  let objectUrls = []; // 生成したobjectURLを後で解放するため保持
+  let pendingFile = null; // モーダルで確認中のファイル
+
+  function clearObjectUrls() {
+    objectUrls.forEach(u => URL.revokeObjectURL(u));
+    objectUrls = [];
+  }
+
+  function renderSelectOptions() {
+    const meta = loadMeta();
+    [selectA, selectB].forEach(sel => {
+      const current = sel.value;
+      sel.innerHTML = '<option value="">動画を選択…</option>' +
+        meta.map(m => `<option value="${m.id}">${escapeHtml(m.title || '(無題)')}</option>`).join('');
+      if (meta.some(m => String(m.id) === current)) sel.value = current;
+    });
+  }
+
+  // 動画の実寸に合わせて枠(.video-frame)の縦横比を自動調整
+  // (縦動画は縦長の枠、横動画は横長の枠になるので黒帯を減らせる)
+  function fitFrameToVideo(videoEl) {
+    const w = videoEl.videoWidth, h = videoEl.videoHeight;
+    if (!w || !h) return;
+    const frame = videoEl.closest('.video-frame');
+    if (!frame) return;
+    frame.style.aspectRatio = w + ' / ' + h;
+  }
+
+  // ---- 動画の向きに合わせてレイアウト（左右／上下）を自動選択 ----
+  // 横動画（16:9など）は上下に積んだほうがスマホでは大きく見やすく、
+  // 縦動画同士は上下に積むと2本分の高さが長くなりすぎて見づらいので左右並びにする。
+  // 縦×横が混ざっているときは上下並びにし、Aが上・Bが下（DOM順そのまま）で
+  // 横動画がAならその横動画は上に、Bならその横動画は下に来る。
+  const compareGrid = document.getElementById('compareGrid');
+  let layoutManuallySet = false; // 手動でボタンを押したら、それ以降は自動判定しない
+
+  function videoOrientation(videoEl) {
+    const w = videoEl.videoWidth, h = videoEl.videoHeight;
+    if (!w || !h) return null;
+    return h > w ? 'portrait' : 'landscape';
+  }
+
+  function autoUpdateLayout() {
+    if (layoutManuallySet) return;
+    const oa = videoOrientation(videoA);
+    const ob = videoOrientation(videoB);
+    if (oa === null && ob === null) return; // どちらも未選択なら何もしない
+
+    if (oa !== null && ob !== null) {
+      // 両方読み込み済み：縦×縦のときだけ左右並び。横×横・縦×横の混在は上下並び
+      if (oa === 'portrait' && ob === 'portrait') {
+        compareGrid.classList.remove('vertical');
+      } else {
+        compareGrid.classList.add('vertical');
+      }
+    } else {
+      // 片方だけ読み込み済みのときは、その1本の向きに合わせる
+      const o = oa || ob;
+      if (o === 'portrait') compareGrid.classList.remove('vertical');
+      else compareGrid.classList.add('vertical');
+    }
+  }
+
+  [videoA, videoB].forEach(v => {
+    v.addEventListener('loadedmetadata', () => {
+      fitFrameToVideo(v);
+      autoUpdateLayout();
+      const speedSelect = document.getElementById('speedSelect');
+      if (speedSelect) v.playbackRate = parseFloat(speedSelect.value);
+    });
+  });
+
+  async function loadIntoSlot(videoEl, id) {
+    if (!id) {
+      videoEl.removeAttribute('src'); videoEl.load();
+      const frame = videoEl.closest('.video-frame');
+      if (frame) frame.style.aspectRatio = ''; // デフォルト(16:9)に戻す
+      updateSeekRange();
+      return;
+    }
+    const blob = await idbGetVideo(Number(id));
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    objectUrls.push(url);
+    videoEl.src = url;
+  }
+
+  selectA.addEventListener('change', () => {
+    layoutManuallySet = false; // 動画を選び直したら自動判定を復活させる
+    loadIntoSlot(videoA, selectA.value);
+  });
+  selectB.addEventListener('change', () => {
+    layoutManuallySet = false;
+    loadIntoSlot(videoB, selectB.value);
+  });
+
+  // ---- レイアウト切り替え（左右／上下） ----
+  document.getElementById('layoutToggleBtn').addEventListener('click', () => {
+    layoutManuallySet = true; // 手動で切り替えたら、その状態を尊重する
+    compareGrid.classList.toggle('vertical');
+  });
+
+  // ---- 再生コントロール（同時操作） ----
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  let isPlaying = false;
+  playPauseBtn.addEventListener('click', () => {
+    if (isPlaying) {
+      videoA.pause(); videoB.pause();
+      playPauseBtn.querySelector('.material-symbols-outlined').textContent = 'play_arrow';
+    } else {
+      if (videoA.src) videoA.play().catch(()=>{});
+      if (videoB.src) videoB.play().catch(()=>{});
+      playPauseBtn.querySelector('.material-symbols-outlined').textContent = 'pause';
+    }
+    isPlaying = !isPlaying;
+  });
+
+  document.getElementById('resetSyncBtn').addEventListener('click', () => {
+    videoA.currentTime = 0;
+    videoB.currentTime = 0;
+    updateSeekPositionDisplay();
+  });
+
+  const FRAME_STEP = 1 / 30; // 30fps想定の1コマ
+  document.getElementById('frameBackBtn').addEventListener('click', () => {
+    videoA.pause(); videoB.pause();
+    isPlaying = false;
+    playPauseBtn.querySelector('.material-symbols-outlined').textContent = 'play_arrow';
+    if (videoA.src) videoA.currentTime = Math.max(0, videoA.currentTime - FRAME_STEP);
+    if (videoB.src) videoB.currentTime = Math.max(0, videoB.currentTime - FRAME_STEP);
+    updateSeekPositionDisplay();
+  });
+  document.getElementById('frameFwdBtn').addEventListener('click', () => {
+    videoA.pause(); videoB.pause();
+    isPlaying = false;
+    playPauseBtn.querySelector('.material-symbols-outlined').textContent = 'play_arrow';
+    if (videoA.src) videoA.currentTime = videoA.currentTime + FRAME_STEP;
+    if (videoB.src) videoB.currentTime = videoB.currentTime + FRAME_STEP;
+    updateSeekPositionDisplay();
+  });
+
+  document.getElementById('speedSelect').addEventListener('change', (e) => {
+    const speed = parseFloat(e.target.value);
+    videoA.playbackRate = speed;
+    videoB.playbackRate = speed;
+  });
+
+  // ---- 再生バー（シークバー：AとB同時にシークする） ----
+  const seekBar = document.getElementById('seekBar');
+  const seekCurrentEl = document.getElementById('seekCurrent');
+  const seekDurationEl = document.getElementById('seekDuration');
+  let isSeekDragging = false;
+  let wasPlayingBeforeSeek = false;
+
+  function formatTime(sec) {
+    if (!isFinite(sec) || sec < 0) sec = 0;
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  // 読み込まれている動画のうち、長い方の長さに合わせてシークバーの範囲を決める
+  function updateSeekRange() {
+    const durA = (videoA.src && isFinite(videoA.duration)) ? videoA.duration : 0;
+    const durB = (videoB.src && isFinite(videoB.duration)) ? videoB.duration : 0;
+    const maxDur = Math.max(durA, durB);
+    seekBar.max = maxDur || 0;
+    seekBar.disabled = maxDur <= 0;
+    seekDurationEl.textContent = formatTime(maxDur);
+    if (!isSeekDragging) updateSeekPositionDisplay();
+  }
+
+  // 再生中の現在位置をシークバーに反映
+  function updateSeekPositionDisplay() {
+    if (isSeekDragging) return;
+    const times = [];
+    if (videoA.src) times.push(videoA.currentTime);
+    if (videoB.src) times.push(videoB.currentTime);
+    if (times.length === 0) {
+      seekBar.value = 0;
+      seekCurrentEl.textContent = '0:00';
+      return;
+    }
+    const t = Math.max(...times);
+    seekBar.value = t;
+    seekCurrentEl.textContent = formatTime(t);
+  }
+
+  [videoA, videoB].forEach(v => {
+    v.addEventListener('loadedmetadata', updateSeekRange);
+    v.addEventListener('timeupdate', updateSeekPositionDisplay);
+    v.addEventListener('ended', updateSeekPositionDisplay);
+  });
+
+  seekBar.addEventListener('input', () => {
+    if (!isSeekDragging) {
+      wasPlayingBeforeSeek = isPlaying;
+      if (isPlaying) { videoA.pause(); videoB.pause(); }
+    }
+    isSeekDragging = true;
+    const t = parseFloat(seekBar.value);
+    if (videoA.src) videoA.currentTime = Math.min(t, videoA.duration || t);
+    if (videoB.src) videoB.currentTime = Math.min(t, videoB.duration || t);
+    seekCurrentEl.textContent = formatTime(t);
+  });
+  seekBar.addEventListener('change', () => {
+    isSeekDragging = false;
+    if (wasPlayingBeforeSeek) {
+      if (videoA.src) videoA.play().catch(()=>{});
+      if (videoB.src) videoB.play().catch(()=>{});
+    }
+  });
+
+  // ---- 動画の追加 ----
+  const fileInput = document.getElementById('fileInput');
+  const addModalOverlay = document.getElementById('addModalOverlay');
+  const mTagInput = document.getElementById('mTag');
+  const mTagPicker = document.getElementById('mTagPicker');
+  document.getElementById('addVideoBtn').addEventListener('click', () => fileInput.click());
+
+  // これまでに使ったタグを1つにまとめて、チップから選べるようにする
+  function videoKnownTags() {
+    const meta = loadMeta();
+    const set = new Set(meta.map(m => m.tag).filter(Boolean));
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'ja'));
+  }
+  function renderTagPickerModal() {
+    const tags = videoKnownTags();
+    const current = mTagInput.value.trim();
+    if (tags.length === 0) { mTagPicker.innerHTML = ''; return; }
+    mTagPicker.innerHTML = tags.map(t => `
+      <span class="tag-chip ${t === current ? 'selected' : ''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>
+    `).join('');
+    mTagPicker.querySelectorAll('.tag-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const t = chip.dataset.tag;
+        // 選択中のチップをもう一度押したら解除、それ以外は選択（タグは1本の動画につき1つ）
+        mTagInput.value = (mTagInput.value.trim() === t) ? '' : t;
+        renderTagPickerModal();
+      });
+    });
+  }
+  mTagInput.addEventListener('input', renderTagPickerModal);
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    pendingFile = file;
+    document.getElementById('mTitle').value = file.name.replace(/\.[^/.]+$/, '');
+    document.getElementById('mDate').value = todayStr();
+    mTagInput.value = '';
+    renderTagPickerModal();
+    addModalOverlay.classList.add('show');
+    fileInput.value = '';
+  });
+
+  document.getElementById('mCancelBtn').addEventListener('click', () => {
+    pendingFile = null;
+    addModalOverlay.classList.remove('show');
+  });
+
+  document.getElementById('mSaveBtn').addEventListener('click', async () => {
+    if (!pendingFile) return;
+    const title = document.getElementById('mTitle').value.trim() || '(無題)';
+    const date = document.getElementById('mDate').value || todayStr();
+    const tag = mTagInput.value.trim();
+
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    await idbPutVideo(id, pendingFile);
+
+    const meta = loadMeta();
+    meta.unshift({ id, title, date, tag, createdAt: Date.now() });
+    saveMeta(meta);
+
+    pendingFile = null;
+    addModalOverlay.classList.remove('show');
+    renderSelectOptions();
+    renderLibrary();
+  });
+
+  // ---- ライブラリ一覧（タグクリックで絞り込み） ----
+  let activeTagFilter = null;
+
+  function renderLibrary() {
+    const meta = loadMeta();
+    const root = document.getElementById('library-root');
+    if (meta.length === 0) {
+      activeTagFilter = null;
+      root.innerHTML = `<div class="empty">まだ保存された動画がありません。「動画を追加する」から撮影・アップロードした動画を保存できます。</div>`;
+      return;
+    }
+
+    // 選択中のタグがもう存在しない（動画削除などで）場合は解除
+    if (activeTagFilter && !meta.some(m => m.tag === activeTagFilter)) {
+      activeTagFilter = null;
+    }
+
+    const list = activeTagFilter ? meta.filter(m => m.tag === activeTagFilter) : meta;
+
+    // ---- タグ一覧（絞り込み用ドロップダウン）を作成 ----
+    const tagCounts = {};
+    meta.forEach(m => {
+      if (m.tag) tagCounts[m.tag] = (tagCounts[m.tag] || 0) + 1;
+    });
+    const tagNames = Object.keys(tagCounts).sort((a, b) => a.localeCompare(b, 'ja'));
+    let tagCloudHtml = '';
+    if (tagNames.length > 0) {
+      const options = ['<option value="">すべてのタグ</option>']
+        .concat(tagNames.map(t => `<option value="${escapeHtml(t)}" ${t === activeTagFilter ? 'selected' : ''}>${escapeHtml(t)}（${tagCounts[t]}）</option>`));
+      tagCloudHtml = `<select class="tag-filter-select" id="tagFilterSelect" aria-label="タグで絞り込み">${options.join('')}</select>`;
+    }
+
+    if (list.length === 0) {
+      root.innerHTML = tagCloudHtml + `<div class="empty">このタグの動画はありません。</div>`;
+      bindTagFilterSelect();
+      return;
+    }
+
+    root.innerHTML = tagCloudHtml + list.map(m => `
+      <div class="video-lib-card">
+        <div class="video-lib-info">
+          <div class="video-lib-title">${escapeHtml(m.title || '(無題)')}</div>
+          <div class="video-lib-meta">${formatDateJp(m.date)}</div>
+          ${m.tag ? `<span class="video-lib-tag${m.tag === activeTagFilter ? ' active' : ''}" onclick="toggleTagFilter('${escapeHtml(m.tag).replace(/'/g, "\\'")}')">${escapeHtml(m.tag)}</span>` : ''}
+        </div>
+        <div class="video-lib-actions">
+          <button class="btn-small" onclick="useInSlot(${m.id}, 'A')">Aに表示</button>
+          <button class="btn-small" onclick="useInSlot(${m.id}, 'B')">Bに表示</button>
+          <button class="btn-del" style="padding:9px 14px;border-radius:10px;font-size:12px;" onclick="deleteVideo(${m.id})">削除</button>
+        </div>
+      </div>
+    `).join('');
+    bindTagFilterSelect();
+  }
+
+  function bindTagFilterSelect() {
+    const sel = document.getElementById('tagFilterSelect');
+    if (!sel) return;
+    sel.addEventListener('change', () => {
+      activeTagFilter = sel.value || null;
+      renderLibrary();
+    });
+  }
+
+  window.toggleTagFilter = function (tag) {
+    activeTagFilter = (activeTagFilter === tag) ? null : tag;
+    renderLibrary();
+    document.getElementById('section-library').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  window.clearTagFilter = function () {
+    activeTagFilter = null;
+    renderLibrary();
+  };
+
+  window.useInSlot = function (id, slot) {
+    const sel = slot === 'A' ? selectA : selectB;
+    const vid = slot === 'A' ? videoA : videoB;
+    sel.value = String(id);
+    loadIntoSlot(vid, String(id));
+    document.getElementById('section-compare').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  window.deleteVideo = async function (id) {
+    if (!confirm('この動画を削除しますか？（この端末から完全に削除されます）')) return;
+    await idbDeleteVideo(id);
+    const meta = loadMeta().filter(m => m.id !== id);
+    saveMeta(meta);
+    renderSelectOptions();
+    renderLibrary();
+  };
+
+  window.addEventListener('beforeunload', clearObjectUrls);
+
+  renderSelectOptions();
+  renderLibrary();
+</script>
+
+
+<script>
+// ===== 動画比較 チュートリアル =====
+(function() {
+  const tutorialSteps = [
+    {
+      text: "ここは動画比較だよ。2つの動画を並べて再生して、フォームの違いを見比べられるページだよ！",
+      target: null
+    },
+    {
+      text: "AとBそれぞれに動画を選んで表示できるよ。過去の自分同士でも、お手本との比較でもOK！",
+      target: "compareGrid",
+      pos: "right"
+    },
+    {
+      text: "ここで同時再生・スロー再生・コマ送りができるよ。細かい動きまでじっくりチェックしよう！",
+      target: "section-compare",
+      pos: "right"
+    },
+    {
+      text: "ここには保存した動画が並ぶよ。「動画を追加する」で撮影・アップロードした動画を保存できるんだ！",
+      target: "section-library",
+      pos: "right"
+    },
+    {
+      text: "説明はおしまい！動画は端末の中だけに保存されるから安心して使ってね！",
+      target: null
+    }
+  ];
+
+  const LS_KEY = 'kyudo_videocompare_tutorial_done';
+  const overlay = document.getElementById('tutorial-overlay');
+  const bubble  = document.getElementById('tutorial-bubble');
+  const focus   = document.getElementById('tutorial-focus');
+  const arrow   = document.getElementById('tutorial-arrow');
+  let step = 0;
+
+  function showStep() {
+    const s = tutorialSteps[step];
+    bubble.textContent = s.text;
+    if (s.target) {
+      overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+      let el = document.getElementById(s.target);
+      if (!el || el.offsetParent === null) {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.7)'; focus.style.display='none'; arrow.style.display='none'; bubble.style.top='50%'; bubble.style.left='50%'; bubble.style.transform='translate(-50%,-50%)'; return;
+      }
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      const rect = el.getBoundingClientRect();
+      focus.style.display = 'block';
+      focus.style.top    = (rect.top  - 5) + 'px';
+      focus.style.left   = (rect.left - 5) + 'px';
+      focus.style.width  = (rect.width  + 10) + 'px';
+      focus.style.height = (rect.height + 10) + 'px';
+
+      arrow.style.display = 'block';
+      bubble.style.transform = 'none';
+
+      if (s.pos === 'right' && window.innerWidth > 900) {
+        bubble.style.left = (rect.right + 30) + 'px';
+        bubble.style.top = (rect.top + 10) + 'px';
+        arrow.textContent = '⬅';
+        arrow.style.top = (rect.top + 30) + 'px';
+        arrow.style.left = (rect.right + 5) + 'px';
+      } else {
+        // モバイル：要素の上に出す。上が足りなければ要素と重なっても上部に固定
+        const bubbleH = 160;
+        const margin = 12;
+        let topPos = rect.top - bubbleH - 10;
+        if (topPos < margin) topPos = Math.min(margin, rect.top + 10); // 要素と重なってもOK
+        let leftPos = rect.left + rect.width / 2 - 140;
+        bubble.style.left = Math.max(10, Math.min(leftPos, window.innerWidth - 290)) + 'px';
+        bubble.style.top = topPos + 'px';
+        arrow.textContent = '⬇';
+        arrow.style.top = (topPos + bubbleH + 2) + 'px';
+        arrow.style.left = (rect.left + rect.width / 2) + 'px';
+      }
+
+      // 画面端の補正
+      if (parseInt(bubble.style.left) < 10) bubble.style.left = '10px';
+      if (parseInt(bubble.style.left) > window.innerWidth - 300) bubble.style.left = (window.innerWidth - 300) + 'px';
+
+    } else {
+      overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
+      focus.style.display = 'none';
+      arrow.style.display = 'none';
+      bubble.style.top = '50%'; bubble.style.left = '50%';
+      bubble.style.transform = 'translate(-50%,-50%)';
+    }
+  }
+
+  overlay.addEventListener('click', function() {
+    step++;
+    if (step < tutorialSteps.length) { showStep(); }
+    else { overlay.style.display = 'none'; localStorage.setItem(LS_KEY, '1'); }
+  });
+
+  document.getElementById('tutorial-skip').addEventListener('click', function(e) {
+    e.stopPropagation();
+    overlay.style.display = 'none';
+    localStorage.setItem(LS_KEY, '1');
+  });
+
+  window.addEventListener('load', function() {
+    if (!localStorage.getItem(LS_KEY)) {
+      overlay.style.display = 'block';
+      showStep();
+    }
+  });
+})();
+</script>
+
+<!-- ボトムタブバー（横画面スマホ用） -->
+
+
+<nav class="side-nav" id="sideNav">
+  <div class="side-nav-header">RIA HACHI</div>
+  <div class="side-nav-label">ページ移動</div>
+  <a href="index.html">
+    <span class="material-symbols-outlined nav-icon">accessibility_new</span>
+    <div class="nav-content">
+      <span class="nav-title">一般用</span>
+      <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説</span>
+    </div>
+  </a>
+  <a href="中高生.html">
+    <span class="material-symbols-outlined nav-icon">school</span>
+    <div class="nav-content">
+      <span class="nav-title">中高生用</span>
+      <span class="nav-desc">やさしい言葉で筋肉・動作をわかりやすく解説</span>
+    </div>
+  </a>
+  <a href="カスタム.html">
+    <span class="material-symbols-outlined nav-icon">edit_note</span>
+    <div class="nav-content">
+      <span class="nav-title">３D編集</span>
+      <span class="nav-desc">3Dモデルをカスタマイズできる編集ページ</span>
+    </div>
+  </a>
+  <a href="プレビュー.html">
+    <span class="material-symbols-outlined nav-icon">visibility</span>
+    <div class="nav-content">
+      <span class="nav-title">閲覧用</span>
+      <span class="nav-desc">アニメーションをゆっくり確認できるページ</span>
+    </div>
+  </a>
+  <a href="マイリスト.html">
+    <span class="material-symbols-outlined nav-icon">bookmarks</span>
+    <div class="nav-content">
+      <span class="nav-title">マイリスト</span>
+      <span class="nav-desc">お気に入りをまとめて確認できるページ</span>
+    </div>
+  </a>
+  <a href="稽古ログ.html">
+    <span class="material-symbols-outlined nav-icon">edit_calendar</span>
+    <div class="nav-content">
+      <span class="nav-title">稽古ログ</span>
+      <span class="nav-desc">稽古の記録や気づきを残せるページ</span>
+    </div>
+  </a>
+  <a href="動画比較.html" class="active">
+    <span class="material-symbols-outlined nav-icon">compare</span>
+    <div class="nav-content">
+      <span class="nav-title">動画比較</span>
+      <span class="nav-desc">2つの動画を並べてフォームを比較できるページ</span>
+    </div>
+  </a>
+  <a href="設定.html">
+    <span class="material-symbols-outlined nav-icon">settings</span>
+    <div class="nav-content">
+      <span class="nav-title">設定</span>
+      <span class="nav-desc">テーマ・文字サイズなどを変更</span>
+    </div>
+  </a>
+</nav>
+<nav class="btm-nav">
+  <a href="index.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">accessibility_new</span></span>
+    <span class="btm-label">一般用</span>
+  </a>
+  <a href="中高生.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">school</span></span>
+    <span class="btm-label">中高生</span>
+  </a>
+  <a href="カスタム.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_note</span></span>
+    <span class="btm-label">3D編集</span>
+  </a>
+  <a href="プレビュー.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">visibility</span></span>
+    <span class="btm-label">閲覧用</span>
+  </a>
+  <a href="マイリスト.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">bookmarks</span></span>
+    <span class="btm-label">リスト</span>
+  </a>
+  <a href="稽古ログ.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_calendar</span></span>
+    <span class="btm-label">稽古ログ</span>
+  </a>
+  <a href="動画比較.html" class="active">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">compare</span></span>
+    <span class="btm-label">動画比較</span>
+  </a>
+  <a href="設定.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">settings</span></span>
+    <span class="btm-label">設定</span>
+  </a>
+</nav>
+<script>
+function toggleDrawer() {
+  var sideNav = document.getElementById('sideNav');
+  var overlay = document.getElementById('overlayMenu');
+  var isOpen = sideNav.classList.contains('open');
+  if (isOpen) { sideNav.classList.remove('open'); overlay.classList.remove('show'); }
+  else { sideNav.classList.add('open'); overlay.classList.add('show'); }
+}
+</script>
+</body>
+</html>
