@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="sync.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>リアル八節くん ─ 稽古ログ</title>
+  <meta name="description" content="弓道の稽古ログ。日付・場所・射数・気づきを記録して、稽古の積み重ねを振り返れるページです。" />
+  
+  <style>
+    :root {
+      --bg: #fdf8f8;
+      --panel: #ffffff;
+      --panel-2: #f7f3f2;
+      --line: #e0dedd;
+      --text: #1c1b1b;
+      --muted: #616363;
+      --accent: #1c1b1b;
+      --accent-2: #ba1a1a;
+      --accent-3: #c0392b;
+      --ok: #2d7a3e;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --surface: #fdf8f8;
+      --on-surface: #1c1b1b;
+      --primary: #000000;
+      --on-primary: #ffffff;
+      --surface-container: #f1edec;
+      --surface-container-low: #f7f3f2;
+      --surface-container-high: #ebe7e6;
+      --outline-variant: #e5e2e1;
+      --cinnabar: #ba1a1a;
+      --kyudo-gold: #c0392b;
+      --viewer-bg: #0d1b2a;
+      --font-scale: 1;
+    }
+    /* ダークモード変数 */
+    [data-theme="dark"] {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --panel-2: #2a2a2a;
+      --line: #3a3a3a;
+      --text: #f0ece9;
+      --muted: #a0a0a0;
+      --accent: #f0ece9;
+      --accent-2: #e05555;
+      --accent-3: #d4af37;
+      --ok: #4caf70;
+      --shadow: 0 2px 8px rgba(0,0,0,0.4);
+      --surface: #121212;
+      --on-surface: #f0ece9;
+      --primary: #f0ece9;
+      --on-primary: #121212;
+      --surface-container: #2a2a2a;
+      --surface-container-low: #1e1e1e;
+      --surface-container-high: #333333;
+      --outline-variant: #444444;
+      --cinnabar: #e05555;
+      --kyudo-gold: #d4af37;
+      --viewer-bg: #07111c;
+    }
+    body {
+      margin: 0; font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif; background: var(--bg); color: var(--text);
+      background: var(--bg);
+      min-height: 100dvh; padding: 20px 20px 80px;
+      overflow-y: auto;
+      font-size: calc(14px * var(--font-scale, 1));
+    }
+    /* 縦向きレイアウト */
+    @media (orientation: portrait) {
+      body { padding: 12px 14px 90px; }
+      .container { max-width: 100%; }
+      .card { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .actions { width: 100%; justify-content: flex-end; }
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: calc(24px * var(--font-scale, 1)); font-weight: 800; color: var(--text); margin-bottom: 24px; }
+    section { margin-bottom: 32px; }
+    h2 { font-size: calc(14px * var(--font-scale, 1)); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; transition: 0.2s;
+    }
+    .card:hover { border-color: var(--accent-2); }
+    .info { display: flex; flex-direction: column; gap: 4px; }
+    .name { font-weight: 700; font-size: calc(16px * var(--font-scale, 1)); color: var(--text); }
+    .meta { font-size: calc(11px * var(--font-scale, 1)); color: var(--muted); }
+    .actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn {
+      padding: 8px 16px; border-radius: 8px; font-size: calc(12px * var(--font-scale, 1)); font-weight: 600; cursor: pointer; border: none; transition: 0.2s;
+    }
+    .btn-view { background: var(--accent-2); color: #fff; }
+    [data-theme="dark"] .btn-view { background: var(--accent-2); color: #fff; }
+    .btn-del { background: rgba(251, 113, 133, 0.1); color: #e05555; border: 1px solid rgba(251, 113, 133, 0.3); }
+    [data-theme="dark"] .btn-del { background: rgba(224, 85, 85, 0.15); color: #ff8a80; border-color: rgba(224,85,85,0.4); }
+    .empty { padding: 40px; text-align: center; color: var(--muted); font-size: calc(14px * var(--font-scale, 1)); border: 1px dashed var(--line); border-radius: 16px; }
+
+    /* ===== 稽古ログ 専用スタイル ===== */
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      flex: 1;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: calc(22px * var(--font-scale, 1));
+      font-weight: 800;
+      color: var(--accent-2);
+      line-height: 1.2;
+    }
+    .stat-label {
+      font-size: calc(10.5px * var(--font-scale, 1));
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .btn-add {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent-2);
+      color: #fff;
+      font-size: calc(14px * var(--font-scale, 1));
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-bottom: 18px;
+    }
+    .btn-add:hover { opacity: 0.9; }
+    .form-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .form-row { margin-bottom: 16px; }
+    .form-row label {
+      display: block;
+      font-size: calc(12px * var(--font-scale, 1));
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .form-row input[type="text"],
+    .form-row input[type="date"],
+    .form-row input[type="number"],
+    .form-row textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: calc(14px * var(--font-scale, 1));
+      box-sizing: border-box;
+    }
+    .form-row textarea { resize: vertical; }
+    /* ---- タグの横スクロール行（折り返さず1行に収めて画面を圧迫しない） ---- */
+    .tag-scroll-row {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 2px 2px 8px;
+      margin-right: -2px;
+      margin-left: -2px;
+      mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+    }
+    .tag-scroll-row::-webkit-scrollbar { display: none; }
+    .tag-picker {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .tag-select-wrap {
+      margin-bottom: 10px;
+    }
+    .tag-select {
+      width: 100%;
+      min-height: 120px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: calc(14px * var(--font-scale, 1));
+      box-sizing: border-box;
+    }
+    .tag-select option {
+      padding: 8px 10px;
+      border-radius: 6px;
+    }
+    .tag-select option:checked {
+      background: var(--accent-2);
+      color: #fff;
+    }
+    .tag-chip {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--muted);
+      font-size: calc(12px * var(--font-scale, 1));
+      cursor: pointer;
+      transition: 0.15s;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .tag-chip.selected {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+      color: #fff;
+      font-weight: 700;
+    }
+    .tag-add-row { display: flex; gap: 8px; }
+    .tag-add-row input { flex: 1; }
+    .btn-small {
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: calc(12px * var(--font-scale, 1));
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .btn-cancel {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: calc(13px * var(--font-scale, 1));
+    }
+    .btn-save {
+      padding: 10px 22px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent-2);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: calc(13px * var(--font-scale, 1));
+    }
+    .tag-filter-select {
+      width: 100%;
+      max-width: 280px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: calc(14px * var(--font-scale, 1));
+      box-sizing: border-box;
+    }
+    .log-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    .log-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .log-date {
+      font-weight: 800;
+      font-size: calc(15px * var(--font-scale, 1));
+    }
+    .log-meta {
+      font-size: calc(11.5px * var(--font-scale, 1));
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .log-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+    .log-tag-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: calc(10.5px * var(--font-scale, 1));
+    }
+    .log-memo {
+      font-size: calc(13px * var(--font-scale, 1));
+      line-height: 1.6;
+      white-space: pre-wrap;
+      margin: 8px 0 0;
+    }
+    .log-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      justify-content: flex-end;
+    }
+
+
+  
+    /* ハンバーガーボタン */
+    .menu-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20000;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      box-shadow: var(--shadow);
+      transition: 0.2s;
+      appearance: none;
+    }
+    .menu-toggle:hover { border-color: var(--accent); }
+    .menu-toggle span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+    .menu-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .overlay-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 15000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay-menu.show { opacity: 1; pointer-events: all; }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      right: -260px;
+      width: 240px;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--line);
+      z-index: 16000;
+      padding: 80px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .side-nav::-webkit-scrollbar { width: 4px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 2px; }
+    .side-nav.open { right: 0; }
+    .side-nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 4px;
+      padding-left: 4px;
+    }
+    .side-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 12px;
+      transition: 0.2s;
+      display: block;
+    }
+    .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
+    .side-nav a.active { color: var(--on-primary); background: var(--primary); }
+    .side-nav a .nav-title { display: block; }
+    .side-nav a .nav-desc {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.65;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .side-nav a.active .nav-desc { opacity: 0.75; }
+    .side-nav a:hover .nav-desc { opacity: 0.85; }
+  
+    @media (orientation: portrait) { .menu-toggle { display: flex !important; } }
+
+    .sub {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 12.5px;
+      margin: 0;
+      display: block;
+    }
+    /* ===== 横画面・小さい画面対応（縦画面オーバーレイはそのまま） ===== */
+    @media screen and (orientation: landscape) and (max-height: 500px) {
+      body { padding: 10px 16px 60px; }
+      h1 { font-size: 18px; margin-bottom: 14px; }
+      .card { padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; }
+      .name { font-size: 14px; }
+      .btn { padding: 6px 12px; font-size: 11px; }
+    }
+    @media screen and (orientation: landscape) and (max-width: 900px) {
+      body { padding: 16px 20px 80px; }
+      .container { max-width: 100%; }
+    }
+    /* ===== チュートリアル（手書き風・indexと同デザイン） ===== */
+    #tutorial-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,0);
+      display: none; cursor: pointer;
+      font-family: 'Klee One', cursive;
+      transition: background-color 0.4s;
+    }
+    #tutorial-bubble {
+      position: absolute;
+      background: #fff; color: #333;
+      padding: 20px;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      border: 3px solid #333;
+      max-width: 280px;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      font-size: 14px; line-height: 1.6;
+    }
+    #tutorial-bubble::after {
+      content: 'タップで次へ ＞';
+      display: block; font-size: 10px;
+      text-align: right; margin-top: 10px; color: #666;
+    }
+    .tutorial-highlight {
+      position: absolute;
+      border: 4px dashed var(--accent);
+      border-radius: 30px 10px 25px 12px / 12px 25px 10px 30px;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.75);
+    }
+    .hand-arrow {
+      position: absolute; font-size: 40px;
+      pointer-events: none;
+      filter: drop-shadow(2px 2px 0px #000);
+      animation: tut-bounce 1.2s infinite ease-in-out;
+      transform: translateX(-50%);
+    }
+    @keyframes tut-bounce {
+      0%,100% { transform: translate(-50%,0) rotate(-5deg); }
+      50%      { transform: translate(-50%,-15px) rotate(5deg); }
+    }
+    #tutorial-bubble, .tutorial-highlight, .hand-arrow {
+      transition: all 0.4s cubic-bezier(0.18,0.89,0.32,1.28);
+    }
+    #tutorial-skip {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.5);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(6px);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    #tutorial-skip:hover {
+      color: rgba(255,255,255,0.85);
+      border-color: rgba(255,255,255,0.45);
+    }
+  
+    /* ================================================================
+       ボトムタブバー
+       ================================================================ */
+    .btm-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 400;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: none !important;
+    }
+    [data-theme="dark"] .btm-nav {
+      background: rgba(18,18,18,0.97);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    }
+    .btm-nav a {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      font-family: "Noto Sans JP", sans-serif;
+      transition: color 0.18s;
+      -webkit-tap-highlight-color: transparent;
+      padding: 4px 2px;
+      min-width: 0;
+    }
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: background 0.2s;
+    }
+    .btm-nav a.active {
+      color: var(--accent-2);
+    }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
+    .btm-label { display: block; line-height: 1; }
+
+
+    /* ── ナビゲーション表示制御 ── */
+    .app-icon-btn#menuToggle { display: flex !important; }
+
+    @media (min-width: 1025px) {
+      .btm-nav { display: flex !important; }
+      .app-icon-btn#menuToggle { display: none !important; }
+      .app-header { justify-content: center; }
+      /* 右側の余白調整用 spacer を隠す */
+      .app-header div[style*="width:40px"] { display: none !important; }
+    }
+
+    /* ── 横画面スマホ：ボトムナビ分 ── */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      body { padding-bottom: 56px !important; padding-top: 12px !important; }
+      h1 { font-size: 16px !important; margin-bottom: 12px !important; }
+      h2 { font-size: 11px !important; margin-bottom: 8px !important; }
+      .card {
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+      }
+      .name { font-size: 14px !important; }
+      .meta { font-size: 10px !important; }
+      .btn { padding: 7px 12px !important; font-size: 11px !important; min-height: 34px !important; }
+      section { margin-bottom: 16px !important; }
+    }
+
+  
+    /* ── REDESIGNED NAVIGATION SYSTEM ── */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 400;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      width: 100%;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .app-header-title {
+      font-family: "Noto Serif JP", serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+    .app-icon-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      color: var(--text);
+      transition: background 0.2s;
+      appearance: none;
+      flex-shrink: 0;
+    }
+    .app-icon-btn:hover { background: var(--panel-2); }
+
+    /* ── DRAWER ── */
+    .overlay-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay-menu.show { opacity: 1; pointer-events: all; }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 260px;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--bg);
+      border-right: 1px solid var(--line);
+      z-index: 600;
+      padding: 0 0 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .side-nav::-webkit-scrollbar { width: 4px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+    .side-nav.open { left: 0; }
+    .side-nav-header {
+      font-family: "Noto Serif JP", serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--primary);
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+    .side-nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 8px 20px 4px;
+    }
+    .side-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: "Noto Sans JP", sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 16px;
+      margin: 2px 8px;
+      border-radius: 24px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .side-nav a:hover { color: var(--text); background: var(--panel-2); }
+    .side-nav a.active {
+      color: var(--on-surface);
+      background: var(--surface-container-high);
+      font-weight: 700;
+    }
+    .side-nav a .nav-icon { font-size: 22px; flex-shrink: 0; }
+    .side-nav a .nav-content { display: flex; flex-direction: column; gap: 1px; }
+    .side-nav a .nav-title { display: block; }
+    .side-nav a .nav-desc {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.65;
+      line-height: 1.4;
+    }
+    .side-nav a.active .nav-desc { opacity: 0.75; }
+
+    /* ── BOTTOM NAV ── */
+    .btm-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 400;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      display: flex;
+    }
+    [data-theme="dark"] .btm-nav {
+      background: rgba(18,18,18,0.97);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
+    }
+    .btm-nav a {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      font-family: "Noto Sans JP", sans-serif;
+      transition: color 0.18s;
+      -webkit-tap-highlight-color: transparent;
+      padding: 4px 2px;
+      min-width: 0;
+    }
+    .btm-nav a .btm-icon-wrap {
+      width: 64px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: background 0.2s;
+    }
+    .btm-nav a.active { color: var(--accent-2); }
+    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
+    .btm-nav a .material-symbols-outlined { font-size: 22px; }
+    .btm-label { display: block; line-height: 1; }
+
+    /* ── HAMBURGER TOGGLE (top app bar uses icon, old toggle hidden) ── */
+    .menu-toggle { display: none !important; }
+
+    /* Landscape layout bottom-nav support */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      .btm-nav { height: 48px; }
+      .btm-nav a .btm-icon-wrap { height: 28px; }
+    }
+
+      /* ナビ項目が8個に増えたため、ボトムナビの幅を可変にしてはみ出しを防止 */
+    .btm-nav a .btm-icon-wrap { width: auto !important; min-width: 34px; max-width: 52px; padding: 0 4px; }
+    .btm-nav a { padding: 4px 1px; }
+    .btm-nav a .btm-label { font-size: 9px; }
+    @media (max-width: 400px) {
+      .btm-nav a .btm-label { font-size: 8px; }
+      .btm-nav a .material-symbols-outlined { font-size: 20px; }
+    }
+</style>
+  <!-- リデザイン用オーバーライド（視覚のみ） -->
+  <link rel="stylesheet" href="redesign.css">
+  <script>
+    // 設定をページ読み込み時に即時適用（チラつき防止）
+    (function() {
+      var dark  = localStorage.getItem('kyudo_dark_mode') === '1';
+      var scale = parseFloat(localStorage.getItem('kyudo_font_scale') || '1.0');
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.setProperty('--font-scale', scale);
+    })();
+  </script>
+</head>
+<body>
+<!-- Top App Bar -->
+<header class="app-header">
+  <button class="app-icon-btn" id="menuToggle" onclick="toggleDrawer()" aria-label="メニュー">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+  <h1 class="app-header-title">リアル八節くん</h1>
+  <div style="width:40px;flex-shrink:0;"></div>
+</header>
+<div class="overlay-menu" id="overlayMenu" onclick="toggleDrawer()"></div>
+
+<!-- チュートリアル用オーバーレイ -->
+<div id="tutorial-overlay">
+  <div id="tutorial-skip">説明をとばす</div>
+  <div class="tutorial-highlight" id="tutorial-focus"></div>
+  <div class="hand-arrow" id="tutorial-arrow">⤴</div>
+  <div id="tutorial-bubble">ここに説明文が入ります。</div>
+</div>
+
+<div class="container">
+  <h1>稽古ログ</h1>
+  <p class="sub" style="margin-bottom:20px;">稽古の日付・本数・気づきを記録しておくと、あとで自分の成長や課題の変化を振り返れます。的中率ではなく「どう射ていたか」を残すためのページです。</p>
+
+  <section id="section-stats">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="statThisMonth">0</div>
+        <div class="stat-label">今月の稽古回数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statTotalCount">0</div>
+        <div class="stat-label">累計稽古回数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statTotalArrows">0</div>
+        <div class="stat-label">累計射数（本）</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="section-add">
+    <button class="btn-add" id="toggleFormBtn" type="button">
+      <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+      記録を追加する
+    </button>
+
+    <div class="form-panel" id="formPanel" style="display:none;">
+      <h2 style="margin-top:0;">稽古の記録</h2>
+      <div class="form-row">
+        <label for="fDate">日付</label>
+        <input type="date" id="fDate">
+      </div>
+      <div class="form-row">
+        <label for="fPlace">場所</label>
+        <input type="text" id="fPlace" placeholder="例：〇〇弓道場">
+      </div>
+      <div class="form-row">
+        <label for="fArrows">射数（本）</label>
+        <input type="number" id="fArrows" min="0" step="1" placeholder="例：20">
+      </div>
+      <div class="form-row">
+        <label>課題タグ（複数選択可）</label>
+        <div class="tag-select-wrap">
+          <select class="tag-select" id="tagSelect" multiple aria-label="課題タグを選択"></select>
+        </div>
+        <div class="tag-add-row">
+          <input type="text" id="fNewTag" placeholder="タグを追加（例：早気気味）">
+          <button type="button" class="btn-small" id="addTagBtn">追加</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="fMemo">気づき・メモ</label>
+        <textarea id="fMemo" rows="4" placeholder="指摘されたこと、意識したこと、感じたことなど自由に"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" id="cancelFormBtn">キャンセル</button>
+        <button type="button" class="btn-save" id="saveLogBtn">保存する</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="section-list">
+    <h2>稽古の記録</h2>
+    <select class="tag-filter-select" id="tagFilter" aria-label="タグで絞り込み"></select>
+    <div id="logs-root"></div>
+  </section>
+</div>
+
+
+
+
+
+
+
+<script>
+  // =====================================
+  // 稽古ログ管理（localStorage）
+  // =====================================
+  const LOGS_KEY = 'kyudo_practice_logs_v1';
+  const DEFAULT_TAGS = ['会が短い', '早気気味', '胴造りが崩れる', '弓構えが浅い', '残心が乱れる', '手の内が緩む'];
+  const CUSTOM_TAGS_KEY = 'kyudo_practice_custom_tags_v1';
+
+  let selectedTags = [];   // フォームで選択中のタグ
+  let filterTag = null;    // 一覧の絞り込みタグ
+  let editingId = null;    // 編集中のログID（nullなら新規）
+
+  function loadLogs() {
+    try {
+      const raw = localStorage.getItem(LOGS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+  function saveLogs(logs) {
+    localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+  }
+  function loadCustomTags() {
+    try {
+      const raw = localStorage.getItem(CUSTOM_TAGS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+  function saveCustomTags(tags) {
+    localStorage.setItem(CUSTOM_TAGS_KEY, JSON.stringify(tags));
+  }
+  function allKnownTags() {
+    const logs = loadLogs();
+    const fromLogs = logs.flatMap(l => l.tags || []);
+    const set = new Set([...DEFAULT_TAGS, ...loadCustomTags(), ...fromLogs]);
+    return Array.from(set);
+  }
+  // 一覧の絞り込み用：実際にログで使われた（追加された）タグだけを件数付きで返す
+  // ※タグピッカーの候補（プリセット含む）とは違い、一度も使われていないタグは出さない
+  function usedTagsWithCounts() {
+    const logs = loadLogs();
+    const counts = {};
+    logs.forEach(l => (l.tags || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+    return Object.keys(counts).sort((a, b) => a.localeCompare(b, 'ja')).map(t => ({ tag: t, count: counts[t] }));
+  }
+
+  function formatDateJp(dateStr) {
+    if (!dateStr) return '（日付未設定）';
+    const d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return dateStr;
+    const w = ['日','月','火','水','木','金','土'][d.getDay()];
+    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${w}）`;
+  }
+
+  function todayStr() {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  // ---- タグピッカー（フォーム内・ドロップダウン形式） ----
+  function renderTagPicker() {
+    const select = document.getElementById('tagSelect');
+    if (!select) return;
+    const tags = allKnownTags();
+    select.innerHTML = tags.map(t => `
+      <option value="${escapeAttr(t)}" ${selectedTags.includes(t) ? 'selected' : ''}>${escapeHtml(t)}</option>
+    `).join('');
+  }
+
+  document.getElementById('tagSelect').addEventListener('change', (event) => {
+    selectedTags = Array.from(event.target.selectedOptions).map(option => option.value);
+  });
+
+  document.getElementById('addTagBtn').addEventListener('click', () => {
+    const input = document.getElementById('fNewTag');
+    const val = input.value.trim();
+    if (!val) return;
+    const customTags = loadCustomTags();
+    if (!customTags.includes(val)) {
+      customTags.push(val);
+      saveCustomTags(customTags);
+    }
+    if (!selectedTags.includes(val)) selectedTags.push(val);
+    input.value = '';
+    renderTagPicker();
+  });
+
+  // ---- フォームの開閉 ----
+  const formPanel = document.getElementById('formPanel');
+  document.getElementById('toggleFormBtn').addEventListener('click', () => {
+    editingId = null;
+    resetForm();
+    formPanel.style.display = formPanel.style.display === 'none' ? 'block' : 'none';
+    if (formPanel.style.display === 'block') {
+      formPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+  document.getElementById('cancelFormBtn').addEventListener('click', () => {
+    formPanel.style.display = 'none';
+    editingId = null;
+    resetForm();
+  });
+
+  function resetForm() {
+    document.getElementById('fDate').value = todayStr();
+    document.getElementById('fPlace').value = '';
+    document.getElementById('fArrows').value = '';
+    document.getElementById('fMemo').value = '';
+    selectedTags = [];
+    renderTagPicker();
+  }
+
+  document.getElementById('saveLogBtn').addEventListener('click', () => {
+    const date = document.getElementById('fDate').value || todayStr();
+    const place = document.getElementById('fPlace').value.trim();
+    const arrows = parseInt(document.getElementById('fArrows').value, 10) || 0;
+    const memo = document.getElementById('fMemo').value.trim();
+
+    let logs = loadLogs();
+    if (editingId) {
+      logs = logs.map(l => l.id === editingId
+        ? { ...l, date, place, arrows, tags: [...selectedTags], memo, updatedAt: Date.now() }
+        : l);
+    } else {
+      logs.unshift({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        date, place, arrows, tags: [...selectedTags], memo,
+        createdAt: Date.now(), updatedAt: Date.now(),
+      });
+    }
+    saveLogs(logs);
+    formPanel.style.display = 'none';
+    editingId = null;
+    resetForm();
+    render();
+  });
+
+  // ---- 一覧のタグ絞り込み（実際に記録で使われているタグのみ表示） ----
+  function renderTagFilter() {
+    const root = document.getElementById('tagFilter');
+    const tagInfo = usedTagsWithCounts();
+    // 絞り込み中のタグがログから無くなった場合（削除・編集など）は解除
+    if (filterTag && !tagInfo.some(({ tag }) => tag === filterTag)) {
+      filterTag = null;
+    }
+    if (tagInfo.length === 0) { root.innerHTML = ''; return; }
+    const options = ['<option value="">すべて</option>']
+      .concat(tagInfo.map(({ tag: t, count }) => `<option value="${escapeAttr(t)}" ${filterTag === t ? 'selected' : ''}>${escapeHtml(t)}（${count}）</option>`));
+    root.innerHTML = options.join('');
+    root.value = filterTag || '';
+  }
+  document.getElementById('tagFilter').addEventListener('change', (event) => {
+    filterTag = event.target.value || null;
+    render();
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  // ---- 統計 ----
+  function renderStats(logs) {
+    const now = new Date();
+    const thisMonth = logs.filter(l => {
+      if (!l.date) return false;
+      const d = new Date(l.date + 'T00:00:00');
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }).length;
+    const totalArrows = logs.reduce((sum, l) => sum + (l.arrows || 0), 0);
+    document.getElementById('statThisMonth').textContent = thisMonth;
+    document.getElementById('statTotalCount').textContent = logs.length;
+    document.getElementById('statTotalArrows').textContent = totalArrows;
+  }
+
+  // ---- 一覧描画 ----
+  function render() {
+    const allLogs = loadLogs().sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.createdAt - a.createdAt);
+    renderStats(allLogs);
+    renderTagFilter();
+
+    const logs = filterTag ? allLogs.filter(l => (l.tags || []).includes(filterTag)) : allLogs;
+    const root = document.getElementById('logs-root');
+
+    if (logs.length === 0) {
+      root.innerHTML = `<div class="empty">${filterTag ? 'このタグの記録はまだありません。' : 'まだ稽古の記録がありません。「記録を追加する」から書いてみましょう。'}</div>`;
+      return;
+    }
+
+    root.innerHTML = logs.map(l => `
+      <div class="log-card">
+        <div class="log-card-head">
+          <div>
+            <div class="log-date">${formatDateJp(l.date)}</div>
+            <div class="log-meta">${l.place ? escapeHtml(l.place) + ' ・ ' : ''}${l.arrows || 0}本</div>
+          </div>
+        </div>
+        ${(l.tags && l.tags.length) ? `<div class="log-tags">${l.tags.map(t => `<span class="log-tag-pill">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+        ${l.memo ? `<p class="log-memo">${escapeHtml(l.memo)}</p>` : ''}
+        <div class="log-actions">
+          <button class="btn-small" onclick="editLog(${l.id})">編集</button>
+          <button class="btn-del" style="padding:9px 14px;border-radius:10px;font-size:12px;" onclick="deleteLog(${l.id})">削除</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.editLog = function (id) {
+    const logs = loadLogs();
+    const l = logs.find(x => x.id === id);
+    if (!l) return;
+    editingId = id;
+    document.getElementById('fDate').value = l.date || todayStr();
+    document.getElementById('fPlace').value = l.place || '';
+    document.getElementById('fArrows').value = l.arrows || '';
+    document.getElementById('fMemo').value = l.memo || '';
+    selectedTags = [...(l.tags || [])];
+    renderTagPicker();
+    formPanel.style.display = 'block';
+    formPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  window.deleteLog = function (id) {
+    if (!confirm('この稽古ログを削除しますか？')) return;
+    const logs = loadLogs().filter(l => l.id !== id);
+    saveLogs(logs);
+    render();
+  };
+
+  resetForm();
+  render();
+</script>
+
+
+<script>
+// ===== 稽古ログ チュートリアル =====
+(function() {
+  const tutorialSteps = [
+    {
+      text: "ここは稽古ログだよ。日付や本数、気づいたことを記録して、稽古の積み重ねを振り返れるページだよ！",
+      target: null
+    },
+    {
+      text: "ここには稽古の回数や射数が自動で集計されるよ。今月どれくらい稽古できたか一目でわかるよ！",
+      target: "section-stats",
+      pos: "right"
+    },
+    {
+      text: "「記録を追加する」を押すと、日付・場所・本数・課題タグ・メモを入力できるよ。タグは自分で追加もできるんだ！",
+      target: "section-add",
+      pos: "right"
+    },
+    {
+      text: "タグで絞り込んで、同じ課題の記録だけをまとめて見返すこともできるよ！",
+      target: "section-list",
+      pos: "right"
+    },
+    {
+      text: "説明はおしまい！こまめに記録して、自分の変化を振り返っていこう！",
+      target: null
+    }
+  ];
+
+  const LS_KEY = 'kyudo_practicelog_tutorial_done';
+  const overlay = document.getElementById('tutorial-overlay');
+  const bubble  = document.getElementById('tutorial-bubble');
+  const focus   = document.getElementById('tutorial-focus');
+  const arrow   = document.getElementById('tutorial-arrow');
+  let step = 0;
+
+  function showStep() {
+    const s = tutorialSteps[step];
+    bubble.textContent = s.text;
+    if (s.target) {
+      overlay.style.backgroundColor = 'rgba(0,0,0,0)';
+      let el = document.getElementById(s.target);
+      if (!el || el.offsetParent === null) {
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.7)'; focus.style.display='none'; arrow.style.display='none'; bubble.style.top='50%'; bubble.style.left='50%'; bubble.style.transform='translate(-50%,-50%)'; return;
+      }
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      const rect = el.getBoundingClientRect();
+      focus.style.display = 'block';
+      focus.style.top    = (rect.top  - 5) + 'px';
+      focus.style.left   = (rect.left - 5) + 'px';
+      focus.style.width  = (rect.width  + 10) + 'px';
+      focus.style.height = (rect.height + 10) + 'px';
+
+      arrow.style.display = 'block';
+      bubble.style.transform = 'none';
+
+      if (s.pos === 'right' && window.innerWidth > 900) {
+        bubble.style.left = (rect.right + 30) + 'px';
+        bubble.style.top = (rect.top + 10) + 'px';
+        arrow.textContent = '⬅';
+        arrow.style.top = (rect.top + 30) + 'px';
+        arrow.style.left = (rect.right + 5) + 'px';
+      } else {
+        // モバイル：要素の上に出す。上が足りなければ要素と重なっても上部に固定
+        const bubbleH = 160;
+        const margin = 12;
+        let topPos = rect.top - bubbleH - 10;
+        if (topPos < margin) topPos = Math.min(margin, rect.top + 10); // 要素と重なってもOK
+        let leftPos = rect.left + rect.width / 2 - 140;
+        bubble.style.left = Math.max(10, Math.min(leftPos, window.innerWidth - 290)) + 'px';
+        bubble.style.top = topPos + 'px';
+        arrow.textContent = '⬇';
+        arrow.style.top = (topPos + bubbleH + 2) + 'px';
+        arrow.style.left = (rect.left + rect.width / 2) + 'px';
+      }
+
+      // 画面端の補正
+      if (parseInt(bubble.style.left) < 10) bubble.style.left = '10px';
+      if (parseInt(bubble.style.left) > window.innerWidth - 300) bubble.style.left = (window.innerWidth - 300) + 'px';
+
+    } else {
+      overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
+      focus.style.display = 'none';
+      arrow.style.display = 'none';
+      bubble.style.top = '50%'; bubble.style.left = '50%';
+      bubble.style.transform = 'translate(-50%,-50%)';
+    }
+  }
+
+  overlay.addEventListener('click', function() {
+    step++;
+    if (step < tutorialSteps.length) { showStep(); }
+    else { overlay.style.display = 'none'; localStorage.setItem(LS_KEY, '1'); }
+  });
+
+  document.getElementById('tutorial-skip').addEventListener('click', function(e) {
+    e.stopPropagation();
+    overlay.style.display = 'none';
+    localStorage.setItem(LS_KEY, '1');
+  });
+
+  window.addEventListener('load', function() {
+    if (!localStorage.getItem(LS_KEY)) {
+      overlay.style.display = 'block';
+      showStep();
+    }
+  });
+})();
+</script>
+
+<!-- ボトムタブバー（横画面スマホ用） -->
+
+
+<nav class="side-nav" id="sideNav">
+  <div class="side-nav-header">RIA HACHI</div>
+  <div class="side-nav-label">ページ移動</div>
+  <a href="index.html">
+    <span class="material-symbols-outlined nav-icon">accessibility_new</span>
+    <div class="nav-content">
+      <span class="nav-title">一般用</span>
+      <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説</span>
+    </div>
+  </a>
+  <a href="中高生.html">
+    <span class="material-symbols-outlined nav-icon">school</span>
+    <div class="nav-content">
+      <span class="nav-title">中高生用</span>
+      <span class="nav-desc">やさしい言葉で筋肉・動作をわかりやすく解説</span>
+    </div>
+  </a>
+  <a href="カスタム.html">
+    <span class="material-symbols-outlined nav-icon">edit_note</span>
+    <div class="nav-content">
+      <span class="nav-title">３D編集</span>
+      <span class="nav-desc">3Dモデルをカスタマイズできる編集ページ</span>
+    </div>
+  </a>
+  <a href="プレビュー.html">
+    <span class="material-symbols-outlined nav-icon">visibility</span>
+    <div class="nav-content">
+      <span class="nav-title">閲覧用</span>
+      <span class="nav-desc">アニメーションをゆっくり確認できるページ</span>
+    </div>
+  </a>
+  <a href="マイリスト.html">
+    <span class="material-symbols-outlined nav-icon">bookmarks</span>
+    <div class="nav-content">
+      <span class="nav-title">マイリスト</span>
+      <span class="nav-desc">お気に入りをまとめて確認できるページ</span>
+    </div>
+  </a>
+  <a href="稽古ログ.html" class="active">
+    <span class="material-symbols-outlined nav-icon">edit_calendar</span>
+    <div class="nav-content">
+      <span class="nav-title">稽古ログ</span>
+      <span class="nav-desc">稽古の記録や気づきを残せるページ</span>
+    </div>
+  </a>
+  <a href="動画比較.html">
+    <span class="material-symbols-outlined nav-icon">compare</span>
+    <div class="nav-content">
+      <span class="nav-title">動画比較</span>
+      <span class="nav-desc">2つの動画を並べてフォームを比較できるページ</span>
+    </div>
+  </a>
+  <a href="設定.html">
+    <span class="material-symbols-outlined nav-icon">settings</span>
+    <div class="nav-content">
+      <span class="nav-title">設定</span>
+      <span class="nav-desc">テーマ・文字サイズなどを変更</span>
+    </div>
+  </a>
+</nav>
+<nav class="btm-nav">
+  <a href="index.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">accessibility_new</span></span>
+    <span class="btm-label">一般用</span>
+  </a>
+  <a href="中高生.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">school</span></span>
+    <span class="btm-label">中高生</span>
+  </a>
+  <a href="カスタム.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_note</span></span>
+    <span class="btm-label">3D編集</span>
+  </a>
+  <a href="プレビュー.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">visibility</span></span>
+    <span class="btm-label">閲覧用</span>
+  </a>
+  <a href="マイリスト.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">bookmarks</span></span>
+    <span class="btm-label">リスト</span>
+  </a>
+  <a href="稽古ログ.html" class="active">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_calendar</span></span>
+    <span class="btm-label">稽古ログ</span>
+  </a>
+  <a href="動画比較.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">compare</span></span>
+    <span class="btm-label">動画比較</span>
+  </a>
+  <a href="設定.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">settings</span></span>
+    <span class="btm-label">設定</span>
+  </a>
+</nav>
+<script>
+function toggleDrawer() {
+  var sideNav = document.getElementById('sideNav');
+  var overlay = document.getElementById('overlayMenu');
+  var isOpen = sideNav.classList.contains('open');
+  if (isOpen) { sideNav.classList.remove('open'); overlay.classList.remove('show'); }
+  else { sideNav.classList.add('open'); overlay.classList.add('show'); }
+}
+</script>
+</body>
+</html>
