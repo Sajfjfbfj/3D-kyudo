@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <script src="sync.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
@@ -251,6 +252,42 @@
     }
     .reset-btn:hover { border-color: var(--accent-2); color: var(--accent-2); background: rgba(186,26,26,0.04); }
 
+    /* ── Google同期 ── */
+    .sync-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .sync-status-row { display: flex; align-items: center; gap: 12px; }
+    .sync-avatar {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(37,99,235,0.1); color: #3b82f6;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    [data-theme="dark"] .sync-avatar { color: #60a5fa; }
+    .sync-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .sync-email { font-size: 14px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sync-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .sync-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 20px; border-radius: 12px; border: none;
+      background: var(--accent-2); color: #fff; font-family: inherit; font-size: 14px;
+      font-weight: 700; cursor: pointer; transition: all 0.2s; width: 100%;
+    }
+    .sync-btn:hover { opacity: 0.9; }
+    .sync-btn:disabled { opacity: 0.5; cursor: default; }
+    .sync-btn-row { display: flex; gap: 8px; }
+    .sync-btn-secondary {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 14px; border-radius: 10px;
+      border: 1px solid var(--line); background: var(--panel-2);
+      color: var(--text); font-family: inherit; font-size: 13px;
+      font-weight: 600; cursor: pointer; transition: all 0.2s; flex: 1;
+    }
+    .sync-btn-secondary:hover { border-color: var(--accent-2); color: var(--accent-2); }
+    .sync-btn-secondary:disabled { opacity: 0.5; cursor: default; }
+    .sync-note {
+      font-size: 11px; color: var(--muted); line-height: 1.5;
+      background: var(--panel-2); border-radius: 8px; padding: 10px 12px;
+    }
+    .sync-note.warn { color: var(--accent-2); background: rgba(186,26,26,0.06); }
+
     /* ── バージョン情報 ── */
     .version-info {
       text-align: center; padding: 12px; color: var(--muted); font-size: 11px;
@@ -331,7 +368,15 @@
     @media (orientation: portrait) {
       .container { padding: 16px 14px; }
     }
-  </style>
+      /* ナビ項目が8個に増えたため、ボトムナビの幅を可変にしてはみ出しを防止 */
+    .btm-nav a .btm-icon-wrap { width: auto !important; min-width: 34px; max-width: 52px; padding: 0 4px; }
+    .btm-nav a { padding: 4px 1px; }
+    .btm-nav a .btm-label { font-size: 9px; }
+    @media (max-width: 400px) {
+      .btm-nav a .btm-label { font-size: 8px; }
+      .btm-nav a .material-symbols-outlined { font-size: 20px; }
+    }
+</style>
 </head>
 <body>
 
@@ -423,6 +468,16 @@
     </div>
   </div>
 
+  <!-- 他端末との同期（Google連携） -->
+  <div class="settings-section">
+    <div class="section-label">他端末との同期</div>
+    <div class="settings-card">
+      <div class="sync-body" id="syncBody">
+        <!-- JSで内容を描画 -->
+      </div>
+    </div>
+  </div>
+
   <!-- アクセシビリティ -->
   <!-- リセット -->
   <button class="reset-btn" onclick="resetAll()">
@@ -472,6 +527,20 @@
       <span class="nav-desc">お気に入りをまとめて確認できるページ</span>
     </div>
   </a>
+  <a href="稽古ログ.html">
+    <span class="material-symbols-outlined nav-icon">edit_calendar</span>
+    <div class="nav-content">
+      <span class="nav-title">稽古ログ</span>
+      <span class="nav-desc">稽古の記録や気づきを残せるページ</span>
+    </div>
+  </a>
+  <a href="動画比較.html">
+    <span class="material-symbols-outlined nav-icon">compare</span>
+    <div class="nav-content">
+      <span class="nav-title">動画比較</span>
+      <span class="nav-desc">2つの動画を並べてフォームを比較できるページ</span>
+    </div>
+  </a>
   <a href="設定.html" class="active">
     <span class="material-symbols-outlined nav-icon">settings</span>
     <div class="nav-content">
@@ -502,6 +571,14 @@
   <a href="マイリスト.html" class="">
     <span class="btm-icon-wrap"><span class="material-symbols-outlined">bookmarks</span></span>
     <span class="btm-label">リスト</span>
+  </a>
+  <a href="稽古ログ.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_calendar</span></span>
+    <span class="btm-label">稽古ログ</span>
+  </a>
+  <a href="動画比較.html" class="">
+    <span class="btm-icon-wrap"><span class="material-symbols-outlined">compare</span></span>
+    <span class="btm-label">動画比較</span>
   </a>
   <a href="設定.html" class="active">
     <span class="btm-icon-wrap"><span class="material-symbols-outlined">settings</span></span>
@@ -617,6 +694,91 @@ function toggleDrawer() {
   var isOpen = sideNav.classList.contains('open');
   if (isOpen) { sideNav.classList.remove('open'); overlay.classList.remove('show'); }
   else { sideNav.classList.add('open'); overlay.classList.add('show'); }
+}
+
+// ============================================================
+// 他端末との同期（Google連携）
+// ============================================================
+function formatSyncTime(ms) {
+  if (!ms) return null;
+  const d = new Date(Number(ms));
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function renderSyncUI(status) {
+  const root = document.getElementById('syncBody');
+  if (!root) return;
+
+  if (!status.configured) {
+    root.innerHTML = `
+      <div class="sync-note warn">
+        まだGoogle連携の設定が完了していません。<br>
+        sync.js 内の GOOGLE_CLIENT_ID を、Google Cloud Consoleで発行したOAuthクライアントIDに書き換えてください。
+      </div>`;
+    return;
+  }
+
+  if (!status.signedIn) {
+    root.innerHTML = `
+      <div class="sync-desc">Googleアカウントでログインすると、タグ・記録・お気に入り・ノート・表示設定を他の端末とも共有できます。（動画ファイル自体は対象外です）</div>
+      <button class="sync-btn" id="syncSignInBtn">
+        <span class="material-symbols-outlined" style="font-size:18px;">login</span>
+        Googleでログインして同期する
+      </button>`;
+    document.getElementById('syncSignInBtn').addEventListener('click', () => {
+      const btn = document.getElementById('syncSignInBtn');
+      btn.disabled = true;
+      kyudoSyncSignIn()
+        .then(() => showToast('Googleと連携しました'))
+        .catch(() => { showToast('ログインに失敗しました'); btn.disabled = false; });
+    });
+    return;
+  }
+
+  const lastSynced = formatSyncTime(status.lastSyncedAt);
+  root.innerHTML = `
+    <div class="sync-status-row">
+      <div class="sync-avatar"><span class="material-symbols-outlined">account_circle</span></div>
+      <div class="sync-info">
+        <div class="sync-email">${status.email || '接続中'}</div>
+        <div class="sync-desc">${lastSynced ? '最終同期：' + lastSynced : 'まだ同期していません'}</div>
+      </div>
+    </div>
+    <div class="sync-btn-row">
+      <button class="sync-btn-secondary" id="syncNowBtn">
+        <span class="material-symbols-outlined" style="font-size:16px;">sync</span>
+        今すぐ同期
+      </button>
+      <button class="sync-btn-secondary" id="syncSignOutBtn">
+        <span class="material-symbols-outlined" style="font-size:16px;">logout</span>
+        連携を解除
+      </button>
+    </div>`;
+
+  document.getElementById('syncNowBtn').addEventListener('click', () => {
+    const btn = document.getElementById('syncNowBtn');
+    btn.disabled = true;
+    kyudoSyncPush()
+      .then(() => showToast('同期しました'))
+      .catch(() => showToast('同期に失敗しました。もう一度お試しください'))
+      .finally(() => { btn.disabled = false; });
+  });
+  document.getElementById('syncSignOutBtn').addEventListener('click', () => {
+    if (!confirm('Googleとの連携を解除しますか？\n（保存済みのデータは削除されません）')) return;
+    kyudoSyncSignOut();
+    showToast('連携を解除しました');
+  });
+}
+
+if (window.kyudoSyncOnChange) {
+  kyudoSyncOnChange(renderSyncUI);
+} else {
+  // sync.js が読み込めなかった場合のフォールバック表示
+  document.addEventListener('DOMContentLoaded', () => {
+    const root = document.getElementById('syncBody');
+    if (root) root.innerHTML = '<div class="sync-note warn">同期モジュールを読み込めませんでした。</div>';
+  });
 }
 
 // --- 初期化 ---
