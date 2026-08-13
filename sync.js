@@ -20,6 +20,17 @@
        隠しスペースです。他のファイルには一切アクセスしません。
    ・動画ファイル本体（IndexedDB内の実データ）は対象外です
      （容量が大きいため、今回は同期しません）。
+
+   【今回の修正点】
+   ・アクセストークンをページ内変数だけでなく sessionStorage にも
+     保存するようにしました。
+     これまでは別ページに移動するたびにトークンがメモリ上から
+     消えてしまい、毎回Googleへサイレント再認証をリクエストして
+     いたため、本番環境（サードパーティCookie制限やFedCMの影響）
+     ではその都度アカウント選択画面が出てしまっていました。
+     sessionStorageに保存することで、有効期限内（通常1時間）は
+     ページを移動してもGoogleに問い合わせ直さずに済むようになり、
+     ログイン選択画面が毎回出る問題が解消されます。
    ============================================================ */
 (function () {
   'use strict';
@@ -33,6 +44,11 @@
   var LAST_SYNC_KEY = 'kyudo_sync_last_synced_at';
   var SIGNED_IN_KEY = 'kyudo_sync_signed_in';
   var RELOAD_GUARD_PREFIX = 'kyudo_sync_reload_guard:';
+
+  // ---- トークンキャッシュ用（ページ遷移をまたいで保持するため sessionStorage を使用） ----
+  var TOKEN_KEY = 'kyudo_sync_access_token';
+  var TOKEN_EXPIRES_KEY = 'kyudo_sync_token_expires_at';
+  var EMAIL_KEY = 'kyudo_sync_email';
 
   // 同期対象のlocalStorageキー一覧（動画本体は対象外・メタ情報のみ）
   var SYNC_KEYS = [
@@ -48,11 +64,38 @@
     'kyudo_anim'                 // アニメーション設定
   ];
 
+  // ---- ページ読み込み時に sessionStorage からトークンを復元 ----
   var accessToken = null;
   var tokenExpiresAt = 0;
+  var currentUserEmail = null;
+  (function restoreTokenFromSession() {
+    try {
+      var savedToken = sessionStorage.getItem(TOKEN_KEY);
+      var savedExpires = Number(sessionStorage.getItem(TOKEN_EXPIRES_KEY) || 0);
+      if (savedToken && savedExpires && Date.now() < savedExpires - 60000) {
+        accessToken = savedToken;
+        tokenExpiresAt = savedExpires;
+        currentUserEmail = sessionStorage.getItem(EMAIL_KEY) || null;
+      }
+    } catch (e) { /* sessionStorageが使えない環境（プライベートモード等）は無視 */ }
+  })();
+
+  function persistToken() {
+    try {
+      if (accessToken) {
+        sessionStorage.setItem(TOKEN_KEY, accessToken);
+        sessionStorage.setItem(TOKEN_EXPIRES_KEY, String(tokenExpiresAt));
+        if (currentUserEmail) sessionStorage.setItem(EMAIL_KEY, currentUserEmail);
+      } else {
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(TOKEN_EXPIRES_KEY);
+        sessionStorage.removeItem(EMAIL_KEY);
+      }
+    } catch (e) { /* noop */ }
+  }
+
   var tokenClient = null;
   var gisLoadPromise = null;
-  var currentUserEmail = null;
   var pushTimer = null;
   var listeners = [];
 
@@ -113,7 +156,8 @@
           if (resp && resp.access_token) {
             accessToken = resp.access_token;
             tokenExpiresAt = Date.now() + (Number(resp.expires_in || 3600) * 1000);
-            fetchUserEmail().then(function () { notify(); resolve(resp); });
+            persistToken();
+            fetchUserEmail().then(function () { persistToken(); notify(); resolve(resp); });
           } else {
             reject(resp);
           }
@@ -126,6 +170,7 @@
 
   function fetchUserEmail() {
     if (!accessToken) return Promise.resolve();
+    if (currentUserEmail) return Promise.resolve(); // 既に持っていれば再取得不要
     return fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: 'Bearer ' + accessToken }
     }).then(function (r) { return r.ok ? r.json() : null; })
@@ -134,6 +179,8 @@
   }
 
   function ensureFreshToken() {
+    // sessionStorageから復元済み、またはメモリ上にまだ有効なトークンがあればそのまま使う
+    // （＝ページ遷移してもGoogleへ問い合わせ直さない）
     if (accessToken && Date.now() < tokenExpiresAt - 60000) {
       return Promise.resolve(accessToken);
     }
@@ -141,6 +188,7 @@
     // 失敗した場合は明示的なサインインが必要。
     return requestToken('').then(function () { return accessToken; }).catch(function () {
       accessToken = null;
+      persistToken();
       notify();
       return null;
     });
@@ -157,6 +205,8 @@
     var done = function () {
       accessToken = null;
       currentUserEmail = null;
+      tokenExpiresAt = 0;
+      persistToken();
       localStorage.removeItem(SIGNED_IN_KEY);
       notify();
     };
