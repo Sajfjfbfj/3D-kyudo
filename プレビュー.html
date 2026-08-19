@@ -1,1996 +1,1620 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <script src="sync.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="manifest.json">
-  <meta name="msapplication-TileColor" content="#ffffff">
-  <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
-  <meta name="theme-color" content="#ffffff">
-  <title>リアル八節くん ─ ビューア</title>
-  <!-- LZ-String: 圧縮共有URLの展開に使用 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>リアル八節くん ─ 閲覧用プレビュー</title>
+  <meta name="description" content="作成・共有された弓道・射法八節のカスタムノートと3Dモデルを閲覧・確認できるビューア。" />
+  <meta name="keywords" content="弓道, 射法八節, 3D, プレビュー, 閲覧, UNIQLO UI" />
+
+  <!-- Google Fonts: Inter & Noto Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+
+  <!-- 3Dモデル事前読み込み -->
+  <link rel="preload" href="弓道基礎１.glb" as="fetch" crossorigin="anonymous">
+
+  <!-- LZ-String -->
   <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
-  
+  <!-- jsQR (QRコード読み取り用) -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="sync.js"></script>
+  <script src="tutorial.js"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-icon.png">
+  <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
+
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <meta name="theme-color" content="#ffffff">
+
   <style>
+    /* ================================================================
+       UNIQLO STYLE DESIGN SYSTEM & TOKENS (プレビュー版)
+       ================================================================ */
     :root {
-      --bg: #fdf8f8;
-      --panel: #ffffff;
-      --panel-2: #f7f3f2;
-      --line: #e0dedd;
-      --text: #1c1b1b;
-      --muted: #616363;
-      --accent: #1c1b1b;
-      --accent-2: #ba1a1a;
-      --accent-3: #c0392b;
-      --ok: #2d7a3e;
-      --shadow: 0 2px 8px rgba(0,0,0,0.08);
-      --surface: #fdf8f8;
-      --on-surface: #1c1b1b;
-      --primary: #000000;
-      --on-primary: #ffffff;
-      --surface-container: #f1edec;
-      --surface-container-low: #f7f3f2;
-      --surface-container-high: #ebe7e6;
-      --outline-variant: #e5e2e1;
-      --cinnabar: #ba1a1a;
-      --kyudo-gold: #c0392b;
-      --gold: #8b2020;
-      --gold-light: var(--text);
-      --viewer-bg: #0d1b2a;
+      --uq-red: #E60012;
+      --uq-red-hover: #CC0010;
+      --uq-red-light: #FFF0F0;
+      --uq-black: #111111;
+      --uq-dark-gray: #333333;
+      --uq-gray: #666666;
+      --uq-light-gray: #999999;
+      --uq-border: #E5E5E5;
+      --uq-border-light: #F0F0F0;
+      --uq-bg: #FFFFFF;
+      --uq-surface: #F8F8F8;
+      --uq-surface-subtle: #FAFAFA;
+      
+      --color-secondary-bright: #F59E0B;
+
+      --radius-sm: 2px;
+      --radius-md: 4px;
+      --radius-lg: 6px;
+      --radius-pill: 9999px;
+
+      --font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-scale: 1;
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
     }
-    /* ダークモード変数 */
+
     [data-theme="dark"] {
-      --bg: #121212;
-      --panel: #1e1e1e;
-      --panel-2: #2a2a2a;
-      --line: #3a3a3a;
-      --text: #f0ece9;
-      --muted: #a0a0a0;
-      --accent: #f0ece9;
-      --accent-2: #e05555;
-      --accent-3: #d4af37;
-      --ok: #4caf70;
-      --shadow: 0 2px 8px rgba(0,0,0,0.4);
-      --surface: #121212;
-      --on-surface: #f0ece9;
-      --primary: #f0ece9;
-      --on-primary: #121212;
-      --surface-container: #2a2a2a;
-      --surface-container-low: #1e1e1e;
-      --surface-container-high: #333333;
-      --outline-variant: #444444;
-      --cinnabar: #e05555;
-      --kyudo-gold: #d4af37;
-      --gold: #d4af37;
-      --gold-light: #f0ece9;
-      --viewer-bg: #07111c;
+      --uq-black: #F5F5F5;
+      --uq-dark-gray: #E0E0E0;
+      --uq-gray: #A0A0A0;
+      --uq-light-gray: #666666;
+      --uq-border: #2A2A2A;
+      --uq-border-light: #222222;
+      --uq-bg: #121212;
+      --uq-surface: #1C1C1C;
+      --uq-surface-subtle: #181818;
+      --uq-red-light: rgba(230, 0, 18, 0.15);
+      --color-secondary-bright: #FBBF24;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.6);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.8);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      background-color: var(--uq-bg);
+      color: var(--uq-black);
+      font-family: var(--font-family);
+      font-size: calc(14px * var(--font-scale));
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    button {
+      font-family: inherit;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: inherit;
+      transition: all 0.15s ease;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
       user-select: none;
-    }
-    body::before { display: none; }
-    b, strong { font-weight: 800; }
-    /* ── ヘッダー ── */
-    .app-header {
-      position: relative; z-index: 10;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 68px 10px 20px;
-      border-bottom: 1px solid var(--line);
-      background: var(--bg);
-      backdrop-filter: none;
-      flex-shrink: 0; gap: 12px; flex-wrap: wrap;
-    }
-    .app-title {
-      font-weight: 800;
-      font-size: 18px; color: var(--accent); letter-spacing: 0.1em; white-space: nowrap;
-    }
-    .app-title span { font-size: 13px; color: var(--muted); font-family: 'Noto Sans JP', sans-serif; margin-left: 8px; }
-    .viewer-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: 11px; color: var(--accent-2);
-      background: rgba(186,26,26,0.07);
-      border: 1px solid var(--accent-2);
-      border-radius: 999px; padding: 3px 10px; margin-left: 8px;
-    }
-    .btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
-      cursor: pointer; border: none; font-family: 'Noto Sans JP', sans-serif;
-      transition: all 0.18s; white-space: nowrap;
-    }
-    .btn-gold { background: var(--primary); color: var(--on-primary); font-weight: 700; }
-    .btn-gold:hover { filter: brightness(1.15); transform: translateY(-1px); }
-    .btn-ghost { background: rgba(255,255,255,0.06); border: 1px solid var(--line); color: var(--text); }
-    .btn-ghost:hover { background: var(--surface-container-high); }
-
-    /* ── メインレイアウト ── */
-    .main-layout {
-      position: relative; z-index: 1;
-      display: grid; grid-template-columns: 1fr 1fr;
-      flex: 1; overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
     }
 
-    /* ── 左: 3Dビューア ── */
-    .viewer-side {
-      display: flex; flex-direction: column;
-      border-right: 1px solid var(--line); overflow: hidden;
-    }
-    .stage-nav {
-      display: flex; gap: 4px; padding: 8px 12px;
-      border-bottom: 1px solid var(--line);
-      background: var(--bg);
-      overflow-x: auto; flex-shrink: 0;
-    }
-    .stage-nav::-webkit-scrollbar { height: 3px; }
-    .stage-nav::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
-    .stage-tab {
-      flex-shrink: 0; padding: 6px 12px; border-radius: 8px;
-      border: 1px solid var(--line); background: transparent;
-      color: var(--muted); font-size: 11px; font-weight: 500;
-      cursor: pointer; font-family: inherit;
-      transition: all 0.18s; white-space: nowrap;
-    }
-    .stage-tab:hover { border-color: var(--accent-2); color: var(--accent-2); }
-    .stage-tab.active { background: rgba(186,26,26,0.07); border-color: var(--accent-2); color: var(--accent-2); }
-    #viewer {
-      position: relative; flex: 1; overflow: hidden;
-      background: var(--viewer-bg);
-    }
-    #viewer canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; touch-action: none; }
-    #loading-screen {
-      position: absolute; inset: 0; background: var(--bg);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 50; transition: opacity 0.5s;
-    }
-    .loader-title { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 16px; }
-    .loader-bar-wrap { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-    #loader-bar { height: 100%; width: 0; background: var(--accent-2); transition: width 0.3s; }
-    #loader-text { font-size: 11px; color: var(--muted); margin-top: 8px; }
-
-    .viewer-controls {
-      padding: 8px 12px; border-top: 1px solid var(--line);
-      background: var(--bg); flex-shrink: 0;
-    }
-    .ctrl-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
-    .ctrl-row::-webkit-scrollbar { display: none; }
-    .ctrl-btn {
-      flex-shrink: 0; padding: 6px 11px; border-radius: 7px;
-      border: 1px solid var(--line); background: var(--panel-2);
-      color: var(--text); font-size: 11px; font-weight: 600; cursor: pointer;
-      font-family: inherit; transition: all 0.15s;
-    }
-    .ctrl-btn:hover { background: var(--surface-container-high); border-color: var(--accent); }
-    .ctrl-btn.active { background: rgba(125, 211, 252, 0.2); border-color: var(--accent-2); color: var(--accent-2); }
-    .time-label { font-size: 12px; color: var(--muted); margin-left: auto; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-    .slider-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-    .slider-row input[type="range"] { flex: 1; accent-color: var(--accent); }
-
-    /* ── 右: ビューアパネル ── */
-    .content-side {
-      display: flex; flex-direction: column; overflow: hidden;
-    }
-    .content-header {
-      padding: 10px 16px; border-bottom: 1px solid var(--line);
-      background: var(--bg); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .content-stage-title {
-      font-weight: 800;
-      font-size: calc(22px * var(--font-scale, 1)); color: var(--text); letter-spacing: 0.08em;
-    }
-    .content-stage-en { font-size: calc(12px * var(--font-scale, 1)); color: var(--muted); margin-left: 10px; font-weight: 300; }
-
-    /* コンテンツ本体 */
-    .content-body {
-      flex: 1; overflow-y: auto; padding: 14px 16px;
-      display: flex; flex-direction: column; gap: 12px;
-    }
-    .content-body::-webkit-scrollbar { width: 5px; }
-    .content-body::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
-
-    /* ── ウェルカム画面 ── */
-    .welcome-screen {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 20px; padding: 32px; text-align: center;
-    }
-    .welcome-icon { font-size: 56px; }
-    .welcome-title {
-      font-weight: 800;
-      font-size: 20px; color: var(--accent); letter-spacing: 0.08em;
-    }
-    .welcome-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
-    .welcome-file-wrap {
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      width: 100%; max-width: 360px;
-    }
-    .file-drop-zone {
-      width: 100%; padding: 24px 20px;
-      border: 2px dashed var(--accent);
-      border-radius: 14px;
-      background: rgba(125, 211, 252, 0.04);
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .file-drop-zone:hover { background: rgba(125, 211, 252, 0.09); border-color: var(--accent); }
-    .file-drop-zone.drag-over { background: rgba(125, 211, 252, 0.14); border-color: var(--accent); }
-    .file-drop-zone input[type="file"] { display: none; }
-    .file-drop-icon { font-size: 32px; }
-    .file-drop-label { font-size: 13px; color: var(--accent); font-weight: 600; }
-    .file-drop-sub { font-size: 11px; color: var(--muted); }
-
-    /* ── ノート表示 ── */
-    .note-view {
-      background: var(--panel-2); border: 1px solid var(--line);
-      border-radius: 12px; padding: 14px;
-    }
-    .note-section-title {
-      font-size: calc(11px * var(--font-scale, 1)); font-weight: 700; color: var(--accent-2);
-      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;
-    }
-    .note-text { font-size: calc(12.5px * var(--font-scale, 1)); line-height: 1.7; color: var(--text); }
-    .note-analogy {
-      background: rgba(186,26,26,0.06); border-left: 3px solid var(--accent-2);
-      padding: 7px 11px; border-radius: 0 8px 8px 0;
-      font-size: calc(12px * var(--font-scale, 1)); color: var(--accent-2); margin-top: 6px;
-    }
-    [data-theme="dark"] .note-analogy { background: rgba(224,85,85,0.1); }
-    .note-advice {
-      background: rgba(52, 211, 153, 0.08); border-left: 3px solid var(--ok);
-      padding: 7px 11px; border-radius: 0 8px 8px 0;
-      font-size: calc(12px * var(--font-scale, 1)); color: var(--ok); margin-top: 6px;
-    }
-    .muscle-tag {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 4px 9px; border-radius: 999px;
-      font-size: calc(11px * var(--font-scale, 1)); font-weight: 600; margin: 3px 2px;
-    }
-    .muscle-tag.primary { background: rgba(186,26,26,0.1); border: 1px solid var(--accent-2); color: var(--accent-2); }
-    .muscle-tag.secondary { background: rgba(186,26,26,0.06); border: 1px solid var(--muted); color: var(--muted); }
-    [data-theme="dark"] .muscle-tag.secondary { background: rgba(212,175,55,0.15); border-color: var(--kyudo-gold); color: var(--kyudo-gold); }
-    .checkpoint-view-item {
-      display: flex; gap: 8px; align-items: flex-start;
-      font-size: 12px; line-height: 1.6; margin-bottom: 6px;
-    }
-    .checkpoint-icon {
-      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(186,26,26,0.08); border: 1px solid var(--accent);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; margin-top: 1px;
-    }
-    .miss-view-item {
-      display: flex; gap: 8px; align-items: flex-start;
-      font-size: 12px; line-height: 1.6; margin-bottom: 6px;
-    }
-    .miss-icon-view {
-      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; margin-top: 1px;
-    }
-    .miss-icon-view.warn { background: rgba(251, 113, 133, 0.12); border: 1px solid var(--accent-2); }
-    .miss-icon-view.tip  { background: rgba(52, 211, 153, 0.12); border: 1px solid var(--ok); }
-
-    /* ── 進捗バー ── */
-    .progress-bar-wrap { display: flex; align-items: center; gap: 8px; }
-    .progress-steps { display: flex; gap: 3px; }
-    .progress-step { width: 20px; height: 4px; border-radius: 2px; background: var(--line); transition: background 0.3s; }
-    .progress-step.done { background: var(--ok); }
-    .progress-step.partial { background: var(--accent-3); }
-    .progress-label { font-size: 11px; color: var(--muted); }
-
-    /* ── ステータス表示 ── */
-    .loaded-info {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 11px; color: var(--muted);
-    }
-    .loaded-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 11px; font-weight: 600; color: var(--ok);
-      background: rgba(52, 211, 153, 0.12); border: 1px solid var(--ok);
-      border-radius: 999px; padding: 2px 8px;
-    }
-
-    /* ── 統合データメニュー ── */
-    .data-menu-wrap { position: relative; }
-    .data-menu-popup {
-      position: absolute; top: calc(100% + 8px); right: 0;
-      min-width: 220px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-      z-index: 3000;
-      overflow: hidden;
-      display: none;
-      flex-direction: column;
-    }
-    .data-menu-popup.open { display: flex; }
-    .data-menu-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 16px;
-      background: transparent; border: none; border-bottom: 1px solid var(--line);
-      color: var(--text); font-family: inherit; cursor: pointer;
-      transition: background 0.15s; text-align: left; width: 100%;
-    }
-    .data-menu-item:last-child { border-bottom: none; }
-    .data-menu-item:hover { background: var(--panel-2); }
-    .data-menu-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
-    .data-menu-title { font-size: 13px; font-weight: 700; color: var(--text); }
-    .data-menu-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-
-    /* トースト */
-    #toast {
-      position: fixed; bottom: 24px; left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--panel); border: 1px solid var(--accent);
-      border-radius: 10px; padding: 10px 20px; font-size: 13px; color: var(--gold-light);
-      box-shadow: var(--shadow); z-index: 25001; /* メニューより前面に表示 */
-      transform: translateX(-50%) translateY(100px);
-      opacity: 0;
-      transition: transform 0.38s cubic-bezier(0.18,0.89,0.32,1.28), opacity 0.25s ease;
-      white-space: nowrap;
-      pointer-events: none;
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-    @media screen and (orientation: landscape) and (max-height: 600px) {
-      #toast { bottom: 64px; } /* ボトムナビを避けて上に表示 */
-    }
-
-    /* ── グローバルナビ ── */
-
-
-    html, body { height: 100%; overflow: hidden; padding-bottom: 0; }
-    body {
-      font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      font-size: calc(14px * var(--font-scale, 1));
-    }
-    /* 縦向きレイアウト */
-    @media (orientation: portrait) {
-      html, body { overflow: auto; height: auto; padding-bottom: 0; }
-      .main-layout { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
-      .viewer-side { height: 65vw; min-height: 300px; max-height: 520px; border-right: none !important; border-bottom: 1px solid var(--line); }
-      .content-side { overflow: visible !important; }
-      .content-body { overflow: visible !important; }
-    }
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--accent-2); border-radius: 3px; }
-
-    /* 未記入の節を薄く */
-    .stage-tab.empty { opacity: 0.45; }
-  
-    /* ハンバーガーボタン */
-    .menu-toggle {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      z-index: 20000;
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: var(--bg);
-      border: 1px solid var(--line);
-      backdrop-filter: blur(12px);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-      box-shadow: var(--shadow);
-      transition: 0.2s;
-      appearance: none;
-    }
-    .menu-toggle:hover { border-color: var(--accent); }
-    .menu-toggle span {
-      display: block;
-      width: 20px;
-      height: 2px;
-      background: var(--text);
-      border-radius: 2px;
-      transition: 0.3s;
-    }
-    .menu-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .menu-toggle.open span:nth-child(2) { opacity: 0; }
-    .menu-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-    .overlay-menu {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 15000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .overlay-menu.show { opacity: 1; pointer-events: all; }
-    .side-nav {
-      position: fixed;
-      top: 0;
-      right: -260px;
-      width: 240px;
-      height: 100vh;
-      height: 100dvh;
-      background: var(--panel);
-      backdrop-filter: blur(20px);
-      border-left: 1px solid var(--line);
-      z-index: 16000;
-      padding: 80px 20px 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      box-shadow: -10px 0 40px rgba(0,0,0,0.4);
-      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .side-nav::-webkit-scrollbar { width: 4px; }
-    .side-nav::-webkit-scrollbar-track { background: transparent; }
-    .side-nav::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 2px; }
-    .side-nav.open { right: 0; }
-    .side-nav-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      margin-bottom: 4px;
-      padding-left: 4px;
-    }
-    .side-nav a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 700;
-      padding: 10px 16px;
-      border-radius: 12px;
-      transition: 0.2s;
-      display: block;
-    }
-    .side-nav a:hover { color: var(--accent); background: rgba(125, 211, 252, 0.08); }
-    .side-nav a.active { color: var(--on-primary); background: var(--primary); }
-    .side-nav a .nav-title { display: block; }
-    .side-nav a .nav-desc {
-      display: block;
-      font-size: 10px;
-      font-weight: 400;
-      opacity: 0.65;
-      margin-top: 2px;
-      line-height: 1.4;
-    }
-    .side-nav a.active .nav-desc { opacity: 0.75; }
-    .side-nav a:hover .nav-desc { opacity: 0.85; }
-  
-    @media (orientation: portrait) { .menu-toggle { display: none !important; } }
-
-    /* ===== 横画面・小さい画面対応（縦画面オーバーレイはそのまま） ===== */
-    /* 横画面スマホ（高さ500px以下） */
-    @media screen and (orientation: landscape) and (max-height: 500px) {
-      .app-header { padding: 5px 56px 5px 12px; gap: 4px; }
-      .app-title { font-size: 13px; }
-      .app-title span, .viewer-badge { display: none; }
-      .btn { padding: 5px 9px; font-size: 10px; }
-      .stage-nav { padding: 4px 8px; }
-      .stage-tab { padding: 4px 9px; font-size: 10px; }
-      .viewer-controls { padding: 4px 10px; }
-      .ctrl-btn { padding: 4px 8px; font-size: 10px; }
-      .slider-row { margin-top: 2px; }
-      /* ウェルカム画面・ファイル選択を縦に収める */
-      .welcome-screen { padding: 10px 16px; justify-content: flex-start; }
-      .welcome-icon { font-size: 28px; margin-bottom: 6px; }
-      .welcome-title { font-size: 14px; margin-bottom: 4px; }
-      .welcome-desc { font-size: 11px; margin-bottom: 10px; }
-      .file-drop-zone { padding: 14px 12px; border-radius: 10px; }
-      .file-drop-icon { font-size: 22px; margin-bottom: 4px; }
-      .file-drop-label { font-size: 12px; }
-      .file-drop-sub { font-size: 9px; margin-top: 2px; }
-    }
-    /* 横画面タブレット・中型 */
-    @media screen and (orientation: landscape) and (max-width: 900px) {
-      .app-title span, .viewer-badge { font-size: 11px; }
-      .btn { padding: 6px 10px; font-size: 11px; }
-      .welcome-title { font-size: 16px; }
-      .welcome-desc { font-size: 12px; }
-    }
-  
-    /* ================================================================
-       ボトムタブバー（横画面スマホ専用）
-       ================================================================ */
-    .btm-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 400; height: 64px; background: var(--bg); border-top: 1px solid var(--line); box-shadow: 0 -2px 8px rgba(0,0,0,0.06); display: none !important; }
-    [data-theme="dark"] .btm-nav { background: rgba(18,18,18,0.97); box-shadow: 0 -2px 8px rgba(0,0,0,0.4); }
-    .btm-nav a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: var(--muted); font-size: 10px; font-weight: 500; font-family: "Noto Sans JP", sans-serif; transition: color 0.18s; -webkit-tap-highlight-color: transparent; padding: 4px 2px; min-width: 0; }
-    .btm-nav a .btm-icon-wrap { width: 64px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 16px; transition: background 0.2s; }
-    .btm-nav a.active { color: var(--accent-2); }
-    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
-    .btm-nav a .material-symbols-outlined { font-size: 22px; }
-    .btm-label { display: block; line-height: 1; }
-
-    /* ── ナビゲーション表示制御 ── */
-    .app-icon-btn#menuToggle { display: flex !important; }
-
-    @media (min-width: 1025px) {
-      .btm-nav { display: flex !important; }
-      .app-icon-btn#menuToggle { display: none !important; }
-      .app-header { justify-content: center; }
-      .app-header div[style*="width:40px"] { display: none !important; }
-      html, body { padding-bottom: 64px; }
-    }
-    .btm-nav a .btm-icon-wrap {
-      width: 64px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      transition: background 0.2s;
-    }
-    .btm-nav a.active {
-      color: var(--accent-2);
-    }
-    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
-    .btm-nav a .material-symbols-outlined { font-size: 22px; }
-    .btm-label { display: block; line-height: 1; }
-
-    /* 横画面スマホ（高さ600px以下）のみ表示 */
-
-    /* ── 横画面スマホ：ボトムナビ分 ── */
-    @media screen and (orientation: landscape) and (max-height: 600px) {
-      body { padding-bottom: 0 !important; }
-
-      /* アプリヘッダー */
-      .app-header { padding: 7px 16px 7px 16px !important; }
-      .app-title { font-size: 14px !important; }
-      .app-title span { font-size: 11px !important; }
-
-      /* 節タブ */
-      .stage-nav { padding: 5px 8px !important; gap: 3px !important; }
-      .stage-tab { padding: 5px 10px !important; font-size: 10.5px !important; min-height: 32px !important; }
-
-      /* エディタタブ */
-      .editor-tabs { padding: 4px 8px !important; gap: 2px !important; }
-      .editor-tab { padding: 5px 10px !important; font-size: 10.5px !important; min-height: 32px !important; }
-
-      /* コントロール */
-      .viewer-controls { padding: 5px 10px !important; }
-      .ctrl-btn { padding: 6px 10px !important; font-size: 10.5px !important; min-height: 32px !important; }
-
-      /* ヘッダータイトル */
-      .editor-stage-title, .content-stage-title { font-size: 16px !important; }
-
-      /* エディタ本体の余白 */
-      .editor-body { padding: 10px 14px !important; gap: 12px !important; }
-      .content-body { padding: 8px 12px !important; gap: 8px !important; }
-
-      /* ボタン全般 */
-      .btn { padding: 6px 12px !important; font-size: 11px !important; min-height: 34px !important; }
-
-      /* フォームフィールド */
-      textarea, input[type="text"], input[type="number"], select {
-        font-size: 13px !important;
-        min-height: 34px !important;
-      }
-      label { font-size: 11px !important; }
-    }
-
-  </style>
-  <style>
-    /* 共有モーダル (カスタム.htmlからコピー) */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 1000;
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-    }
-    .modal-overlay.hidden { display: none; }
-    .modal {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 24px;
-      width: min(540px, 100%);
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: var(--shadow);
-    }
-    .modal h3 {
-      font-weight: 800;
-      color: var(--accent);
-      font-size: 18px;
-      margin-bottom: 6px;
-    }
-    .modal p { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
-    .share-textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 11px; padding: 10px; height: 60px; resize: none; font-family: 'Courier New', monospace; }
-    .modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
-    /* ===== チュートリアル（手書き風・indexと同デザイン） ===== */
-    #tutorial-overlay {
-      position: fixed; inset: 0; z-index: 10000;
-      background: rgba(0,0,0,0);
-      display: none; cursor: pointer;
-      font-family: 'Klee One', cursive;
-      transition: background-color 0.4s;
-    }
-    #tutorial-bubble {
-      position: absolute;
-      background: #fff; color: #333;
-      padding: 20px;
-      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-      border: 3px solid #333;
-      max-width: 280px;
-      box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
-      font-size: 14px; line-height: 1.6;
-    }
-    #tutorial-bubble::after {
-      content: 'タップで次へ ＞';
-      display: block; font-size: 10px;
-      text-align: right; margin-top: 10px; color: #666;
-    }
-    .tutorial-highlight {
-      position: absolute;
-      border: 4px dashed var(--accent);
-      border-radius: 30px 10px 25px 12px / 12px 25px 10px 30px;
-      pointer-events: none;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 0 9999px rgba(0,0,0,0.75);
-    }
-    .hand-arrow {
-      position: absolute; font-size: 40px;
-      pointer-events: none;
-      filter: drop-shadow(2px 2px 0px #000);
-      animation: tut-bounce 1.2s infinite ease-in-out;
-      transform: translateX(-50%);
-    }
-    @keyframes tut-bounce {
-      0%,100% { transform: translate(-50%,0) rotate(-5deg); }
-      50%      { transform: translate(-50%,-15px) rotate(5deg); }
-    }
-    #tutorial-bubble, .tutorial-highlight, .hand-arrow {
-      transition: all 0.4s cubic-bezier(0.18,0.89,0.32,1.28);
-    }
-    #tutorial-skip {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.5);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 11px;
-      letter-spacing: 0.04em;
-      backdrop-filter: blur(6px);
-      transition: color 0.2s, border-color 0.2s;
-    }
-    #tutorial-skip:hover {
-      color: rgba(255,255,255,0.85);
-      border-color: rgba(255,255,255,0.45);
-    }
-    /* PC幅ではボトムナビが表示されるため、とばすボタンをその上に逃がす */
-    @media (min-width: 1025px) {
-      #tutorial-skip { bottom: 84px; }
-    }
-  
-    /* ── REDESIGNED NAVIGATION SYSTEM ── */
-    .app-header {
+    /* HEADER */
+    .uq-header {
       position: sticky;
       top: 0;
-      z-index: 400;
-      background: var(--bg);
-      border-bottom: 1px solid var(--line);
+      z-index: 1000;
+      background: var(--uq-bg);
+      border-bottom: 1px solid var(--uq-border);
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      padding: 10px 16px;
-      width: 100%;
-      flex-shrink: 0;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
-    .app-header-title {
-      font-family: "Noto Serif JP", serif;
-      font-size: 17px;
-      font-weight: 500;
-      color: var(--text);
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 200px;
-    }
-    .app-icon-btn {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-      color: var(--text);
-      transition: background 0.2s;
-      appearance: none;
+      padding: 0 16px;
+      height: 52px;
       flex-shrink: 0;
     }
-    .app-icon-btn:hover { background: var(--panel-2); }
 
-    /* ── DRAWER ── */
-    .overlay-menu {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 500;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .overlay-menu.show { opacity: 1; pointer-events: all; }
-    .side-nav {
-      position: fixed;
-      top: 0;
-      left: -280px;
-      width: 260px;
-      height: 100vh;
-      height: 100dvh;
-      background: var(--bg);
-      border-right: 1px solid var(--line);
-      z-index: 600;
-      padding: 0 0 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .side-nav::-webkit-scrollbar { width: 4px; }
-    .side-nav::-webkit-scrollbar-track { background: transparent; }
-    .side-nav::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
-    .side-nav.open { left: 0; }
-    .side-nav-header {
-      font-family: "Noto Serif JP", serif;
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--primary);
-      padding: 20px 20px 16px;
-      border-bottom: 1px solid var(--line);
-      margin-bottom: 8px;
-      flex-shrink: 0;
-    }
-    .side-nav-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      padding: 8px 20px 4px;
-    }
-    .side-nav a {
-      color: var(--muted);
-      text-decoration: none;
-      font-family: "Noto Sans JP", sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 12px 16px;
-      margin: 2px 8px;
-      border-radius: 24px;
-      transition: all 0.2s;
+    .uq-brand {
       display: flex;
       align-items: center;
       gap: 12px;
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow: hidden;
     }
-    .side-nav a:hover { color: var(--text); background: var(--panel-2); }
-    .side-nav a.active {
-      color: var(--on-surface);
-      background: var(--surface-container-high);
-      font-weight: 700;
-    }
-    .side-nav a .nav-icon { font-size: 22px; flex-shrink: 0; }
-    .side-nav a .nav-content { display: flex; flex-direction: column; gap: 1px; }
-    .side-nav a .nav-title { display: block; }
-    .side-nav a .nav-desc {
-      display: block;
-      font-size: 10px;
-      font-weight: 400;
-      opacity: 0.65;
-      line-height: 1.4;
-    }
-    .side-nav a.active .nav-desc { opacity: 0.75; }
 
-    /* ── BOTTOM NAV ── */
-    .btm-nav {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      z-index: 400;
-      height: 64px;
-      background: var(--bg);
-      border-top: 1px solid var(--line);
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+    .uq-logo-box {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .uq-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .uq-app-title-wrap {
       display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
     }
-    [data-theme="dark"] .btm-nav {
-      background: rgba(18,18,18,0.97);
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
+
+    .uq-app-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--uq-black);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
-    .btm-nav a {
+
+    .uq-tag-badge {
+      background: var(--uq-black);
+      color: #FFFFFF;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+
+    [data-theme="dark"] .uq-tag-badge {
+      background: var(--uq-red);
+    }
+
+    .uq-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    /* Prevent the header from getting crushed on narrow / portrait phones:
+       drop the text labels on header action buttons and keep icons only,
+       so the app title always fits on a single line. */
+    @media (max-width: 600px) {
+      .uq-header {
+        padding: 0 10px;
+        gap: 6px;
+      }
+      .uq-header-actions {
+        gap: 2px;
+      }
+      .uq-header-actions .uq-ctrl-btn-label {
+        display: none;
+      }
+      .uq-header-actions .uq-btn {
+        padding: 7px 8px;
+      }
+      .uq-app-title {
+        font-size: 13.5px;
+      }
+    }
+
+    .uq-icon-btn {
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      color: var(--uq-black);
+    }
+
+    .uq-icon-btn:hover {
+      background: var(--uq-surface);
+    }
+
+    /* MAIN LAYOUT (50:50) */
+    .uq-main-layout {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    @media (min-width: 1024px) {
+      .uq-main-layout {
+        flex-direction: row;
+      }
+    }
+
+    /* 3D VIEWER COLUMN */
+    .uq-viewer-column {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--uq-border);
+      position: relative;
+      background: var(--uq-surface-subtle);
+    }
+
+    @media (min-width: 1024px) {
+      .uq-viewer-column {
+        flex: 1;
+        border-bottom: none;
+        border-right: 1px solid var(--uq-border);
+      }
+    }
+
+    #viewer {
+      position: relative;
+      flex: 1 1 0;
+      min-height: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #viewer canvas {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+      touch-action: none;
+    }
+
+    /* 3D HUD OVERLAY */
+    .uq-hud-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .uq-hud-chip {
+      pointer-events: auto;
+      background: var(--uq-bg);
+      border: 1px solid var(--uq-border);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--uq-black);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .uq-viewer-controls {
+      padding: 8px 12px;
+      background: var(--uq-bg);
+      border-top: 1px solid var(--uq-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .uq-ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .uq-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--uq-border);
+      background: var(--uq-bg);
+      color: var(--uq-black);
+    }
+
+    .uq-btn:hover {
+      background: var(--uq-surface);
+      border-color: var(--uq-gray);
+    }
+
+    .uq-btn.primary {
+      background: var(--uq-red);
+      color: #FFFFFF;
+      border-color: var(--uq-red);
+    }
+
+    .uq-btn.primary:hover {
+      background: var(--uq-red-hover);
+    }
+
+    .uq-btn.active-red {
+      background: var(--uq-red) !important;
+      color: #FFFFFF !important;
+      border-color: var(--uq-red) !important;
+    }
+
+    .uq-slider {
       flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--uq-border);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .uq-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--uq-red);
+      cursor: pointer;
+    }
+
+    /* CONTENT COLUMN */
+    .uq-content-column {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--uq-bg);
+      overflow: hidden;
+    }
+
+    @media (min-width: 1024px) {
+      .uq-content-column {
+        flex: 1;
+      }
+    }
+
+    /* STAGE TABS BAR */
+    .uq-stage-tabs-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--uq-border);
+      background: var(--uq-bg);
+      overflow-x: auto;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+
+    .uq-stage-tabs-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .uq-stage-tab {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--uq-border);
+      background: var(--uq-bg);
+      cursor: pointer;
+      min-width: 58px;
+    }
+
+    .uq-stage-tab-num {
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--uq-light-gray);
+      letter-spacing: 0.05em;
+    }
+
+    .uq-stage-tab-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--uq-black);
+    }
+
+    .uq-stage-tab.active {
+      background: var(--uq-black);
+      border-color: var(--uq-black);
+    }
+
+    .uq-stage-tab.active .uq-stage-tab-num,
+    .uq-stage-tab.active .uq-stage-tab-name {
+      color: #FFFFFF;
+    }
+
+    [data-theme="dark"] .uq-stage-tab.active {
+      background: var(--uq-red);
+      border-color: var(--uq-red);
+    }
+
+    .uq-stage-tab.empty {
+      opacity: 0.45;
+    }
+
+    /* SCROLLABLE VIEW AREA */
+    .uq-view-scroll {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 16px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .uq-card-group {
+      background: var(--uq-bg);
+      border: 1px solid var(--uq-border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .uq-card-title {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--uq-red);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .uq-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid var(--uq-border);
+      background: var(--uq-surface);
+      color: var(--uq-black);
+    }
+
+    .uq-chip.primary {
+      background: var(--uq-red-light);
+      border-color: rgba(230,0,18,0.25);
+      color: var(--uq-red);
+    }
+
+    .uq-chip.secondary {
+      background: rgba(245,158,11,0.12);
+      border-color: rgba(245,158,11,0.3);
+      color: var(--color-secondary-bright);
+    }
+
+    .uq-callout-box {
+      background: var(--uq-surface);
+      border-left: 3px solid var(--uq-black);
+      padding: 10px 14px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 12.5px;
+      color: var(--uq-dark-gray);
+      line-height: 1.6;
+    }
+
+    .uq-callout-box.tip {
+      border-left-color: var(--uq-red);
+      background: var(--uq-red-light);
+      color: var(--uq-red);
+    }
+
+    .uq-warning-banner {
+      background: var(--uq-red-light);
+      border: 1px solid rgba(230, 0, 18, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--uq-red);
+      line-height: 1.5;
+    }
+
+    /* MODAL */
+    .uq-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .uq-modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .uq-modal-card {
+      background: var(--uq-bg);
+      width: 100%;
+      max-width: 480px;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      position: relative;
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* QR SCAN */
+    .uq-qr-scan-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 58vh;
+      background: #000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .uq-qr-scan-frame video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .uq-qr-scan-box {
+      position: absolute;
+      inset: 14%;
+      border: 2px solid var(--uq-red);
+      border-radius: var(--radius-md);
+      box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
+    #qrStatus {
+      font-size: 12px;
+      color: var(--uq-gray);
+      margin: 10px 0 14px;
+      text-align: center;
+      min-height: 16px;
+    }
+
+    /* DRAWER */
+    .uq-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .uq-drawer-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .uq-drawer {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100%;
+      background: var(--uq-bg);
+      z-index: 2001;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .uq-drawer.open {
+      right: 0;
+    }
+
+    .uq-drawer-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--uq-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .uq-drawer-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--uq-black);
+    }
+
+    .uq-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+
+    .uq-drawer-section-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--uq-light-gray);
+      padding: 12px 20px 6px;
+    }
+
+    .uq-drawer-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 20px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--uq-black);
+      transition: background 0.15s;
+    }
+
+    .uq-drawer-link:hover {
+      background: var(--uq-surface);
+    }
+
+    .uq-drawer-link.active {
+      color: var(--uq-red);
+      background: var(--uq-red-light);
+    }
+
+    #loading-screen {
+      position: absolute;
+      inset: 0;
+      background: var(--uq-bg);
+      z-index: 100;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 500;
-      font-family: "Noto Sans JP", sans-serif;
-      transition: color 0.18s;
-      -webkit-tap-highlight-color: transparent;
-      padding: 4px 2px;
-      min-width: 0;
+      transition: opacity 0.4s ease;
     }
-    .btm-nav a .btm-icon-wrap {
-      width: 64px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      transition: background 0.2s;
+
+    #toast {
+      position: fixed;
+      bottom: 74px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      opacity: 0;
+      background: var(--uq-black);
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 700;
+      z-index: 4000;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.25s, opacity 0.25s;
+      pointer-events: none;
     }
-    .btm-nav a.active { color: var(--accent-2); }
-    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
-    .btm-nav a .material-symbols-outlined { font-size: 22px; }
-    .btm-label { display: block; line-height: 1; }
 
-    /* ── HAMBURGER TOGGLE (top app bar uses icon, old toggle hidden) ── */
-    .menu-toggle { display: none !important; }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
 
-    /* Landscape layout bottom-nav support */
+    /* Landscape layout optimizations */
     @media screen and (orientation: landscape) and (max-height: 600px) {
-      .btm-nav { height: 48px; }
-      .btm-nav a .btm-icon-wrap { height: 28px; }
+      .uq-main-layout {
+        flex-direction: row !important;
+      }
+      .uq-viewer-column {
+        flex: 1 1 50% !important;
+        border-bottom: none !important;
+        border-right: 1px solid var(--uq-border) !important;
+      }
+      .uq-content-column {
+        flex: 1 1 50% !important;
+      }
+      .uq-ctrl-btn-label {
+        display: none;
+      }
+      .uq-btn {
+        padding: 6px 8px !important;
+      }
     }
-
-  /* ── ダークモード：固定色の補正 ── */
-  [data-theme="dark"] .viewer-controls,
-  [data-theme="dark"] .stage-nav {
-    background: var(--bg) !important;
-  }
-  [data-theme="dark"] .ctrl-btn {
-    background: var(--panel-2) !important;
-    border-color: var(--line) !important;
-    color: var(--text) !important;
-  }
-  [data-theme="dark"] .content-header {
-    background: var(--bg) !important;
-  }
-  [data-theme="dark"] #loading-screen {
-    background: var(--bg);
-    color: var(--text);
-  }
-      /* ナビ項目が8個に増えたため、ボトムナビの幅を可変にしてはみ出しを防止 */
-    .btm-nav a .btm-icon-wrap { width: auto !important; min-width: 34px; max-width: 52px; padding: 0 4px; }
-    .btm-nav a { padding: 4px 1px; }
-    .btm-nav a .btm-label { font-size: 9px; }
-    @media (max-width: 400px) {
-      .btm-nav a .btm-label { font-size: 8px; }
-      .btm-nav a .material-symbols-outlined { font-size: 20px; }
-    }
-</style>
-  <!-- リデザイン用オーバーライド（視覚のみ） -->
-  <link rel="stylesheet" href="redesign.css">
-  <script>
-    // 設定をページ読み込み時に即時適用（チラつき防止）
-    (function() {
-      var dark  = localStorage.getItem('kyudo_dark_mode') === '1';
-      var scale = parseFloat(localStorage.getItem('kyudo_font_scale') || '1.0');
-      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
-      document.documentElement.style.setProperty('--font-scale', scale);
-    })();
-  </script>
+  </style>
 </head>
 <body>
-<!-- チュートリアル用オーバーレイ -->
-<div id="tutorial-overlay">
-  <div id="tutorial-skip">説明をとばす</div>
-  <div class="tutorial-highlight" id="tutorial-focus"></div>
-  <div class="hand-arrow" id="tutorial-arrow">⤴</div>
-  <div id="tutorial-bubble">ここに説明文が入ります。</div>
-</div>
 
-<!-- ヘッダー -->
-<header class="app-header">
-  <button class="app-icon-btn" id="menuToggle" onclick="toggleDrawer()" aria-label="メニュー">
-    <span class="material-symbols-outlined">menu</span>
-  </button>
-  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1;">
-    <div class="app-title">
-      リアル八節くん
+  <!-- HEADER -->
+  <header class="uq-header">
+    <div class="uq-brand">
+      <div class="uq-logo-box"><img src="favicon-96x96.png" alt="リアル八節くん" width="30" height="30"></div>
+      <div class="uq-app-title-wrap">
+        <span class="uq-app-title">
+          リアル八節くん
+          <span class="uq-tag-badge">閲覧用</span>
+        </span>
+      </div>
     </div>
-    <div class="progress-bar-wrap" id="progressWrap" style="display:none;">
-      <div class="progress-steps" id="progressSteps"></div>
-      <span class="progress-label" id="progressLabel"></span>
-    </div>
-  </div>
-  <div id="fileOpenArea" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-    <span class="loaded-info" id="loadedInfo" style="display:none;"></span>
-    <!-- 統合ボタン -->
-    <div class="data-menu-wrap" id="dataMenuWrap">
-      <button class="btn btn-gold" id="dataMenuBtn" onclick="toggleDataMenu(event)">
-        📁 <span id="dataMenuLabel">データを開く</span> <span style="font-size:10px;opacity:0.7;margin-left:2px;">▾</span>
+    <div class="uq-header-actions">
+      <button class="uq-btn" onclick="document.getElementById('fileInput').click()" title="JSONファイルをインポート">
+        <span class="material-symbols-outlined" style="font-size:16px;">upload_file</span>
+        <span class="uq-ctrl-btn-label">ファイル</span>
       </button>
-      <div class="data-menu-popup" id="dataMenuPopup">
-        <button class="data-menu-item" id="favMenuItem" style="display:none;" onclick="saveToFavorites();closeDataMenu()">
-          <span class="data-menu-icon">⭐</span>
-          <div><div class="data-menu-title">お気に入りに保存</div><div class="data-menu-sub">現在のデータを保存</div></div>
-        </button>
-        <label class="data-menu-item" style="cursor:pointer;">
-          <span class="data-menu-icon">📂</span>
-          <div><div class="data-menu-title">ファイルを開く</div><div class="data-menu-sub">.json ファイルを選択</div></div>
-          <input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="loadFile(this);closeDataMenu()">
-        </label>
-        <button class="data-menu-item" onclick="openUrlModal();closeDataMenu()">
-          <span class="data-menu-icon">🔗</span>
-          <div><div class="data-menu-title">URLから開く</div><div class="data-menu-sub">共有リンクを貼り付け</div></div>
-        </button>
-      </div>
+      <input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="loadFromFile(this)">
+      
+      <button class="uq-btn" onclick="openUrlModal()" title="共有URLを開く">
+        <span class="material-symbols-outlined" style="font-size:16px;">link</span>
+        <span class="uq-ctrl-btn-label">URL</span>
+      </button>
+
+      <button class="uq-btn" onclick="openQrModal()" title="QRコードを読み取る">
+        <span class="material-symbols-outlined" style="font-size:16px;">qr_code_scanner</span>
+        <span class="uq-ctrl-btn-label">QR</span>
+      </button>
+
+      <button class="uq-btn" onclick="saveToFavorites()" title="お気に入りに保存">
+        <span class="material-symbols-outlined" style="font-size:16px; color:#F59E0B;">star</span>
+        <span class="uq-ctrl-btn-label">保存</span>
+      </button>
+
+      <button class="uq-icon-btn" id="themeToggleBtn" aria-label="テーマ切替" title="ダーク/ライト切替">
+        <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+      </button>
+      <button class="uq-icon-btn" id="menuToggleBtn" onclick="toggleDrawer()" aria-label="メニュー">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
     </div>
-  </div>
-</header>
-<div class="overlay-menu" id="overlayMenu" onclick="toggleDrawer()"></div>
+  </header>
 
-<!-- メニューバー -->
-
-
-
-
-
-
-<!-- メインレイアウト -->
-<div class="main-layout">
-
-  <!-- 左: 3Dビューア -->
-  <div class="viewer-side">
-    <div class="stage-nav" id="stageNav"></div>
-    <div id="viewer">
-      <div id="loading-screen">
-        <div class="loader-title">3Dモデル読み込み中...</div>
-        <div class="loader-bar-wrap"><div id="loader-bar"></div></div>
-        <div id="loader-text">0%</div>
+  <!-- MAIN LAYOUT -->
+  <main class="uq-main-layout">
+    <!-- LEFT: 3D VIEWER COLUMN -->
+    <section class="uq-viewer-column">
+      <div class="uq-hud-overlay">
+        <span class="uq-hud-chip" id="currentStageChip">01 足踏み</span>
+        <span class="uq-hud-chip" id="timeLabel">0.00s</span>
       </div>
-    </div>
-    <div class="viewer-controls">
-      <div class="ctrl-row">
-        <button class="ctrl-btn" id="playBtn">▶ 再生</button>
-        <button class="ctrl-btn active" id="pauseBtn">⏸ 停止</button>
-        <button class="ctrl-btn" id="resetBtn">⏮ 先頭</button>
-        <button class="ctrl-btn" id="fitBtn">🎯 中央</button>
-        <span class="time-label" id="timeLabel">0.00 s</span>
-      </div>
-      <div class="slider-row">
-        <input id="timeline" type="range" min="0" max="7.041667" step="0.041667" value="0.041667" />
-      </div>
-    </div>
-  </div>
 
-  <!-- 右: 閲覧コンテンツ -->
-  <div class="content-side">
-
-    <!-- ウェルカム画面（データ未読込時） -->
-    <div class="welcome-screen" id="welcomeScreen">
-      <div class="welcome-icon">🏹</div>
-      <div class="welcome-title">弓道マイノート ビューア</div>
-      <div class="welcome-desc">
-        カスタムエディタで保存した<br>
-        <strong>全節ファイル</strong>または<strong>単節ファイル</strong>（.json）を読み込んでください。
-      </div>
-      <div class="welcome-file-wrap">
-        <label class="file-drop-zone" id="dropZone">
-          <input type="file" id="dropFileInput" accept=".json,application/json" onchange="loadFile(this)">
-          <div class="file-drop-icon">📂</div>
-          <div class="file-drop-label">クリックしてファイルを選択</div>
-          <div class="file-drop-sub">弓道ノート_全節.json または 弓道ノート_第○節_○○.json</div>
-        </label>
-      </div>
-    </div>
-
-    <!-- ノート表示エリア（データ読込後） -->
-    <div id="noteArea" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
-      <div class="content-header">
-        <div>
-          <span class="content-stage-title" id="stageName">─</span>
-          <span class="content-stage-en" id="stageEn"></span>
+      <div id="viewer">
+        <div id="loading-screen">
+          <div style="font-size: 13px; font-weight: 800; color: var(--uq-red); margin-bottom: 12px;">3Dモデル読み込み中...</div>
+          <div style="width: 180px; height: 3px; background: var(--uq-border); border-radius: 2px; overflow: hidden;">
+            <div id="loader-bar" style="width: 0%; height: 100%; background: var(--uq-red); transition: width 0.2s;"></div>
+          </div>
+          <div id="loader-text" style="font-size: 10px; color: var(--uq-light-gray); margin-top: 6px;">0%</div>
         </div>
-        <div id="stageStatus"></div>
       </div>
-      <div class="content-body" id="contentBody"></div>
+
+      <div class="uq-viewer-controls">
+        <div class="uq-ctrl-row">
+          <button class="uq-btn active-red" id="playBtn">
+            <span class="material-symbols-outlined" style="font-size:16px;">play_arrow</span>
+            <span class="uq-ctrl-btn-label">再生</span>
+          </button>
+          <button class="uq-btn" id="pauseBtn">
+            <span class="material-symbols-outlined" style="font-size:16px;">pause</span>
+            <span class="uq-ctrl-btn-label">停止</span>
+          </button>
+          <button class="uq-btn" id="resetBtn">
+            <span class="material-symbols-outlined" style="font-size:16px;">replay</span>
+            <span class="uq-ctrl-btn-label">先頭</span>
+          </button>
+          <button class="uq-btn" id="fitBtn">
+            <span class="material-symbols-outlined" style="font-size:16px;">center_focus_strong</span>
+            <span class="uq-ctrl-btn-label">中央</span>
+          </button>
+        </div>
+        <div class="uq-ctrl-row">
+          <input id="timeline" class="uq-slider" type="range" min="0" max="3.333" step="0.0416" value="0.0416">
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: CONTENT COLUMN -->
+    <article class="uq-content-column">
+      <!-- Stage Tabs Bar -->
+      <nav class="uq-stage-tabs-bar" id="stageTabs"></nav>
+
+      <!-- Scrollable Note View Area -->
+      <div class="uq-view-scroll" id="viewScroll">
+        <!-- Welcome empty state -->
+        <div id="welcomeBox" class="uq-card-group" style="text-align:center; padding:32px 16px;">
+          <div style="font-size:36px; margin-bottom:8px;">🏹</div>
+          <div style="font-size:16px; font-weight:800; margin-bottom:4px;">弓道ノート ビューア</div>
+          <div style="font-size:12px; color:var(--uq-gray); line-height:1.6; margin-bottom:16px;">
+            右上の「ファイル」または「URL」からノートを読み込むと、カスタム解説と3Dモデルを連動して確認できます。
+          </div>
+          <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
+            <button class="uq-btn primary" onclick="document.getElementById('fileInput').click()">📥 ファイルを開く</button>
+            <button class="uq-btn" onclick="openUrlModal()">🔗 URLから開く</button>
+            <button class="uq-btn" onclick="openQrModal()">📷 QRで開く</button>
+          </div>
+        </div>
+
+        <!-- Rendered Note sections -->
+        <div id="noteArea" style="display:none; flex-direction:column; gap:14px;">
+          <div class="uq-card-group" id="viewDesc"></div>
+          <div class="uq-card-group" id="viewMuscles"></div>
+          <div class="uq-card-group" id="viewTenouchi"></div>
+          <div class="uq-card-group" id="viewMiss"></div>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <!-- URL IMPORT MODAL -->
+  <div class="uq-modal-overlay" id="urlModal">
+    <div class="uq-modal-card">
+      <h3 style="font-size:16px; font-weight:900; margin-bottom:8px;">🔗 共有URLから読み込む</h3>
+      <p style="font-size:12px; color:var(--uq-gray); margin-bottom:12px;">3Dカスタムエディタで発行された共有リンクを貼り付けてください。</p>
+      <textarea id="urlInput" class="uq-input-text" style="width:100%; height:80px; padding:10px; font-size:12px; margin-bottom:14px;" placeholder="https://..."></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="uq-btn" onclick="closeUrlModal()">キャンセル</button>
+        <button class="uq-btn primary" onclick="loadFromUrl()">読み込む</button>
+      </div>
     </div>
-
   </div>
-</div>
 
-<!-- URL入力モーダル -->
-<div class="modal-overlay hidden" id="urlModal">
-  <div class="modal">
-    <h3>🔗 URLからノートを読み込む</h3>
-    <p>カスタムエディタで発行された共有URLをここに貼り付けてください。<br>
-       例: <code>https://example.com/プレビュー.html?d=...</code></p>
-    <textarea class="share-textarea" id="urlInput" placeholder="共有URLを貼り付けてください" rows="3"></textarea>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeUrlModal()">キャンセル</button>
-      <button class="btn btn-gold" onclick="loadFromUrl()">読み込む</button>
+
+  <!-- QR SCAN MODAL -->
+  <div class="uq-modal-overlay" id="qrModal">
+    <div class="uq-modal-card">
+      <h3 style="font-size:16px; font-weight:900; margin-bottom:8px;">📷 QRコードを読み取る</h3>
+      <p style="font-size:12px; color:var(--uq-gray); margin-bottom:12px;">3Dカスタムエディタで発行されたQRコードをカメラにかざしてください。</p>
+      <div class="uq-qr-scan-frame">
+        <video id="qrVideo" playsinline autoplay muted></video>
+        <div class="uq-qr-scan-box"></div>
+      </div>
+      <canvas id="qrCanvas" style="display:none;"></canvas>
+      <p id="qrStatus">カメラを起動しています…</p>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="uq-btn" onclick="closeQrModal()">閉じる</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div id="toast"></div>
+  <!-- DRAWER (8 items) -->
+  <div class="uq-drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+  <aside class="uq-drawer" id="sideDrawer">
+    <div class="uq-drawer-header">
+      <span class="uq-drawer-title">メニュー</span>
+      <button class="uq-icon-btn" onclick="toggleDrawer()" aria-label="閉じる">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="uq-drawer-body">
+      <div class="uq-drawer-section-label">PAGE SELECT</div>
+      <a href="index.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">accessibility_new</span>
+        <span>一般用（標準モード）</span>
+      </a>
+      <a href="中高生.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">school</span>
+        <span>中高生用（やさしい解説）</span>
+      </a>
+      <a href="カスタム.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">edit_note</span>
+        <span>3Dカスタマイズ</span>
+      </a>
+      <a href="プレビュー.html" class="uq-drawer-link active">
+        <span class="material-symbols-outlined">visibility</span>
+        <span>閲覧専用ビュー</span>
+      </a>
+      <a href="マイリスト.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">bookmarks</span>
+        <span>マイリスト・保存済み</span>
+      </a>
+      <a href="稽古ログ.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">edit_calendar</span>
+        <span>稽古ログ（記録と振り返り）</span>
+      </a>
+      <a href="動画比較.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">compare</span>
+        <span>動画比較（フォームチェック）</span>
+      </a>
+      <a href="設定.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">settings</span>
+        <span>設定（テーマ・文字サイズ）</span>
+      </a>
+    </div>
+  </aside>
 
-<script>
-// ── 統合データメニュー開閉 ──
-function toggleDataMenu(e) {
-  e.stopPropagation();
-  document.getElementById('dataMenuPopup').classList.toggle('open');
-}
-function closeDataMenu() {
-  document.getElementById('dataMenuPopup').classList.remove('open');
-}
-document.addEventListener('click', function(e) {
-  if (!document.getElementById('dataMenuWrap').contains(e.target)) {
-    closeDataMenu();
-  }
-});
-</script>
+  <div id="toast"></div>
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-
-<script type="module">
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-// ====================================================
-// 定数
-// ====================================================
-/**
- * 各節のデフォルトデータ構造を返す関数。
- * 読み込みデータに不足がある場合に補完するために使用。
- */
-function defaultStage() {
-  return {
-    desc: '', analogy: '', advice: '', muscleNote: '',
-    memo: '',
-    tenouchiWarning: '',
-    tenouchi: [],
-    miss: [],
-    primaryMuscles: [],
-    secondaryMuscles: [],
-    muscleMemos: {},
-  };
-}
-
-const STAGES_BASE = [
-  { name:"足踏み",    en:"Ashibumi",   frame:1  },
-  { name:"胴作り",    en:"Dozukuri",   frame:10 },
-  { name:"弓構え",    en:"Yugamae",    frame:20 },
-  { name:"打ち起こし",en:"Uchiokoshi", frame:30 },
-  { name:"引き分け",  en:"Hikiwake",   frame:40 },
-  { name:"会",        en:"Kai",        frame:50 },
-  { name:"離れ",      en:"Hanare",     frame:60 },
-  { name:"残心",      en:"Zanshin",    frame:70 },
-];
-
-const MUSCLE_NODES = {
-  大腿四頭筋:      ['筋_大腿四頭筋_L','筋_大腿四頭筋_R'],
-  ハムストリングス:['筋_ハムストリングス_L','筋_ハムストリングス_R'],
-  大殿筋:          ['筋_大殿筋_L','筋_大殿筋_R'],
-  内転筋:          ['筋_内転筋_L','筋_内転筋_R'],
-  腸腰筋:          ['筋_腸腰筋_L','筋_腸腰筋_R'],
-  脊柱起立筋:      ['筋_脊柱起立筋'],
-  腹横筋:          ['筋_腹横筋'],
-  腹直筋:          ['筋_腹直筋'],
-  外腹斜筋:        ['筋_外腹斜筋_L','筋_外腹斜筋_R'],
-  多裂筋:          ['筋_多裂筋'],
-  僧帽筋上部:      ['筋_僧帽筋_上部'],
-  僧帽筋中下部:    ['筋_僧帽筋_中下部'],
-  菱形筋:          ['筋_菱形筋'],
-  広背筋:          ['筋_広背筋_L','筋_広背筋_R'],
-  大胸筋:          ['筋_大胸筋_L','筋_大胸筋_R'],
-  前鋸筋:          ['筋_前鋸筋_L','筋_前鋸筋_R'],
-  三角筋:          ['筋_三角筋_L','筋_三角筋_R'],
-  大円筋:          ['筋_大円筋_L','筋_大円筋_R'],
-  小円筋:          ['筋_小円筋_L','筋_小円筋_R'],
-  棘上筋:          ['筋_棘上筋_L','筋_棘上筋_R'],
-  棘下筋:          ['筋_棘下筋_L','筋_棘下筋_R'],
-  肩甲下筋:        ['筋_肩甲下筋_L','筋_肩甲下筋_R'],
-  上腕三頭筋:      ['筋_上腕三頭筋_L','筋_上腕三頭筋_R'],
-  上腕二頭筋:      ['筋_上腕二頭筋_L','筋_上腕二頭筋_R'],
-  腕橈骨筋:        ['筋_腕橈骨筋_L','筋_腕橈骨筋_R'],
-  胸鎖乳突筋:      ['筋_胸鎖乳突筋_L','筋_胸鎖乳突筋_R'],
-};
-
-const NODE_TO_GROUP = new Map();
-for (const [group, nodes] of Object.entries(MUSCLE_NODES)) {
-  for (const n of nodes) NODE_TO_GROUP.set(n, group);
-}
-
-  const COLOR_PRIMARY   = new THREE.Color(0xfb7185);
-  const COLOR_SECONDARY = new THREE.Color(0xfbbf24);
-
-const FPS = 24;
-const MAX_FRAME = 80;
-const MAX_TIME  = MAX_FRAME / FPS;
-
-let currentStage = 0;
-let loadedModel  = null;
-let userData     = null;
-const originalMaterials = new Map();
-let mixer, animationAction;
-
-// ====================================================
-// 3Dモデル読み込み管理 (Loaderより先に定義)
-// ====================================================
-/**
- * Three.js のローディングマネージャー。
- * 3Dモデルの読み込み進捗をUIに反映するために使用。
- */
-const manager = new THREE.LoadingManager();
-manager.onProgress = (url, loaded, total) => {
-  const pct = Math.round((loaded/total)*100);
-  document.getElementById('loader-bar').style.width = pct + '%';
-  document.getElementById('loader-text').textContent = pct + '%';
-};
-manager.onLoad = () => {
-  setTimeout(() => {
-    const ls = document.getElementById('loading-screen');
-    if(ls) {
-      ls.style.opacity = '0';
-      setTimeout(() => ls.style.display = 'none', 500);
-    }
-  }, 200);
-};
-
-// ====================================================
-// ファイル読み込み
-// ====================================================
-/**
- * URLパラメータから共有データを読み込む関数。
- * `?data=...` パラメータを解析し、`userData` を更新する。
- * `&stage=N` パラメータがあれば、その節を初期表示する。
- */
-function checkUrlParams() {
-  const params = new URLSearchParams(window.location.search);
-
-  // 新形式: ?d=（LZ-String圧縮）、旧形式: ?data=（Base64）どちらも対応
-  const raw = params.get('d') || params.get('data');
-  if (!raw) return;
-
-  try {
-    let json;
-    if (params.get('d')) {
-      // 新形式: LZ-Stringで展開
-      json = LZString.decompressFromEncodedURIComponent(raw);
-      if (!json) throw new Error('LZ decompress failed');
-    } else {
-      // 旧形式: Base64デコード（後方互換）
-      json = decodeURIComponent(escape(atob(raw)));
-    }
-
-    const parsed = JSON.parse(json);
-    if (parsed.type === 'kyudo_all' && Array.isArray(parsed.data)) {
-      userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
-      onDataLoaded('共有リンクから読み込みました');
-      const stageParam = params.get('stage');
-      if (stageParam !== null) {
-        currentStage = parseInt(stageParam, 10) || 0;
+  <!-- THREE.JS -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
       }
     }
-  } catch (e) {
-    console.error('URLデータの解析に失敗しました', e);
-  }
-}
+  </script>
 
-window.loadFile = function(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const parsed = JSON.parse(e.target.result);
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-      if (parsed.type === 'kyudo_all' && Array.isArray(parsed.data) && parsed.data.length === 8) {
-        userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
-        onDataLoaded(`全節 — ${file.name}`);
-        return;
+    function defaultStage() {
+      return {
+        desc: '', analogy: '', advice: '', muscleNote: '', memo: '',
+        tenouchiWarning: '', tenouchi: [], miss: [],
+        primaryMuscles: [], secondaryMuscles: [], muscleMemos: {}
+      };
+    }
+
+    const STAGES_BASE = [
+      { name: "足踏み", en: "Ashibumi", frame: 1 },
+      { name: "胴作り", en: "Dozukuri", frame: 10 },
+      { name: "弓構え", en: "Yugamae", frame: 20 },
+      { name: "打ち起こし", en: "Uchiokoshi", frame: 30 },
+      { name: "引き分け", en: "Hikiwake", frame: 40 },
+      { name: "会", en: "Kai", frame: 50 },
+      { name: "離れ", en: "Hanare", frame: 60 },
+      { name: "残心", en: "Zanshin", frame: 70 },
+    ];
+
+    const MUSCLE_NODES = {
+      大腿四頭筋:      ['筋_大腿四頭筋_L','筋_大腿四頭筋_R'],
+      ハムストリングス:['筋_ハムストリングス_L','筋_ハムストリングス_R'],
+      大殿筋:          ['筋_大殿筋_L','筋_大殿筋_R'],
+      内転筋:          ['筋_内転筋_L','筋_内転筋_R'],
+      腸腰筋:          ['筋_腸腰筋_L','筋_腸腰筋_R'],
+      脊柱起立筋:      ['筋_脊柱起立筋'],
+      腹横筋:          ['筋_腹横筋'],
+      腹直筋:          ['筋_腹直筋'],
+      外腹斜筋:        ['筋_外腹斜筋_L','筋_外腹斜筋_R'],
+      多裂筋:          ['筋_多裂筋'],
+      僧帽筋上部:      ['筋_僧帽筋_上部'],
+      僧帽筋中下部:    ['筋_僧帽筋_中下部'],
+      菱形筋:          ['筋_菱形筋'],
+      広背筋:          ['筋_広背筋_L','筋_広背筋_R'],
+      大胸筋:          ['筋_大胸筋_L','筋_大胸筋_R'],
+      前鋸筋:          ['筋_前鋸筋_L','筋_前鋸筋_R'],
+      三角筋:          ['筋_三角筋_L','筋_三角筋_R'],
+      大円筋:          ['筋_大円筋_L','筋_大円筋_R'],
+      小円筋:          ['筋_小円筋_L','筋_小円筋_R'],
+      棘上筋:          ['筋_棘上筋_L','筋_棘上筋_R'],
+      棘下筋:          ['筋_棘下筋_L','筋_棘下筋_R'],
+      肩甲下筋:        ['筋_肩甲下筋_L','筋_肩甲下筋_R'],
+      上腕三頭筋:      ['筋_上腕三頭筋_L','筋_上腕三頭筋_R'],
+      上腕二頭筋:      ['筋_上腕二頭筋_L','筋_上腕二頭筋_R'],
+      腕橈骨筋:        ['筋_腕橈骨筋_L','筋_腕橈骨筋_R'],
+      胸鎖乳突筋:      ['筋_胸鎖乳突筋_L','筋_胸鎖乳突筋_R'],
+    };
+
+    const NODE_TO_GROUP = new Map();
+    for (const [group, nodes] of Object.entries(MUSCLE_NODES)) {
+      for (const n of nodes) NODE_TO_GROUP.set(n, group);
+    }
+
+    const COLOR_PRIMARY = new THREE.Color(0xE60012);
+    const COLOR_SECONDARY = new THREE.Color(0xF59E0B);
+    const FPS = 24;
+    const MAX_FRAME = 80;
+    const MAX_TIME = MAX_FRAME / FPS;
+
+    let currentStage = 0;
+    let loadedModel = null;
+    let userData = null;
+    const originalMaterials = new Map();
+    let mixer, animationAction;
+    let defaultCamPos, defaultTargetPos;
+
+    const container = document.getElementById('viewer');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.set(0, 1.0, 4.0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.07;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(5, 8, 5);
+    scene.add(dirLight);
+    const backLight = new THREE.DirectionalLight(0x8fb8d8, 0.6);
+    backLight.position.set(-4, 3, -6);
+    scene.add(backLight);
+
+    const clock = new THREE.Clock();
+
+    const manager = new THREE.LoadingManager();
+    manager.onProgress = (url, loaded, total) => {
+      if (total > 0) {
+        const pct = Math.round((loaded / total) * 100);
+        document.getElementById('loader-bar').style.width = `${pct}%`;
+        document.getElementById('loader-text').textContent = `${pct}%`;
       }
+    };
+    manager.onLoad = () => {
+      setTimeout(() => {
+        const ls = document.getElementById('loading-screen');
+        if (ls) {
+          ls.style.opacity = '0';
+          setTimeout(() => ls.style.display = 'none', 400);
+        }
+      }, 200);
+    };
 
-      if (parsed.type === 'kyudo_stage' && parsed.data && typeof parsed.stageIndex === 'number') {
-        // 単節：その節だけ埋めて残りはデフォルト
-        const base = Array.from({ length: 8 }, () => defaultStage());
-        base[parsed.stageIndex] = { ...defaultStage(), ...parsed.data };
-        userData = base;
-        onDataLoaded(`第${parsed.stageIndex+1}節「${parsed.stageName}」— ${file.name}`);
-        currentStage = parsed.stageIndex;
-        return;
-      }
+    const loader = new GLTFLoader(manager);
+    loader.load('弓道基礎１.glb', (gltf) => {
+      const model = gltf.scene;
+      model.rotation.x = Math.PI / 2;
+      scene.add(model);
+      loadedModel = model;
 
-      throw new Error('unknown format');
-    } catch(e) {
-      showToast('❌ ファイルの読み込みに失敗しました');
-    }
-  };
-  reader.readAsText(file);
-};
-
-function onDataLoaded(label) {
-  // ウェルカム → ノートエリアへ切替
-  document.getElementById('welcomeScreen').style.display = 'none';
-  const noteArea = document.getElementById('noteArea');
-  noteArea.style.display = 'flex';
-
-  // ヘッダー情報
-  document.getElementById('loadedInfo').style.display = 'flex';
-  document.getElementById('loadedInfo').innerHTML =
-    `<span class="loaded-badge">✓ 読み込み済み</span><span style="font-size:11px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label}</span>`;
-
-  // 進捗表示
-  document.getElementById('progressWrap').style.display = 'flex';
-  document.getElementById('favMenuItem').style.display = 'flex';
-  document.getElementById('dataMenuLabel').textContent = 'データ操作';
-  buildProgress();
-
-  // ステージタブ構築
-  buildStageNav();
-  selectStage(currentStage);
-
-  showToast('✅ 読み込みました');
-}
-
-// ====================================================
-// ステージタブ
-// ====================================================
-function buildStageNav() {
-  const nav = document.getElementById('stageNav');
-  nav.innerHTML = '';
-  STAGES_BASE.forEach((s, i) => {
-    const btn = document.createElement('button');
-    const hasData = userData && hasContent(userData[i]);
-    btn.className = 'stage-tab' + (i === currentStage ? ' active' : '') + (hasData ? '' : ' empty');
-    btn.textContent = `第${i+1}節 ${s.name}`;
-    btn.onclick = () => selectStage(i);
-    nav.appendChild(btn);
-  });
-}
-
-function hasContent(d) {
-  if (!d) return false;
-  return !!(d.desc || (d.primaryMuscles && d.primaryMuscles.length) ||
-            (d.secondaryMuscles && d.secondaryMuscles.length) ||
-            (d.tenouchi && d.tenouchi.length) || (d.miss && d.miss.length) || d.tenouchiWarning);
-}
-
-function selectStage(idx) {
-  currentStage = idx;
-  document.querySelectorAll('.stage-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-  document.getElementById('stageName').textContent = STAGES_BASE[idx].name;
-  document.getElementById('stageEn').textContent   = STAGES_BASE[idx].en;
-
-  // 記入状況バッジ
-  const d = userData ? userData[idx] : null;
-  const isComplete = d && d.desc && ((d.primaryMuscles||[]).length > 0 || (d.secondaryMuscles||[]).length > 0);
-  document.getElementById('stageStatus').innerHTML = isComplete
-    ? '<span style="font-size:11px;color:var(--green-soft);background:rgba(58,144,96,0.12);border:1px solid rgba(58,144,96,0.3);border-radius:999px;padding:2px 8px;">✓ 記入済み</span>'
-    : '';
-
-  renderContent(idx);
-  jumpToStage(idx);
-  updateMuscles3D();
-}
-
-// ====================================================
-// お気に入り保存
-// ====================================================
-window.saveToFavorites = function() {
-  if (!userData) return;
-  const favName = prompt("お気に入りの名前を入力してください", `ノート_${new Date().toLocaleDateString()}`);
-  if (!favName) return;
-
-  const favorites = JSON.parse(localStorage.getItem('kyudo_favorites') || '[]');
-  favorites.push({
-    id: Date.now(),
-    name: favName,
-    data: userData
-  });
-  localStorage.setItem('kyudo_favorites', JSON.stringify(favorites));
-  showToast('⭐ お気に入りに保存しました');
-};
-
-// ====================================================
-// コンテンツ描画（読み取り専用）
-// ====================================================
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function renderContent(idx) {
-  const body = document.getElementById('contentBody');
-  const d = userData ? userData[idx] : null;
-
-  if (!d || !hasContent(d)) {
-    body.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;padding:40px;text-align:center;opacity:0.5;">
-        <div style="font-size:36px;">📄</div>
-        <div style="font-size:13px;color:var(--muted);">この節はまだ記入されていません</div>
-      </div>`;
-    return;
-  }
-
-  // --- 説明・やること ---
-  const descBlock = (d.desc || d.analogy || d.advice || d.memo) ? `
-    <div class="note-view">
-      <div class="note-section-title">📋 説明・やること</div>
-      ${d.desc ? `<div class="note-text">${d.desc}</div>` : ''}
-      ${d.analogy ? `<div class="note-analogy" style="margin-top:6px;">🎭 <strong>たとえ：</strong>${d.analogy}</div>` : ''}
-      ${d.advice  ? `<div class="note-advice">💡 <strong>アドバイス・コツ：</strong>${d.advice}</div>` : ''}
-      ${d.memo ? `<div style="margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.02);">
-        <div class="note-section-title">📝 自由メモ</div>
-        <div class="note-text">${d.memo}</div>
-      </div>` : ''}
-    </div>` : '';
-
-  // --- 筋肉 ---
-  const priTags = (d.primaryMuscles||[]).map(m => {
-    const memo = d.muscleMemos && d.muscleMemos[m] ? d.muscleMemos[m].trim() : '';
-    return `<div style="margin-bottom:8px;">
-      <span class="muscle-tag primary">🔴 ${m}</span>
-      ${memo ? `<div style="font-size:11.5px;color:var(--gold-light);margin-left:14px;padding-left:10px;border-left:1.5px solid var(--red-soft);margin-top:2px;line-height:1.4;">🎯 一言：${esc(memo)}</div>` : ''}
-    </div>`;
-  }).join('');
-  const secTags = (d.secondaryMuscles||[]).map(m => {
-    const memo = d.muscleMemos && d.muscleMemos[m] ? d.muscleMemos[m].trim() : '';
-    return `<div style="margin-bottom:8px;">
-      <span class="muscle-tag secondary">🟡 ${m}</span>
-      ${memo ? `<div style="font-size:11.5px;color:var(--gold-light);margin-left:14px;padding-left:10px;border-left:1.5px solid var(--gold);margin-top:2px;line-height:1.4;">🎯 一言：${esc(memo)}</div>` : ''}
-    </div>`;
-  }).join('');
-  const muscleBlock = (d.primaryMuscles||[]).length || (d.secondaryMuscles||[]).length || d.muscleNote ? `
-    <div class="note-view">
-      <div class="note-section-title">💪 使っている筋肉</div>
-      ${d.muscleNote ? `<div style="margin-bottom:12px;font-size:12.5px;color:var(--text);border-bottom:1px dashed var(--border);padding-bottom:8px;">🧠 <strong>筋肉のイメージ・メモ：</strong><br>${d.muscleNote}</div>` : ''}
-      ${(priTags + secTags) || '<span style="color:var(--muted);font-size:12px">筋肉未選択</span>'}
-    </div>` : '';
-
-  // --- 手の内 ---
-  const tenItems = (d.tenouchi||[]).map(t => `
-    <div class="checkpoint-view-item">
-      <div class="checkpoint-icon">${t.icon||'✓'}</div>
-      <div style="color:var(--text)"><strong>ポイント：</strong>${t.text||''}</div>
-    </div>`).join('');
-  const tenouchiBlock = (d.tenouchi||[]).length || d.tenouchiWarning ? `
-    <div class="note-view">
-      <div class="note-section-title">🤚 手の内チェックポイント</div>
-      ${tenItems || '<span style="color:var(--muted);font-size:12px">未記入</span>'}
-      ${d.tenouchiWarning ? `<div style="margin-top:8px;background:rgba(212,168,75,0.08);border-left:3px solid var(--gold);padding:7px 11px;border-radius:0 8px 8px 0;font-size:12px;color:var(--gold-light);">⚠ <strong>注意点：</strong>${d.tenouchiWarning}</div>` : ''}
-    </div>` : '';
-
-  // --- ミス・コツ ---
-  const missItems = (d.miss||[]).map(m => `
-    <div class="miss-view-item">
-      <div class="miss-icon-view ${m.type}">${m.type==='warn'?'⚠':'💡'}</div>
-      <div style="color:${m.type==='warn'?'#f0c0c0':'#a0d8b8'}">${m.text||''}</div>
-    </div>`).join('');
-  const missBlock = (d.miss||[]).length ? `
-    <div class="note-view">
-      <div class="note-section-title">⚠ やりがちなミス・コツ</div>
-      ${missItems}
-    </div>` : '';
-
-  body.innerHTML = descBlock + muscleBlock + tenouchiBlock + missBlock;
-}
-
-// ====================================================
-// 進捗
-// ====================================================
-function buildProgress() {
-  if (!userData) return;
-  const steps = document.getElementById('progressSteps');
-  const label = document.getElementById('progressLabel');
-  let done = 0;
-  steps.innerHTML = '';
-  userData.forEach((d, i) => {
-    const complete = d.desc && ((d.primaryMuscles||[]).length > 0 || (d.secondaryMuscles||[]).length > 0);
-    const partial  = hasContent(d);
-    if (complete) done++;
-    const step = document.createElement('div');
-    step.className = 'progress-step ' + (complete ? 'done' : partial ? 'partial' : '');
-    step.title = STAGES_BASE[i].name;
-    steps.appendChild(step);
-  });
-  label.textContent = `${done}/8 節`;
-}
-
-// ====================================================
-// トースト
-// ====================================================
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.remove('show');
-  void t.offsetHeight; // 強制リフロー
-  t.classList.add('show');
-  if (t._timer) clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-// ====================================================
-// URLから読み込み
-// ====================================================
-window.openUrlModal = function() {
-  document.getElementById('urlInput').value = '';
-  document.getElementById('urlModal').classList.remove('hidden');
-};
-
-window.closeUrlModal = function() {
-  document.getElementById('urlModal').classList.add('hidden');
-};
-
-window.loadFromUrl = function() {
-  const urlString = document.getElementById('urlInput').value.trim();
-  if (!urlString) {
-    showToast('❌ URLを入力してください');
-    return;
-  }
-
-  try {
-    const url = new URL(urlString);
-
-    // 新形式 ?d=（LZ-String圧縮）・旧形式 ?data=（Base64）どちらも対応
-    const dParam    = url.searchParams.get('d');
-    const dataParam = url.searchParams.get('data');
-
-    if (!dParam && !dataParam) {
-      throw new Error('URLにデータパラメータが見つかりません。');
-    }
-
-    let json;
-    if (dParam) {
-      json = LZString.decompressFromEncodedURIComponent(dParam);
-      if (!json) throw new Error('データの展開に失敗しました。');
-    } else {
-      json = decodeURIComponent(escape(atob(dataParam)));
-    }
-
-    const parsed = JSON.parse(json);
-    if (parsed.type === 'kyudo_all') {
-      userData = parsed.data.map(d => ({ ...defaultStage(), ...d }));
-      onDataLoaded('URLから読み込みました');
-      closeUrlModal();
-    } else {
-      throw new Error('サポートされていないデータ形式です。');
-    }
-  } catch (e) {
-    console.error('URLからの読み込みに失敗しました:', e);
-    showToast(`❌ URLからの読み込みに失敗しました: ${e.message || '不正なURLまたはデータ形式です'}`);
-  }
-};
-
-// マイリストからの読み込み用
-function checkLocalId() {
-  const params = new URLSearchParams(window.location.search);
-  const localId = params.get('localId');
-  if (!localId) return;
-  try {
-    const favorites = JSON.parse(localStorage.getItem('kyudo_favorites') || '[]');
-    const fav = favorites.find(f => f.id == localId);
-    if (fav) {
-      userData = fav.data.map(d => ({ ...defaultStage(), ...d }));
-      onDataLoaded('マイリストから読み込みました');
-    } else {
-      throw new Error('お気に入りが見つかりませんでした。');
-    }
-  } catch (e) {
-    console.error('マイリストからの読み込みに失敗しました:', e);
-    showToast(`❌ マイリストからの読み込みに失敗しました: ${e.message || '不正なデータです'}`);
-  }
-}
-window.showToast = showToast;
-
-// ====================================================
-// Three.js
-// ====================================================
-const container = document.getElementById('viewer');
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-camera.position.set(0, 1.0, 4.0);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-container.appendChild(renderer.domElement);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.07;
-
-scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-dirLight.position.set(5, 8, 5);
-scene.add(dirLight);
-const backLight = new THREE.DirectionalLight(0x8fb8d8, 0.6);
-backLight.position.set(-4, 3, -6);
-scene.add(backLight);
-
-const clock = new THREE.Clock();
-const loader = new GLTFLoader(manager);
-loader.load('弓道基礎１.glb', (gltf) => {
-  const model = gltf.scene;
-  model.rotation.x = Math.PI / 2;
-  scene.add(model);
-  loadedModel = model;
-
-  model.traverse(obj => {
-    if (!obj.isMesh) return;
-    if (Array.isArray(obj.material)) {
-      obj.material = obj.material.map(mat => {
-        const cloned = mat.clone();
-        originalMaterials.set(cloned.uuid, { color: cloned.color.clone(), transparent: cloned.transparent, opacity: cloned.opacity });
-        return cloned;
+      model.traverse(obj => {
+        if (!obj.isMesh) return;
+        if (Array.isArray(obj.material)) {
+          obj.material = obj.material.map(mat => {
+            const cloned = mat.clone();
+            originalMaterials.set(cloned.uuid, {
+              color: cloned.color.clone(),
+              transparent: cloned.transparent,
+              opacity: cloned.opacity,
+            });
+            return cloned;
+          });
+        } else {
+          const cloned = obj.material.clone();
+          originalMaterials.set(cloned.uuid, {
+            color: cloned.color.clone(),
+            transparent: cloned.transparent,
+            opacity: cloned.opacity,
+          });
+          obj.material = cloned;
+        }
       });
-    } else {
-      const cloned = obj.material.clone();
-      originalMaterials.set(cloned.uuid, { color: cloned.color.clone(), transparent: cloned.transparent, opacity: cloned.opacity });
-      obj.material = cloned;
-    }
-  });
 
-  const box = new THREE.Box3().setFromObject(model);
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
-  
-  const fov = camera.fov;
-  const aspect = camera.aspect;
-  let dist = (size.y / 2) / Math.tan(Math.PI * fov / 360);
-  const horizontalFov = 2 * Math.atan(Math.tan(Math.PI * fov / 360) * aspect);
-  const distW = (size.x / 2) / Math.tan(horizontalFov / 2);
-  dist = Math.max(dist, distW) * 1.3;
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      
+      const fov = camera.fov;
+      const aspect = camera.aspect;
+      let dist = (size.y / 2) / Math.tan(Math.PI * fov / 360);
+      const horizontalFov = 2 * Math.atan(Math.tan(Math.PI * fov / 360) * aspect);
+      const distW = (size.x / 2) / Math.tan(horizontalFov / 2);
+      dist = Math.max(dist, distW) * 1.35;
 
-  controls.target.set(center.x, center.y, 0);
-  camera.position.set(center.x, center.y, dist);
-  controls.update();
-  window._defaultCamPos    = camera.position.clone();
-  window._defaultTargetPos = controls.target.clone();
+      controls.target.set(center.x, center.y, 0);
+      camera.position.set(center.x, center.y, dist);
+      controls.update();
 
-  mixer = new THREE.AnimationMixer(model);
-  const clip = gltf.animations[0];
-  if (clip) {
-    animationAction = mixer.clipAction(clip);
-    animationAction.setLoop(THREE.LoopOnce, 1);
-    animationAction.clampWhenFinished = true;
-    animationAction.timeScale = 0.25;
-    animationAction.play();
-    document.getElementById('timeline').max = String(Math.min(clip.duration, MAX_TIME));
-  }
+      defaultCamPos = camera.position.clone();
+      defaultTargetPos = controls.target.clone();
 
-  jumpToStage(0);
-  updateMuscles3D();
-});
-
-// ====================================================
-// 筋肉色更新
-// ====================================================
-function updateMuscles3D() {
-  if (!loadedModel) return;
-  const d   = userData ? userData[currentStage] : null;
-  const pri = new Set(d ? (d.primaryMuscles   || []) : []);
-  const sec = new Set(d ? (d.secondaryMuscles || []) : []);
-
-  loadedModel.traverse(obj => {
-    if (obj.name === 'kyudo_male_base') { obj.visible = true; return; }
-    if (!obj.isMesh) return;
-    const mats  = Array.isArray(obj.material) ? obj.material : [obj.material];
-    const group = NODE_TO_GROUP.get(obj.name);
-
-    if (group) {
-      if (pri.has(group)) {
-        obj.visible = true;
-        mats.forEach(mat => { mat.color.copy(COLOR_PRIMARY); mat.transparent = false; mat.opacity = 1; mat.needsUpdate = true; });
-      } else if (sec.has(group)) {
-        obj.visible = true;
-        mats.forEach(mat => { mat.color.copy(COLOR_SECONDARY); mat.transparent = false; mat.opacity = 1; mat.needsUpdate = true; });
-      } else {
-        obj.visible = false;
+      if (gltf.animations && gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(model);
+        animationAction = mixer.clipAction(gltf.animations[0]);
+        animationAction.setLoop(THREE.LoopOnce, 1);
+        animationAction.clampWhenFinished = true;
+        animationAction.timeScale = 0.25;
+        animationAction.play();
+        document.getElementById('timeline').max = MAX_TIME;
       }
-    } else {
-      obj.visible = true;
-      mats.forEach(mat => {
-        const orig = originalMaterials.get(mat.uuid);
-        if (orig) { mat.color.copy(orig.color); mat.transparent = orig.transparent; mat.opacity = orig.opacity; mat.needsUpdate = true; }
+
+      jumpToStage(0);
+      updateMuscles3D();
+    }, undefined, (err) => {
+      console.error('Failed to load GLB:', err);
+      const ls = document.getElementById('loading-screen');
+      if (ls) {
+        ls.style.opacity = '0';
+        setTimeout(() => ls.style.display = 'none', 400);
+      }
+    });
+
+    document.getElementById('fitBtn').addEventListener('click', () => {
+      if (defaultCamPos && defaultTargetPos) {
+        camera.position.copy(defaultCamPos);
+        controls.target.copy(defaultTargetPos);
+        controls.update();
+      }
+    });
+
+    function updateMuscles3D() {
+      if (!loadedModel) return;
+      const d = userData ? userData[currentStage] : null;
+      const pri = new Set(d ? (d.primaryMuscles || []) : []);
+      const sec = new Set(d ? (d.secondaryMuscles || []) : []);
+
+      loadedModel.traverse(obj => {
+        if (obj.name === 'kyudo_male_base') {
+          obj.visible = true;
+          return;
+        }
+        if (!obj.isMesh) return;
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        const group = NODE_TO_GROUP.get(obj.name);
+
+        if (group) {
+          if (pri.has(group)) {
+            obj.visible = true;
+            mats.forEach(m => { m.color.copy(COLOR_PRIMARY); m.transparent = false; m.opacity = 1; m.needsUpdate = true; });
+          } else if (sec.has(group)) {
+            obj.visible = true;
+            mats.forEach(m => { m.color.copy(COLOR_SECONDARY); m.transparent = false; m.opacity = 1; m.needsUpdate = true; });
+          } else {
+            if (!userData) {
+              obj.visible = true;
+              const orig = originalMaterials.get(mats[0].uuid);
+              if (orig) mats.forEach(m => { m.color.copy(orig.color); m.transparent = orig.transparent; m.opacity = orig.opacity; m.needsUpdate = true; });
+            } else {
+              obj.visible = false;
+            }
+          }
+        } else {
+          obj.visible = true;
+        }
       });
     }
-  });
-}
 
-// ====================================================
-// フレームジャンプ
-// ====================================================
-function jumpToStage(idx) {
-  if (!animationAction || !mixer) return;
-  const t = STAGES_BASE[idx].frame / FPS;
-  animationAction.paused = false;
-  animationAction.time   = t;
-  mixer.update(0);
-  animationAction.paused = true;
-  document.getElementById('timeline').value = t;
-  document.getElementById('timeLabel').textContent = t.toFixed(2) + 's';
-  document.getElementById('playBtn').classList.remove('active');
-  document.getElementById('pauseBtn').classList.add('active');
-}
-
-// コントロールボタン
-const playBtn  = document.getElementById('playBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const resetBtn = document.getElementById('resetBtn');
-const fitBtn   = document.getElementById('fitBtn');
-const timeline = document.getElementById('timeline');
-
-playBtn.addEventListener('click', () => {
-  if (animationAction) { animationAction.timeScale = 0.25; animationAction.paused = false; }
-  playBtn.classList.add('active'); pauseBtn.classList.remove('active');
-});
-pauseBtn.addEventListener('click', () => {
-  if (animationAction) animationAction.paused = true;
-  pauseBtn.classList.add('active'); playBtn.classList.remove('active');
-});
-resetBtn.addEventListener('click', () => {
-  if (animationAction) {
-    animationAction.stop();
-    animationAction.setLoop(THREE.LoopOnce, 1);
-    animationAction.clampWhenFinished = true;
-    animationAction.timeScale = 0.25;
-    animationAction.play();
-    animationAction.paused = false;
-    timeline.value = 0;
-    document.getElementById('timeLabel').textContent = '0.00s';
-    playBtn.classList.add('active'); pauseBtn.classList.remove('active');
-  }
-});
-fitBtn.addEventListener('click', () => {
-  if (window._defaultCamPos) {
-    camera.position.copy(window._defaultCamPos);
-    controls.target.copy(window._defaultTargetPos);
-    controls.update();
-  }
-});
-timeline.addEventListener('input', (e) => {
-  if (animationAction && mixer) {
-    animationAction.paused = false;
-    animationAction.time   = parseFloat(e.target.value);
-    mixer.update(0);
-    animationAction.paused = true;
-    document.getElementById('timeLabel').textContent = animationAction.time.toFixed(2) + 's';
-  }
-});
-
-// ====================================================
-// リサイズ・レンダリングループ
-// ====================================================
-function resizeRenderer() {
-  const rect = container.getBoundingClientRect();
-  const w = Math.floor(rect.width) || 400;
-  const h = Math.floor(rect.height) || 400;
-  if (w > 0 && h > 0) {
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h, false);
-  }
-}
-window.addEventListener('resize', resizeRenderer);
-setTimeout(resizeRenderer, 100);
-
-function animate() {
-  requestAnimationFrame(animate);
-  const delta = clock.getDelta();
-  if (mixer && animationAction && !animationAction.paused) {
-    mixer.update(delta);
-    if (animationAction.time >= MAX_TIME) {
-      animationAction.paused = true;
-      animationAction.time   = MAX_TIME;
+    function jumpToStage(idx) {
+      if (!animationAction || !mixer) return;
+      const t = STAGES_BASE[idx].frame / FPS;
+      animationAction.paused = false;
+      animationAction.time = t;
       mixer.update(0);
-      playBtn.classList.remove('active'); pauseBtn.classList.add('active');
+      animationAction.paused = true;
+      document.getElementById('timeline').value = t;
+      document.getElementById('timeLabel').textContent = `${t.toFixed(2)}s`;
+      document.getElementById('currentStageChip').textContent = `0${idx + 1} ${STAGES_BASE[idx].name}`;
     }
-    const t = Math.min(animationAction.time, MAX_TIME);
-    timeline.value = t;
-    document.getElementById('timeLabel').textContent = t.toFixed(2) + 's';
-  }
-  controls.update();
-  renderer.render(scene, camera);
-}
-animate();
 
-// ====================================================
-// ドラッグ&ドロップ
-// ====================================================
-const dropZone = document.getElementById('dropZone');
-dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (!file) return;
-  const fakeInput = { files: [file] };
-  window.loadFile(fakeInput);
-});
-
-// 初期タブ構築（データなし状態）
-const stageNav = document.getElementById('stageNav');
-STAGES_BASE.forEach((s, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'stage-tab empty' + (i === 0 ? ' active' : '');
-  btn.textContent = `第${i+1}節 ${s.name}`;
-  btn.onclick = () => { if (userData) selectStage(i); };
-  stageNav.appendChild(btn);
-});
-
-// ページ読み込み時にURLパラメータをチェックし、データを読み込む
-// type="module" のスクリプトはデフォルトで defer されるため、
-// DOMContentLoaded イベントを待たずに直接実行して問題ない。
-// ただし、3Dモデルのロード完了後に selectStage が呼ばれるように調整。
-window.addEventListener('DOMContentLoaded', () => {
-  checkUrlParams(); // 3Dモデルロード前にURLデータがあれば読み込み開始
-  checkLocalId();   // マイリストからの読み込みをチェック
-});
-
-</script>
-
-<script>
-// ===== ビューア チュートリアル =====
-(function() {
-  const tutorialSteps = [
-    {
-      text: "ここは閲覧専用のビューアだよ。カスタムエディタで作ったノートを3Dと一緒に見返せるよ！",
-      target: null
-    },
-    {
-      text: "まずここ！「📂 ファイルを開く」または「🔗 URLから開く」でノートデータを読み込んでね。",
-      target: "fileOpenArea",
-      pos: "bottom"
-    },
-    {
-      text: "左の3Dモデルは指で回転・拡大できるよ。ポーズを全方向から確認しよう！",
-      target: "viewer",
-      pos: "right"
-    },
-    {
-      text: "読み込んだノートは右側のここに表示されるよ。節ごとに切り替えて読み返してみてね！",
-      target: "welcomeScreen",
-      pos: "left"
-    },
-    {
-      text: "気に入ったノートは「⭐ お気に入り」に保存！マイリストからすぐ開けるようになるよ。",
-      target: null
-    },
-    {
-      text: "説明はおしまい！ファイルを読み込んで、じっくり復習しよう！",
-      target: null
+    function selectStage(idx) {
+      currentStage = idx;
+      document.querySelectorAll('.uq-stage-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+      jumpToStage(idx);
+      updateMuscles3D();
+      renderContent(idx);
     }
-  ];
 
-  const LS_KEY = 'kyudo_viewer_tutorial_done';
-  const overlay = document.getElementById('tutorial-overlay');
-  const bubble  = document.getElementById('tutorial-bubble');
-  const focus   = document.getElementById('tutorial-focus');
-  const arrow   = document.getElementById('tutorial-arrow');
-  let step = 0;
+    function buildStageNav() {
+      const nav = document.getElementById('stageTabs');
+      nav.innerHTML = '';
+      STAGES_BASE.forEach((s, i) => {
+        const tab = document.createElement('div');
+        const hasData = userData && (userData[i].desc || (userData[i].primaryMuscles && userData[i].primaryMuscles.length));
+        tab.className = `uq-stage-tab ${i === currentStage ? 'active' : ''} ${hasData ? '' : 'empty'}`;
+        tab.innerHTML = `
+          <span class="uq-stage-tab-num">0${i + 1}</span>
+          <span class="uq-stage-tab-name">${s.name}</span>
+        `;
+        tab.onclick = () => selectStage(i);
+        nav.appendChild(tab);
+      });
+    }
 
-  function showStep() {
-    const s = tutorialSteps[step];
-    bubble.textContent = s.text;
-    if (s.target) {
-      overlay.style.backgroundColor = 'rgba(0,0,0,0)';
-      let el = document.getElementById(s.target);
-      if (!el || el.offsetParent === null) { 
-        // ターゲットが見えない場合は中央表示
-        overlay.style.backgroundColor = 'rgba(0,0,0,0.7)'; focus.style.display='none'; arrow.style.display='none'; bubble.style.top='50%'; bubble.style.left='50%'; bubble.style.transform='translate(-50%,-50%)'; return; 
+    function renderContent(idx) {
+      const d = userData ? userData[idx] : null;
+      const s = STAGES_BASE[idx];
+      const noteArea = document.getElementById('noteArea');
+      const welcomeBox = document.getElementById('welcomeBox');
+
+      if (!userData) {
+        welcomeBox.style.display = 'flex';
+        noteArea.style.display = 'none';
+        return;
       }
 
-      const rect = el.getBoundingClientRect();
-      focus.style.display = 'block';
-      focus.style.top    = (rect.top  - 5) + 'px';
-      focus.style.left   = (rect.left - 5) + 'px';
-      focus.style.width  = (rect.width  + 10) + 'px';
-      focus.style.height = (rect.height + 10) + 'px';
+      welcomeBox.style.display = 'none';
+      noteArea.style.display = 'flex';
 
-      arrow.style.display = 'block';
-      bubble.style.transform = 'none';
+      document.getElementById('viewDesc').innerHTML = `
+        <div class="uq-card-title">📋 ${s.name} (${s.en}) の解説</div>
+        <div style="font-size:13.5px; line-height:1.6;">${d.desc || '<span style="color:var(--text-muted)">未記入</span>'}</div>
+        ${d.analogy ? `<div class="uq-callout-box" style="margin-top:6px;">🎭 <strong>たとえ：</strong>${d.analogy}</div>` : ''}
+        ${d.advice ? `<div class="uq-callout-box tip" style="margin-top:6px;">💡 <strong>アドバイス：</strong>${d.advice}</div>` : ''}
+        ${d.memo ? `<div class="uq-callout-box science" style="margin-top:6px;">📝 <strong>自由メモ：</strong>${d.memo}</div>` : ''}
+      `;
 
-      if (s.pos === 'right') {
-        bubble.style.left = (rect.right + 30) + 'px';
-        bubble.style.top = (rect.top + rect.height / 2 - 50) + 'px';
-        arrow.textContent = '⬅';
-        arrow.style.top = (rect.top + rect.height / 2 - 20) + 'px';
-        arrow.style.left = (rect.right + 5) + 'px';
-      } else if (s.pos === 'left') {
-        bubble.style.left = (rect.left - 310) + 'px';
-        bubble.style.top = (rect.top + rect.height / 2 - 50) + 'px';
-        arrow.textContent = '➡';
-        arrow.style.top = (rect.top + rect.height / 2 - 20) + 'px';
-        arrow.style.left = (rect.left - 35) + 'px';
+      const priTags = (d.primaryMuscles || []).map(m => {
+        const memo = d.muscleMemos && d.muscleMemos[m] ? d.muscleMemos[m] : '';
+        return `<div style="margin-bottom:6px;"><span class="uq-chip primary">🔴 ${m}</span>${memo ? `<div style="font-size:11.5px; color:var(--uq-red); margin-top:2px;">🎯 意識：${memo}</div>` : ''}</div>`;
+      }).join('');
+
+      const secTags = (d.secondaryMuscles || []).map(m => {
+        const memo = d.muscleMemos && d.muscleMemos[m] ? d.muscleMemos[m] : '';
+        return `<div style="margin-bottom:6px;"><span class="uq-chip secondary">🟡 ${m}</span>${memo ? `<div style="font-size:11.5px; color:var(--color-secondary-bright); margin-top:2px;">🎯 意識：${memo}</div>` : ''}</div>`;
+      }).join('');
+
+      document.getElementById('viewMuscles').innerHTML = `
+        <div class="uq-card-title">💪 使用する筋肉</div>
+        ${(priTags + secTags) || '<span style="color:var(--text-muted)">未選択</span>'}
+      `;
+
+      const tenItems = (d.tenouchi || []).map(t => `<div style="font-size:12.5px; padding:3px 0;"><strong>${t.icon || '✓'}</strong> ${t.text || ''}</div>`).join('');
+      document.getElementById('viewTenouchi').innerHTML = `
+        <div class="uq-card-title">🤚 手の内チェック</div>
+        ${tenItems || '<span style="color:var(--text-muted)">未記入</span>'}
+        ${d.tenouchiWarning ? `<div class="uq-warning-banner" style="margin-top:6px;">${d.tenouchiWarning}</div>` : ''}
+      `;
+
+      const missItems = (d.miss || []).map(m => `<div style="font-size:12.5px; padding:3px 0;">${m.type === 'warn' ? '⚠' : '💡'} ${m.text || ''}</div>`).join('');
+      document.getElementById('viewMiss').innerHTML = `
+        <div class="uq-card-title">⚠ ミス・注意点</div>
+        ${missItems || '<span style="color:var(--text-muted)">未記入</span>'}
+      `;
+    }
+
+    function onDataLoaded(name) {
+      buildStageNav();
+      selectStage(0);
+      showToast(`📖 「${name}」を読み込みました`);
+    }
+
+    window.loadFromFile = function(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.data) {
+            userData = Array.isArray(parsed.data) ? parsed.data.map(d => ({ ...defaultStage(), ...d })) : Array.from({length:8}, () => defaultStage());
+            onDataLoaded(file.name);
+          }
+        } catch (err) {
+          showToast('❌ 読み込み失敗');
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    // 共有URL文字列（テキスト入力・QR読み取り・ページ読み込み時の全てで共通利用）
+    // 3Dカスタムエディタが発行するリンクは3種類ある:
+    //   1) "?s=ID"       … 短縮リンク（サーバーのKVから本体データを取得）
+    //   2) "#custom=..." … ハッシュに圧縮データを直接埋め込む形式
+    //   3) "?d=..."      … 従来のクエリ形式
+    // 中身は配列そのもの（{data:[...]}ではない）のケースにも対応する。
+    async function importFromUrlString(urlString) {
+      if (!urlString) return false;
+      try {
+        urlString = urlString.trim();
+        let compressed = null;
+
+        let shortId = null;
+        try {
+          const parsedUrl = new URL(urlString);
+          shortId = parsedUrl.searchParams.get('s');
+        } catch (e) { /* 絶対URLでない場合は無視して他の形式を試す */ }
+
+        if (shortId) {
+          const res = await fetch(`/api/share?id=${encodeURIComponent(shortId)}`);
+          if (!res.ok) return false;
+          const j = await res.json();
+          if (!j || !j.data) return false;
+          compressed = j.data;
+        } else {
+          const customIdx = urlString.indexOf('#custom=');
+          if (customIdx !== -1) {
+            compressed = urlString.slice(customIdx + '#custom='.length);
+          } else {
+            const url = new URL(urlString);
+            compressed = url.searchParams.get('d');
+          }
+        }
+
+        if (!compressed) return false;
+
+        const json = LZString.decompressFromEncodedURIComponent(compressed);
+        if (!json) return false;
+
+        const parsed = JSON.parse(json);
+        const dataArr = Array.isArray(parsed) ? parsed
+          : (parsed && Array.isArray(parsed.data) ? parsed.data : null);
+        if (!dataArr) return false;
+
+        userData = dataArr.map(d => ({ ...defaultStage(), ...d }));
+        onDataLoaded('共有リンク');
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    window.loadFromUrl = async function() {
+      const urlString = document.getElementById('urlInput').value.trim();
+      if (!urlString) return;
+      showToast('⏳ 読み込み中…');
+      if (await importFromUrlString(urlString)) {
+        closeUrlModal();
       } else {
-        // bottom (default)
-        bubble.style.left = (rect.left + rect.width / 2 - 140) + 'px';
-        bubble.style.top = (rect.bottom + 40) + 'px';
-        arrow.textContent = '⬆';
-        arrow.style.top = (rect.bottom + 5) + 'px';
-        arrow.style.left = (rect.left + rect.width / 2) + 'px';
+        showToast('❌ URLの読み込みに失敗しました');
+      }
+    };
+
+    // ---- QRコード読み取り ----
+    let qrStream = null;
+    let qrScanning = false;
+    let qrAnimId = null;
+
+    window.openQrModal = async function() {
+      document.getElementById('qrModal').classList.add('show');
+      const statusEl = document.getElementById('qrStatus');
+      const video = document.getElementById('qrVideo');
+      statusEl.textContent = 'カメラを起動しています…';
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        statusEl.textContent = '❌ このブラウザはカメラ読み取りに対応していません';
+        return;
       }
 
-      // 画面端の補正
-      if (parseInt(bubble.style.left) < 10) bubble.style.left = '10px';
-      if (parseInt(bubble.style.left) > window.innerWidth - 300) bubble.style.left = (window.innerWidth - 300) + 'px';
+      try {
+        qrStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false
+        });
+        video.srcObject = qrStream;
+        await video.play();
+        statusEl.textContent = 'QRコードを枠内に写してください';
+        qrScanning = true;
+        scanQrFrame();
+      } catch (err) {
+        statusEl.textContent = '❌ カメラを起動できませんでした（権限設定をご確認ください）';
+      }
+    };
 
-    } else {
-      overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
-      focus.style.display = 'none';
-      arrow.style.display = 'none';
-      bubble.style.top = '50%'; bubble.style.left = '50%';
-      bubble.style.transform = 'translate(-50%,-50%)';
+    window.closeQrModal = function() {
+      document.getElementById('qrModal').classList.remove('show');
+      stopQrScan();
+    };
+
+    function stopQrScan() {
+      qrScanning = false;
+      if (qrAnimId) {
+        cancelAnimationFrame(qrAnimId);
+        qrAnimId = null;
+      }
+      if (qrStream) {
+        qrStream.getTracks().forEach(track => track.stop());
+        qrStream = null;
+      }
+      const video = document.getElementById('qrVideo');
+      if (video) video.srcObject = null;
     }
-  }
 
-  overlay.addEventListener('click', function() {
-    step++;
-    if (step < tutorialSteps.length) { showStep(); }
-    else { overlay.style.display = 'none'; localStorage.setItem(LS_KEY, '1'); }
-  });
+    function scanQrFrame() {
+      if (!qrScanning) return;
+      const video = document.getElementById('qrVideo');
+      const canvas = document.getElementById('qrCanvas');
 
-  document.getElementById('tutorial-skip').addEventListener('click', function(e) {
-    e.stopPropagation();
-    overlay.style.display = 'none';
-    localStorage.setItem(LS_KEY, '1');
-  });
-
-  window.addEventListener('load', function() {
-    if (!localStorage.getItem(LS_KEY)) {
-      overlay.style.display = 'block';
-      showStep();
+      if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = window.jsQR ? jsQR(imageData.data, imageData.width, imageData.height) : null;
+        if (code && code.data) {
+          handleQrResult(code.data);
+          return;
+        }
+      }
+      qrAnimId = requestAnimationFrame(scanQrFrame);
     }
-  });
-})();
-</script>
 
-<!-- ボトムタブバー（横画面スマホ用） -->
+    async function handleQrResult(text) {
+      stopQrScan();
+      window.closeQrModal();
+      showToast('⏳ 読み込み中…');
+      if (await importFromUrlString(text)) {
+        showToast('📷 QRコードを読み込みました');
+      } else {
+        showToast('❌ QRコードの内容を読み込めませんでした');
+      }
+    }
 
+    window.saveToFavorites = function() {
+      if (!userData) return;
+      const favName = prompt('お気に入りの名前を入力', `ノート_${new Date().toLocaleDateString()}`);
+      if (!favName) return;
+      const favorites = JSON.parse(localStorage.getItem('kyudo_favorites') || '[]');
+      favorites.push({ id: Date.now(), name: favName, data: userData });
+      localStorage.setItem('kyudo_favorites', JSON.stringify(favorites));
+      showToast('⭐ お気に入りに保存しました');
+    };
 
-<nav class="side-nav" id="sideNav">
-  <div class="side-nav-header">RIA HACHI</div>
-  <div class="side-nav-label">ページ移動</div>
-  <a href="index.html">
-    <span class="material-symbols-outlined nav-icon">accessibility_new</span>
-    <div class="nav-content">
-      <span class="nav-title">一般用</span>
-      <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説</span>
-    </div>
-  </a>
-  <a href="中高生.html">
-    <span class="material-symbols-outlined nav-icon">school</span>
-    <div class="nav-content">
-      <span class="nav-title">中高生用</span>
-      <span class="nav-desc">やさしい言葉で筋肉・動作をわかりやすく解説</span>
-    </div>
-  </a>
-  <a href="カスタム.html">
-    <span class="material-symbols-outlined nav-icon">edit_note</span>
-    <div class="nav-content">
-      <span class="nav-title">３D編集</span>
-      <span class="nav-desc">3Dモデルをカスタマイズできる編集ページ</span>
-    </div>
-  </a>
-  <a href="プレビュー.html" class="active">
-    <span class="material-symbols-outlined nav-icon">visibility</span>
-    <div class="nav-content">
-      <span class="nav-title">閲覧用</span>
-      <span class="nav-desc">アニメーションをゆっくり確認できるページ</span>
-    </div>
-  </a>
-  <a href="マイリスト.html">
-    <span class="material-symbols-outlined nav-icon">bookmarks</span>
-    <div class="nav-content">
-      <span class="nav-title">マイリスト</span>
-      <span class="nav-desc">お気に入りをまとめて確認できるページ</span>
-    </div>
-  </a>
-  <a href="稽古ログ.html">
-    <span class="material-symbols-outlined nav-icon">edit_calendar</span>
-    <div class="nav-content">
-      <span class="nav-title">稽古ログ</span>
-      <span class="nav-desc">稽古の記録や気づきを残せるページ</span>
-    </div>
-  </a>
-  <a href="動画比較.html">
-    <span class="material-symbols-outlined nav-icon">compare</span>
-    <div class="nav-content">
-      <span class="nav-title">動画比較</span>
-      <span class="nav-desc">2つの動画を並べてフォームを比較できるページ</span>
-    </div>
-  </a>
-  <a href="設定.html">
-    <span class="material-symbols-outlined nav-icon">settings</span>
-    <div class="nav-content">
-      <span class="nav-title">設定</span>
-      <span class="nav-desc">テーマ・文字サイズなどを変更</span>
-    </div>
-  </a>
-</nav>
-<nav class="btm-nav">
-  <a href="index.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">accessibility_new</span></span>
-    <span class="btm-label">一般用</span>
-  </a>
-  <a href="中高生.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">school</span></span>
-    <span class="btm-label">中高生</span>
-  </a>
-  <a href="カスタム.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_note</span></span>
-    <span class="btm-label">3D編集</span>
-  </a>
-  <a href="プレビュー.html" class="active">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">visibility</span></span>
-    <span class="btm-label">閲覧用</span>
-  </a>
-  <a href="マイリスト.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">bookmarks</span></span>
-    <span class="btm-label">リスト</span>
-  </a>
-  <a href="稽古ログ.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_calendar</span></span>
-    <span class="btm-label">稽古ログ</span>
-  </a>
-  <a href="動画比較.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">compare</span></span>
-    <span class="btm-label">動画比較</span>
-  </a>
-  <a href="設定.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">settings</span></span>
-    <span class="btm-label">設定</span>
-  </a>
-</nav>
-<script>
-function toggleDrawer() {
-  var sideNav = document.getElementById('sideNav');
-  var overlay = document.getElementById('overlayMenu');
-  var isOpen = sideNav.classList.contains('open');
-  if (isOpen) { sideNav.classList.remove('open'); overlay.classList.remove('show'); }
-  else { sideNav.classList.add('open'); overlay.classList.add('show'); }
-}
-</script>
+    function checkUrlParams() {
+      // 共有リンクの自動読み込み: "?s=ID"（短縮）/ "#custom=..."（新形式）/ "?d=..."（旧形式）
+      const params = new URLSearchParams(window.location.search);
+      const hasShort = params.get('s');
+      const hasCustomHash = window.location.hash.indexOf('#custom=') === 0;
+      const hasD = params.get('d');
+      if (hasShort || hasCustomHash || hasD) {
+        importFromUrlString(window.location.href);
+      }
+
+      const localId = params.get('localId');
+      if (localId) {
+        try {
+          const favorites = JSON.parse(localStorage.getItem('kyudo_favorites') || '[]');
+          const fav = favorites.find(f => f.id == localId);
+          if (fav) {
+            userData = fav.data.map(d => ({ ...defaultStage(), ...d }));
+            onDataLoaded(fav.name);
+          }
+        } catch(e) {}
+      }
+    }
+
+    // Playback
+    document.getElementById('playBtn').addEventListener('click', () => {
+      if (animationAction) { animationAction.timeScale = 0.25; animationAction.paused = false; }
+      document.getElementById('playBtn').classList.add('active-red');
+      document.getElementById('pauseBtn').classList.remove('active-red');
+    });
+
+    document.getElementById('pauseBtn').addEventListener('click', () => {
+      if (animationAction) animationAction.paused = true;
+      document.getElementById('pauseBtn').classList.add('active-red');
+      document.getElementById('playBtn').classList.remove('active-red');
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (animationAction) {
+        animationAction.stop();
+        animationAction.play();
+        animationAction.paused = false;
+        document.getElementById('playBtn').classList.add('active-red');
+        document.getElementById('pauseBtn').classList.remove('active-red');
+      }
+    });
+
+    document.getElementById('timeline').addEventListener('input', (e) => {
+      if (animationAction && mixer) {
+        animationAction.paused = false;
+        animationAction.time = parseFloat(e.target.value);
+        mixer.update(0);
+        animationAction.paused = true;
+        document.getElementById('timeLabel').textContent = `${animationAction.time.toFixed(2)}s`;
+      }
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      if (mixer && animationAction && !animationAction.paused) {
+        mixer.update(delta);
+        if (animationAction.time >= MAX_TIME) {
+          animationAction.paused = false;
+          animationAction.time = MAX_TIME;
+          mixer.update(0);
+          animationAction.paused = true;
+          document.getElementById('playBtn').classList.remove('active-red');
+          document.getElementById('pauseBtn').classList.add('active-red');
+        }
+        const t = Math.min(animationAction.time, MAX_TIME);
+        document.getElementById('timeline').value = t;
+        document.getElementById('timeLabel').textContent = `${t.toFixed(2)}s`;
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function handleResize() {
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const w = Math.floor(rect.width);
+      const h = Math.floor(rect.height);
+      if (w > 0 && h > 0) {
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(handleResize, 150);
+      setTimeout(handleResize, 500);
+    });
+
+    setTimeout(handleResize, 100);
+    animate();
+
+    buildStageNav();
+    checkUrlParams();
+  </script>
+
+  <!-- Global UI Helpers -->
+  <script>
+    function toggleDrawer() {
+      const drawer = document.getElementById('sideDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      const isOpen = drawer.classList.contains('open');
+      if (isOpen) {
+        drawer.classList.remove('open');
+        overlay.classList.remove('show');
+      } else {
+        drawer.classList.add('open');
+        overlay.classList.add('show');
+      }
+    }
+
+    function openUrlModal() {
+      document.getElementById('urlModal').classList.add('show');
+    }
+
+    function closeUrlModal() {
+      document.getElementById('urlModal').classList.remove('show');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+
+    function updateTheme(isDark) {
+      if (isDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.textContent = 'light_mode';
+        localStorage.setItem('kyudo_dark_mode', '1');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeIcon.textContent = 'dark_mode';
+        localStorage.setItem('kyudo_dark_mode', '0');
+      }
+    }
+
+    if (localStorage.getItem('kyudo_dark_mode') === '1') {
+      updateTheme(true);
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      updateTheme(!isDark);
+    });
+  </script>
 </body>
 </html>
