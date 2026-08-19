@@ -1,788 +1,922 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <script src="sync.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="manifest.json">
-  <meta name="msapplication-TileColor" content="#ffffff">
-  <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>リアル八節くん ─ 設定</title>
+  <meta name="description" content="リアル八節くんのテーマカラーや文字サイズ、各種設定をカスタマイズできます。" />
+  <meta name="keywords" content="弓道, 射法八節, 設定, テーマ, 文字サイズ, UNIQLO UI" />
+
+  <!-- Google Fonts: Inter & Noto Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+
+  <script src="sync.js"></script>
+  <script src="tutorial.js"></script>
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-icon.png">
+  <meta name="msapplication-TileImage" content="ms-icon-144x144.png">  <meta name="theme-color" content="#ffffff">
+<!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+
   <style>
+    /* ================================================================
+       UNIQLO STYLE DESIGN SYSTEM & TOKENS (設定版)
+       ================================================================ */
     :root {
-      --bg: #fdf8f8;
-      --panel: #ffffff;
-      --panel-2: #f7f3f2;
-      --line: #e0dedd;
-      --text: #1c1b1b;
-      --muted: #616363;
-      --accent: #1c1b1b;
-      --accent-2: #ba1a1a;
-      --accent-3: #c0392b;
-      --ok: #2d7a3e;
-      --shadow: 0 2px 8px rgba(0,0,0,0.08);
-      --surface: #fdf8f8;
-      --on-surface: #1c1b1b;
-      --primary: #000000;
-      --on-primary: #ffffff;
-      --surface-container: #f1edec;
-      --surface-container-low: #f7f3f2;
-      --surface-container-high: #ebe7e6;
-      --outline-variant: #e5e2e1;
-      --cinnabar: #ba1a1a;
-      --kyudo-gold: #c0392b;
-      --viewer-bg: #0d1b2a;
+      --uq-red: #E60012;
+      --uq-red-hover: #CC0010;
+      --uq-red-light: #FFF0F0;
+      --uq-black: #111111;
+      --uq-dark-gray: #333333;
+      --uq-gray: #666666;
+      --uq-light-gray: #999999;
+      --uq-border: #E5E5E5;
+      --uq-border-light: #F0F0F0;
+      --uq-bg: #FFFFFF;
+      --uq-surface: #F8F8F8;
+      --uq-surface-subtle: #FAFAFA;
+      
+      --primary: var(--uq-red);
+      --text: var(--uq-black);
+      --text-sub: var(--uq-gray);
+      --text-muted: var(--uq-light-gray);
+      --line: var(--uq-border);
+      --line-subtle: var(--uq-border-light);
+      --bg: var(--uq-bg);
+      --panel: var(--uq-surface);
+
+      --radius-sm: 2px;
+      --radius-md: 4px;
+      --radius-lg: 6px;
+      --radius-pill: 9999px;
+
+      --font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-scale: 1;
-    }
-    [data-theme="dark"] {
-      --bg: #121212;
-      --panel: #1e1e1e;
-      --panel-2: #2a2a2a;
-      --line: #3a3a3a;
-      --text: #f0ece9;
-      --muted: #a0a0a0;
-      --accent: #f0ece9;
-      --accent-2: #e05555;
-      --accent-3: #d4af37;
-      --ok: #4caf70;
-      --shadow: 0 2px 8px rgba(0,0,0,0.4);
-      --surface: #121212;
-      --on-surface: #f0ece9;
-      --primary: #f0ece9;
-      --on-primary: #121212;
-      --surface-container: #2a2a2a;
-      --surface-container-low: #1e1e1e;
-      --surface-container-high: #333333;
-      --outline-variant: #444444;
-      --cinnabar: #e05555;
-      --kyudo-gold: #d4af37;
-      --viewer-bg: #07111c;
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    [data-theme="dark"] {
+      --uq-black: #F5F5F5;
+      --uq-dark-gray: #E0E0E0;
+      --uq-gray: #A0A0A0;
+      --uq-light-gray: #666666;
+      --uq-border: #2A2A2A;
+      --uq-border-light: #222222;
+      --uq-bg: #121212;
+      --uq-surface: #1C1C1C;
+      --uq-surface-subtle: #181818;
+      --uq-red-light: rgba(230, 0, 18, 0.15);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.6);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.8);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-family);
+      font-size: calc(14px * var(--font-scale));
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: inherit;
+      transition: all 0.15s ease;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
       user-select: none;
+      display: inline-block;
+      vertical-align: middle;
     }
 
-    body {
-      font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100dvh;
-      overflow-y: auto;
-      transition: background 0.3s, color 0.3s;
-    }
-
-    /* ── Top App Bar ── */
-    .app-header {
-      position: sticky; top: 0; z-index: 400;
+    /* HEADER */
+    .uq-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       background: var(--bg);
       border-bottom: 1px solid var(--line);
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 16px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
-    .app-header-title {
-      font-family: "Noto Serif JP", serif;
-      font-size: 17px; font-weight: 500; color: var(--text);
-      letter-spacing: 0.02em;
-    }
-    .app-icon-btn {
-      width: 40px; height: 40px;
-      display: flex; align-items: center; justify-content: center;
-      background: transparent; border: none; cursor: pointer;
-      border-radius: 8px; color: var(--text); transition: background 0.2s;
-    }
-    .app-icon-btn:hover { background: var(--panel-2); }
-
-    /* ── コンテンツ ── */
-    .container {
-      max-width: 640px; margin: 0 auto; padding: 24px 16px;
-      display: flex; flex-direction: column; gap: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      height: 52px;
+      flex-shrink: 0;
     }
 
-    .page-title {
-      font-family: "Noto Serif JP", serif;
-      font-size: 22px; font-weight: 600; color: var(--text);
-      margin-bottom: 8px;
+    .uq-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    /* ── セクション ── */
-    .settings-section {
-      margin-top: 16px; margin-bottom: 4px;
-    }
-    .section-label {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--muted);
-      padding: 0 4px; margin-bottom: 8px;
-    }
-
-    /* ── カード ── */
-    .settings-card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 16px;
+    .uq-logo-box {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
       overflow: hidden;
+      flex-shrink: 0;
     }
-    .settings-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px; gap: 16px;
+
+    .uq-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .uq-app-title-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .uq-app-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .uq-tag-badge {
+      background: var(--uq-black);
+      color: #FFFFFF;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: var(--radius-sm);
+    }
+
+    [data-theme="dark"] .uq-tag-badge {
+      background: var(--uq-red);
+    }
+
+    .uq-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .uq-icon-btn {
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      color: var(--text);
+    }
+
+    .uq-icon-btn:hover {
+      background: var(--panel);
+    }
+
+    /* MAIN CONTAINER */
+    .uq-main-container {
+      flex: 1;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .uq-section-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-sub);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .uq-card-group {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .uq-setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      gap: 16px;
       border-bottom: 1px solid var(--line);
     }
-    .settings-row:last-child { border-bottom: none; }
-    .row-left { display: flex; align-items: center; gap: 14px; }
-    .row-icon {
-      width: 40px; height: 40px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; flex-shrink: 0;
-    }
-    .row-icon.red { background: rgba(186,26,26,0.1); color: var(--accent-2); }
-    .row-icon.blue { background: rgba(37,99,235,0.1); color: #3b82f6; }
-    [data-theme="dark"] .row-icon.blue { color: #60a5fa; }
-    .row-icon.green { background: rgba(45,122,62,0.1); color: var(--ok); }
-    .row-info { display: flex; flex-direction: column; gap: 2px; }
-    .row-title { font-size: 15px; font-weight: 600; color: var(--text); }
-    .row-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
 
-    /* ── トグルスイッチ ── */
-    .toggle-switch {
-      position: relative; width: 50px; height: 28px; flex-shrink: 0;
+    .uq-setting-row:last-child {
+      border-bottom: none;
     }
-    .toggle-switch input { display: none; }
-    .toggle-track {
-      position: absolute; inset: 0;
-      background: var(--line); border-radius: 14px;
-      cursor: pointer; transition: background 0.25s;
+
+    .uq-row-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
-    .toggle-switch input:checked + .toggle-track { background: var(--accent-2); }
-    .toggle-thumb {
-      position: absolute; top: 3px; left: 3px;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      transition: left 0.25s cubic-bezier(0.4,0,0.2,1);
+
+    .uq-row-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      background: var(--panel);
+      color: var(--uq-red);
+      border: 1px solid var(--line);
+    }
+
+    .uq-row-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .uq-row-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .uq-row-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* Switch */
+    .uq-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .uq-switch input {
+      display: none;
+    }
+
+    .uq-switch-track {
+      position: absolute;
+      inset: 0;
+      background: var(--line);
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .uq-switch input:checked + .uq-switch-track {
+      background: var(--uq-red);
+    }
+
+    .uq-switch-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      transition: left 0.2s;
       pointer-events: none;
     }
-    .toggle-switch input:checked ~ .toggle-thumb { left: 25px; }
 
-    /* ── フォントサイズスライダー ── */
-    .font-scale-area {
-      padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;
+    .uq-switch input:checked ~ .uq-switch-thumb {
+      left: 24px;
     }
-    .font-preview {
-      background: var(--panel-2); border-radius: 10px;
-      padding: 14px 16px; border: 1px solid var(--line);
-    }
-    .font-preview-title { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-    .font-preview-text { color: var(--text); line-height: 1.7; }
-    .font-preview-text .big { font-size: calc(18px * var(--font-scale, 1)); font-weight: 700; }
-    .font-preview-text .normal { font-size: calc(14px * var(--font-scale, 1)); }
-    .font-preview-text .small { font-size: calc(11px * var(--font-scale, 1)); color: var(--muted); }
 
-    .slider-group { display: flex; flex-direction: column; gap: 8px; }
-    .slider-header { display: flex; justify-content: space-between; align-items: center; }
-    .slider-label { font-size: 14px; font-weight: 600; color: var(--text); }
-    .slider-value {
-      font-size: 13px; font-weight: 700; color: var(--accent-2);
-      background: rgba(186,26,26,0.08); border: 1px solid rgba(186,26,26,0.2);
-      border-radius: 6px; padding: 2px 10px;
-      min-width: 48px; text-align: center;
+    /* Font Scale Area */
+    .uq-font-area {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
-    [data-theme="dark"] .slider-value {
-      background: rgba(224,85,85,0.12); border-color: rgba(224,85,85,0.3);
-    }
-    .range-wrap { display: flex; align-items: center; gap: 10px; }
-    .range-icon { font-size: 13px; color: var(--muted); user-select: none; }
-    .font-slider {
-      flex: 1; -webkit-appearance: none; appearance: none;
-      height: 4px; border-radius: 2px;
-      background: var(--line); outline: none; cursor: pointer;
-    }
-    .font-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none;
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--accent-2); cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      transition: transform 0.15s;
-    }
-    .font-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
-    .font-slider::-moz-range-thumb {
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--accent-2); cursor: pointer; border: none;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-    }
-    .size-presets { display: flex; gap: 8px; }
-    .size-preset-btn {
-      flex: 1; padding: 8px 4px; border-radius: 8px;
-      border: 1px solid var(--line); background: var(--panel-2);
-      color: var(--text); font-family: inherit; font-size: 12px;
-      font-weight: 600; cursor: pointer; transition: all 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-    }
-    .size-preset-btn .preset-label { font-size: 9px; color: var(--muted); }
-    .size-preset-btn.active { border-color: var(--accent-2); background: rgba(186,26,26,0.07); color: var(--accent-2); }
-    .size-preset-btn.active .preset-label { color: var(--accent-2); opacity: 0.75; }
 
-    /* ── リセットボタン ── */
-    .reset-btn {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 20px; border-radius: 12px;
-      border: 1px solid var(--line); background: var(--panel);
-      color: var(--muted); font-family: inherit; font-size: 14px;
-      font-weight: 600; cursor: pointer; transition: all 0.2s;
+    .uq-font-preview {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .uq-slider-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .uq-slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .uq-slider-label {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .uq-slider-badge {
+      font-size: 11.5px;
+      font-weight: 800;
+      background: var(--uq-red-light);
+      color: var(--uq-red);
+      border: 1px solid rgba(230,0,18,0.2);
+      border-radius: var(--radius-sm);
+      padding: 2px 8px;
+    }
+
+    .uq-slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--line);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .uq-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+      background: var(--uq-red);
+      cursor: pointer;
+    }
+
+    .uq-presets-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .uq-preset-btn {
+      flex: 1;
+      padding: 6px 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      background: var(--bg);
+      font-size: 11.5px;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .uq-preset-btn.active {
+      background: var(--uq-red);
+      color: #FFFFFF;
+      border-color: var(--uq-red);
+    }
+
+    .uq-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--text);
       width: 100%;
     }
-    .reset-btn:hover { border-color: var(--accent-2); color: var(--accent-2); background: rgba(186,26,26,0.04); }
 
-    /* ── Google同期 ── */
-    .sync-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
-    .sync-status-row { display: flex; align-items: center; gap: 12px; }
-    .sync-avatar {
-      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-      background: rgba(37,99,235,0.1); color: #3b82f6;
-      display: flex; align-items: center; justify-content: center; font-size: 20px;
-    }
-    [data-theme="dark"] .sync-avatar { color: #60a5fa; }
-    .sync-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .sync-email { font-size: 14px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .sync-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
-    .sync-btn {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 20px; border-radius: 12px; border: none;
-      background: var(--accent-2); color: #fff; font-family: inherit; font-size: 14px;
-      font-weight: 700; cursor: pointer; transition: all 0.2s; width: 100%;
-    }
-    .sync-btn:hover { opacity: 0.9; }
-    .sync-btn:disabled { opacity: 0.5; cursor: default; }
-    .sync-btn-row { display: flex; gap: 8px; }
-    .sync-btn-secondary {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 10px 14px; border-radius: 10px;
-      border: 1px solid var(--line); background: var(--panel-2);
-      color: var(--text); font-family: inherit; font-size: 13px;
-      font-weight: 600; cursor: pointer; transition: all 0.2s; flex: 1;
-    }
-    .sync-btn-secondary:hover { border-color: var(--accent-2); color: var(--accent-2); }
-    .sync-btn-secondary:disabled { opacity: 0.5; cursor: default; }
-    .sync-note {
-      font-size: 11px; color: var(--muted); line-height: 1.5;
-      background: var(--panel-2); border-radius: 8px; padding: 10px 12px;
-    }
-    .sync-note.warn { color: var(--accent-2); background: rgba(186,26,26,0.06); }
-
-    /* ── バージョン情報 ── */
-    .version-info {
-      text-align: center; padding: 12px; color: var(--muted); font-size: 11px;
-      letter-spacing: 0.04em;
+    .uq-btn:hover {
+      background: var(--panel);
+      border-color: var(--uq-gray);
     }
 
-    /* ── ドロワー ── */
-    .overlay-menu {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-      z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    .uq-btn.primary {
+      background: var(--uq-red) !important;
+      color: #FFFFFF !important;
+      border-color: var(--uq-red) !important;
     }
-    .overlay-menu.show { opacity: 1; pointer-events: all; }
-    .side-nav {
-      position: fixed; top: 0; left: -280px; width: 260px;
-      height: 100vh; height: 100dvh;
-      background: var(--bg); border-right: 1px solid var(--line);
-      z-index: 600; padding: 0 0 40px;
-      display: flex; flex-direction: column; gap: 0;
-      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    .uq-btn.primary:hover {
+      background: var(--uq-red-hover) !important;
+    }
+
+    .uq-btn.danger {
+      color: var(--uq-red);
+      background: var(--uq-red-light);
+      border-color: rgba(230,0,18,0.2);
+    }
+
+    /* DRAWER */
+    .uq-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .uq-drawer-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .uq-drawer {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100%;
+      background: var(--bg);
+      z-index: 2001;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .uq-drawer.open {
+      right: 0;
+    }
+
+    .uq-drawer-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .uq-drawer-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .uq-drawer-body {
+      flex: 1;
       overflow-y: auto;
-    }
-    .side-nav.open { left: 0; }
-    .side-nav-header {
-      font-family: "Noto Serif JP", serif;
-      font-size: 18px; font-weight: 500; color: var(--text);
-      padding: 20px 20px 16px; border-bottom: 1px solid var(--line); margin-bottom: 8px;
-    }
-    .side-nav-label {
-      font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--muted); padding: 8px 20px 4px;
-    }
-    .side-nav a {
-      color: var(--muted); text-decoration: none;
-      font-family: "Noto Sans JP", sans-serif; font-size: 14px; font-weight: 500;
-      padding: 12px 16px; margin: 2px 8px; border-radius: 24px;
-      transition: all 0.2s; display: flex; align-items: center; gap: 12px;
-    }
-    .side-nav a:hover { color: var(--text); background: var(--panel-2); }
-    .side-nav a.active { color: var(--on-surface); background: var(--surface-container-high); font-weight: 700; }
-    .side-nav a .nav-icon { font-size: 22px; flex-shrink: 0; }
-    .side-nav a .nav-content { display: flex; flex-direction: column; gap: 1px; }
-    .side-nav a .nav-title { display: block; }
-    .side-nav a .nav-desc { display: block; font-size: 10px; font-weight: 400; opacity: 0.65; line-height: 1.4; }
-
-    /* ── ボトムナビ ── */
-    .btm-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
-      height: 64px; background: var(--bg); border-top: 1px solid var(--line);
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.06); display: none !important;
+      padding: 12px 0;
     }
 
-    /* ── ナビゲーション表示制御 ── */
-    .app-icon-btn#menuToggle { display: flex !important; }
+    .uq-drawer-section-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 20px 6px;
+    }
 
-    @media (min-width: 1025px) {
-      .btm-nav { display: flex !important; }
-      .app-icon-btn#menuToggle { display: none !important; }
-      .app-header { justify-content: center; }
-      .app-header div[style*="width:40px"] { display: none !important; }
+    .uq-drawer-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 20px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+      transition: background 0.15s;
     }
-    [data-theme="dark"] .btm-nav { background: rgba(18,18,18,0.97); box-shadow: 0 -2px 8px rgba(0,0,0,0.4); }
-    .btm-nav a {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 2px; text-decoration: none; color: var(--muted);
-      font-size: 10px; font-weight: 500; font-family: "Noto Sans JP", sans-serif;
-      transition: color 0.18s; -webkit-tap-highlight-color: transparent; padding: 4px 2px;
-    }
-    .btm-nav a .btm-icon-wrap {
-      width: 64px; height: 32px; display: flex; align-items: center; justify-content: center;
-      border-radius: 16px; transition: background 0.2s;
-    }
-    .btm-nav a.active { color: var(--accent-2); }
-    .btm-nav a.active .btm-icon-wrap { background: var(--surface-container-high); }
-    .btm-nav a .material-symbols-outlined { font-size: 22px; }
-    .btm-label { display: block; line-height: 1; }
 
-    @media (orientation: portrait) {
-      .container { padding: 16px 14px; }
+    .uq-drawer-link:hover {
+      background: var(--panel);
     }
-      /* ナビ項目が8個に増えたため、ボトムナビの幅を可変にしてはみ出しを防止 */
-    .btm-nav a .btm-icon-wrap { width: auto !important; min-width: 34px; max-width: 52px; padding: 0 4px; }
-    .btm-nav a { padding: 4px 1px; }
-    .btm-nav a .btm-label { font-size: 9px; }
-    @media (max-width: 400px) {
-      .btm-nav a .btm-label { font-size: 8px; }
-      .btm-nav a .material-symbols-outlined { font-size: 20px; }
+
+    .uq-drawer-link.active {
+      color: var(--uq-red);
+      background: var(--uq-red-light);
     }
-</style>
+
+    #toast {
+      position: fixed;
+      bottom: 74px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      opacity: 0;
+      background: var(--uq-black);
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 700;
+      z-index: 4000;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.25s, opacity 0.25s;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Top App Bar -->
-<header class="app-header">
-  <button class="app-icon-btn" id="menuToggle" onclick="toggleDrawer()" aria-label="メニュー">
-    <span class="material-symbols-outlined">menu</span>
-  </button>
-  <h1 class="app-header-title">リアル八節くん</h1>
-  <div style="width:40px;flex-shrink:0;"></div>
-</header>
-<div class="overlay-menu" id="overlayMenu" onclick="toggleDrawer()"></div>
-
-<div class="container">
-  <div class="page-title">⚙️ 設定</div>
-
-  <!-- 表示テーマ -->
-  <div class="settings-section">
-    <div class="section-label">表示テーマ</div>
-    <div class="settings-card">
-      <div class="settings-row">
-        <div class="row-left">
-          <div class="row-icon red">
-            <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
-          </div>
-          <div class="row-info">
-            <div class="row-title" id="themeTitle">ダークモード</div>
-            <div class="row-desc" id="themeDesc">暗い背景で目への負担を軽減</div>
-          </div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="darkToggle" onchange="applyDarkMode(this.checked)">
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </label>
+  <!-- HEADER -->
+  <header class="uq-header">
+    <div class="uq-brand">
+      <div class="uq-logo-box"><img src="favicon-96x96.png" alt="リアル八節くん" width="30" height="30"></div>
+      <div class="uq-app-title-wrap">
+        <span class="uq-app-title">
+          リアル八節くん
+          <span class="uq-tag-badge">設定</span>
+        </span>
       </div>
     </div>
-  </div>
+    <div class="uq-header-actions">
+      <button class="uq-icon-btn" id="themeToggleBtn" aria-label="テーマ切替" title="ダーク/ライト切替">
+        <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+      </button>
+      <button class="uq-icon-btn" id="menuToggleBtn" onclick="toggleDrawer()" aria-label="メニュー">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+    </div>
+  </header>
 
-  <!-- 文字サイズ -->
-  <div class="settings-section">
-    <div class="section-label">文字サイズ</div>
-    <div class="settings-card">
-      <div class="font-scale-area">
-        <!-- プレビュー -->
-        <div class="font-preview">
-          <div class="font-preview-title">プレビュー</div>
-          <div class="font-preview-text">
-            <div class="big">射法八節</div>
-            <div class="normal">弓道の基本となる8つの動作のことです。正しい形を繰り返し練習することが上達への近道です。</div>
-            <div class="small">足踏み・胴作り・弓構え・打ち起こし・引き分け・会・離れ・残心</div>
+  <!-- MAIN CONTAINER -->
+  <main class="uq-main-container">
+    <!-- SECTION 1: 表示テーマ -->
+    <section>
+      <h2 class="uq-section-title">
+        <span class="material-symbols-outlined" style="font-size:16px;">palette</span>
+        表示テーマ
+      </h2>
+      <div class="uq-card-group">
+        <div class="uq-setting-row">
+          <div class="uq-row-left">
+            <div class="uq-row-icon">
+              <span class="material-symbols-outlined" id="themeRowIcon">dark_mode</span>
+            </div>
+            <div class="uq-row-info">
+              <div class="uq-row-title" id="themeRowTitle">ダークモード</div>
+              <div class="uq-row-desc" id="themeRowDesc">暗い背景で目の負担を軽減します</div>
+            </div>
           </div>
-        </div>
-
-        <!-- スライダー -->
-        <div class="slider-group">
-          <div class="slider-header">
-            <span class="slider-label">文字の大きさ</span>
-            <span class="slider-value" id="fontScaleLabel">標準</span>
-          </div>
-          <div class="range-wrap">
-            <span class="range-icon" style="font-size:11px;">あ</span>
-            <input type="range" class="font-slider" id="fontSlider"
-              min="0.8" max="1.4" step="0.1" value="1.0"
-              oninput="applyFontScale(parseFloat(this.value))">
-            <span class="range-icon" style="font-size:18px;">あ</span>
-          </div>
-        </div>
-
-        <!-- プリセット -->
-        <div class="size-presets">
-          <button class="size-preset-btn" onclick="setFontPreset(0.8)" id="preset-0.8">
-            <span>小</span><span class="preset-label">0.8x</span>
-          </button>
-          <button class="size-preset-btn active" onclick="setFontPreset(0.9)" id="preset-0.9">
-            <span>やや小</span><span class="preset-label">0.9x</span>
-          </button>
-          <button class="size-preset-btn" onclick="setFontPreset(1.0)" id="preset-1.0">
-            <span>標準</span><span class="preset-label">1.0x</span>
-          </button>
-          <button class="size-preset-btn" onclick="setFontPreset(1.2)" id="preset-1.2">
-            <span>大</span><span class="preset-label">1.2x</span>
-          </button>
-          <button class="size-preset-btn" onclick="setFontPreset(1.4)" id="preset-1.4">
-            <span>特大</span><span class="preset-label">1.4x</span>
-          </button>
+          <label class="uq-switch">
+            <input type="checkbox" id="darkToggle" onchange="applyDarkMode(this.checked)">
+            <div class="uq-switch-track"></div>
+            <div class="uq-switch-thumb"></div>
+          </label>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 他端末との同期（Google連携） -->
-  <div class="settings-section">
-    <div class="section-label">他端末との同期</div>
-    <div class="settings-card">
-      <div class="sync-body" id="syncBody">
-        <!-- JSで内容を描画 -->
+    <!-- SECTION 2: 文字サイズ -->
+    <section>
+      <h2 class="uq-section-title">
+        <span class="material-symbols-outlined" style="font-size:16px;">format_size</span>
+        文字サイズ
+      </h2>
+      <div class="uq-card-group">
+        <div class="uq-font-area">
+          <div class="uq-font-preview">
+            <div style="font-size:11px; font-weight:800; color:var(--text-muted);">プレビュー表示</div>
+            <div style="font-size:calc(17px * var(--font-scale)); font-weight:900;">射法八節（しゃほうはっせつ）</div>
+            <div style="font-size:calc(13.5px * var(--font-scale)); color:var(--text-sub); line-height:1.6;">
+              弓道の基本となる8つの動作です。正しい姿勢と呼吸を身につけることが上達への近道です。
+            </div>
+          </div>
+
+          <div class="uq-slider-wrap">
+            <div class="uq-slider-header">
+              <span class="uq-slider-label">文字の大きさ</span>
+              <span class="uq-slider-badge" id="fontScaleBadge">標準 (1.0x)</span>
+            </div>
+            <input type="range" class="uq-slider" id="fontSlider" min="0.8" max="1.4" step="0.1" value="1.0" oninput="applyFontScale(parseFloat(this.value))">
+          </div>
+
+          <div class="uq-presets-row">
+            <button class="uq-preset-btn" onclick="setFontPreset(0.8)" id="preset-0.8">小<br><span style="font-size:9px; opacity:0.7;">0.8x</span></button>
+            <button class="uq-preset-btn" onclick="setFontPreset(0.9)" id="preset-0.9">やや小<br><span style="font-size:9px; opacity:0.7;">0.9x</span></button>
+            <button class="uq-preset-btn active" onclick="setFontPreset(1.0)" id="preset-1.0">標準<br><span style="font-size:9px; opacity:0.7;">1.0x</span></button>
+            <button class="uq-preset-btn" onclick="setFontPreset(1.2)" id="preset-1.2">大<br><span style="font-size:9px; opacity:0.7;">1.2x</span></button>
+            <button class="uq-preset-btn" onclick="setFontPreset(1.4)" id="preset-1.4">特大<br><span style="font-size:9px; opacity:0.7;">1.4x</span></button>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <!-- SECTION 3: 他端末との同期（Google連携） -->
+    <section>
+      <h2 class="uq-section-title">
+        <span class="material-symbols-outlined" style="font-size:16px;">cloud_sync</span>
+        他端末との同期
+      </h2>
+      <div class="uq-card-group" style="padding:16px 18px;">
+        <div id="syncBody" style="display:flex; flex-direction:column; gap:12px;">
+          <!-- JSで描画 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: データ管理 -->
+    <section>
+      <h2 class="uq-section-title">
+        <span class="material-symbols-outlined" style="font-size:16px;">manage_accounts</span>
+        リセット
+      </h2>
+      <button class="uq-btn" onclick="resetAll()">
+        <span class="material-symbols-outlined" style="font-size:18px;">restart_alt</span>
+        設定を初期状態に戻す
+      </button>
+    </section>
+
+    <div style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:12px;">
+      リアル八節くん v2.0 ─弓道学習教材
     </div>
-  </div>
+  </main>
 
-  <!-- アクセシビリティ -->
-  <!-- リセット -->
-  <button class="reset-btn" onclick="resetAll()">
-    <span class="material-symbols-outlined">delete_sweep</span>
-    すべての設定をリセット
-  </button>
 
-  <div class="version-info">リアル八節くん v1.0 ─ 弓道学習教材</div>
-</div>
-
-<!-- サイドナビ -->
-<nav class="side-nav" id="sideNav">
-  <div class="side-nav-header">RIA HACHI</div>
-  <div class="side-nav-label">ページ移動</div>
-  <a href="index.html">
-    <span class="material-symbols-outlined nav-icon">accessibility_new</span>
-    <div class="nav-content">
-      <span class="nav-title">一般用</span>
-      <span class="nav-desc">3Dモデルで射法八節と使用筋肉を解説</span>
+  <!-- DRAWER (8 items) -->
+  <div class="uq-drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+  <aside class="uq-drawer" id="sideDrawer">
+    <div class="uq-drawer-header">
+      <span class="uq-drawer-title">メニュー</span>
+      <button class="uq-icon-btn" onclick="toggleDrawer()" aria-label="閉じる">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
-  </a>
-  <a href="中高生.html">
-    <span class="material-symbols-outlined nav-icon">school</span>
-    <div class="nav-content">
-      <span class="nav-title">中高生用</span>
-      <span class="nav-desc">やさしい言葉で筋肉・動作をわかりやすく解説</span>
+    <div class="uq-drawer-body">
+      <div class="uq-drawer-section-label">PAGE SELECT</div>
+      <a href="index.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">accessibility_new</span>
+        <span>一般用（標準モード）</span>
+      </a>
+      <a href="中高生.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">school</span>
+        <span>中高生用（やさしい解説）</span>
+      </a>
+      <a href="カスタム.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">edit_note</span>
+        <span>3Dカスタマイズ</span>
+      </a>
+      <a href="プレビュー.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">visibility</span>
+        <span>閲覧専用ビュー</span>
+      </a>
+      <a href="マイリスト.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">bookmarks</span>
+        <span>マイリスト・保存済み</span>
+      </a>
+      <a href="稽古ログ.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">edit_calendar</span>
+        <span>稽古ログ（記録と振り返り）</span>
+      </a>
+      <a href="動画比較.html" class="uq-drawer-link">
+        <span class="material-symbols-outlined">compare</span>
+        <span>動画比較（フォームチェック）</span>
+      </a>
+      <a href="設定.html" class="uq-drawer-link active">
+        <span class="material-symbols-outlined">settings</span>
+        <span>設定（テーマ・文字サイズ）</span>
+      </a>
     </div>
-  </a>
-  <a href="カスタム.html">
-    <span class="material-symbols-outlined nav-icon">edit_note</span>
-    <div class="nav-content">
-      <span class="nav-title">３D編集</span>
-      <span class="nav-desc">3Dモデルをカスタマイズできる編集ページ</span>
-    </div>
-  </a>
-  <a href="プレビュー.html">
-    <span class="material-symbols-outlined nav-icon">visibility</span>
-    <div class="nav-content">
-      <span class="nav-title">閲覧用</span>
-      <span class="nav-desc">アニメーションをゆっくり確認できるページ</span>
-    </div>
-  </a>
-  <a href="マイリスト.html">
-    <span class="material-symbols-outlined nav-icon">bookmarks</span>
-    <div class="nav-content">
-      <span class="nav-title">マイリスト</span>
-      <span class="nav-desc">お気に入りをまとめて確認できるページ</span>
-    </div>
-  </a>
-  <a href="稽古ログ.html">
-    <span class="material-symbols-outlined nav-icon">edit_calendar</span>
-    <div class="nav-content">
-      <span class="nav-title">稽古ログ</span>
-      <span class="nav-desc">稽古の記録や気づきを残せるページ</span>
-    </div>
-  </a>
-  <a href="動画比較.html">
-    <span class="material-symbols-outlined nav-icon">compare</span>
-    <div class="nav-content">
-      <span class="nav-title">動画比較</span>
-      <span class="nav-desc">2つの動画を並べてフォームを比較できるページ</span>
-    </div>
-  </a>
-  <a href="設定.html" class="active">
-    <span class="material-symbols-outlined nav-icon">settings</span>
-    <div class="nav-content">
-      <span class="nav-title">設定</span>
-      <span class="nav-desc">テーマ・文字サイズなどを変更</span>
-    </div>
-  </a>
-</nav>
+  </aside>
 
-<!-- ボトムナビ -->
-<nav class="btm-nav">
-  <a href="index.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">accessibility_new</span></span>
-    <span class="btm-label">一般用</span>
-  </a>
-  <a href="中高生.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">school</span></span>
-    <span class="btm-label">中高生</span>
-  </a>
-  <a href="カスタム.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_note</span></span>
-    <span class="btm-label">3D編集</span>
-  </a>
-  <a href="プレビュー.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">visibility</span></span>
-    <span class="btm-label">閲覧用</span>
-  </a>
-  <a href="マイリスト.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">bookmarks</span></span>
-    <span class="btm-label">リスト</span>
-  </a>
-  <a href="稽古ログ.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">edit_calendar</span></span>
-    <span class="btm-label">稽古ログ</span>
-  </a>
-  <a href="動画比較.html" class="">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">compare</span></span>
-    <span class="btm-label">動画比較</span>
-  </a>
-  <a href="設定.html" class="active">
-    <span class="btm-icon-wrap"><span class="material-symbols-outlined">settings</span></span>
-    <span class="btm-label">設定</span>
-  </a>
-</nav>
+  <div id="toast"></div>
 
-<script>
-// ============================================================
-// 設定の保存・読み込み
-// ============================================================
-const DARK_KEY   = 'kyudo_dark_mode';
-const SCALE_KEY  = 'kyudo_font_scale';
-const ANIM_KEY   = 'kyudo_anim';
+  <script>
+    const DARK_KEY  = 'kyudo_dark_mode';
+    const SCALE_KEY = 'kyudo_font_scale';
 
-// --- ダークモード ---
-function applyDarkMode(isDark) {
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
-  localStorage.setItem(DARK_KEY, isDark ? '1' : '0');
-  const icon  = document.getElementById('themeIcon');
-  const title = document.getElementById('themeTitle');
-  const desc  = document.getElementById('themeDesc');
-  if (isDark) {
-    icon.textContent  = 'light_mode';
-    title.textContent = 'ライトモードに切替';
-    desc.textContent  = '現在：ダークモード（暗い背景）';
-  } else {
-    icon.textContent  = 'dark_mode';
-    title.textContent = 'ダークモードに切替';
-    desc.textContent  = '現在：ライトモード（明るい背景）';
-  }
-}
+    const SCALE_LABELS = {
+      '0.8': '小 (0.8x)',
+      '0.9': 'やや小 (0.9x)',
+      '1.0': '標準 (1.0x)',
+      '1.2': '大 (1.2x)',
+      '1.4': '特大 (1.4x)',
+    };
 
-// --- フォントスケール ---
-const SCALE_LABELS = {
-  '0.8': '小',
-  '0.9': 'やや小',
-  '1.0': '標準',
-  '1.2': '大',
-  '1.4': '特大',
-};
-function applyFontScale(scale) {
-  document.documentElement.style.setProperty('--font-scale', scale);
-  localStorage.setItem(SCALE_KEY, scale);
-  document.getElementById('fontSlider').value = scale;
-  const key = scale.toFixed(1);
-  document.getElementById('fontScaleLabel').textContent = SCALE_LABELS[key] || (Math.round(scale*100)+'%');
-  // プリセットのactive更新
-  document.querySelectorAll('.size-preset-btn').forEach(btn => btn.classList.remove('active'));
-  const preset = document.getElementById('preset-' + key);
-  if (preset) preset.classList.add('active');
-}
-function setFontPreset(val) { applyFontScale(val); }
+    function applyDarkMode(isDark) {
+      if (isDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem(DARK_KEY, '1');
+        document.getElementById('themeIcon').textContent = 'light_mode';
+        document.getElementById('themeRowIcon').textContent = 'light_mode';
+        document.getElementById('themeRowTitle').textContent = 'ライトモードに切替';
+        document.getElementById('themeRowDesc').textContent = '現在：ダークモード（暗い背景）';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem(DARK_KEY, '0');
+        document.getElementById('themeIcon').textContent = 'dark_mode';
+        document.getElementById('themeRowIcon').textContent = 'dark_mode';
+        document.getElementById('themeRowTitle').textContent = 'ダークモードに切替';
+        document.getElementById('themeRowDesc').textContent = '現在：ライトモード（明るい背景）';
+      }
+    }
 
-// --- 汎用保存 ---
-function saveSetting(key, value) {
-  localStorage.setItem(key, value ? '1' : '0');
-}
+    function applyFontScale(scale) {
+      document.documentElement.style.setProperty('--font-scale', scale);
+      localStorage.setItem(SCALE_KEY, scale);
+      document.getElementById('fontSlider').value = scale;
+      const key = scale.toFixed(1);
+      document.getElementById('fontScaleBadge').textContent = SCALE_LABELS[key] || `${Math.round(scale*100)}%`;
+      
+      document.querySelectorAll('.uq-preset-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('preset-' + key);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
 
-// --- チュートリアルリセット ---
-function resetTutorials() {
-  const keys = [
-    'kyudo_tutorial_done',
-    'kyudo_mylist_tutorial_done',
-    'kyudo_viewer_tutorial_done',
-    'kyudo_junior_tutorial_done',
-    'kyudo_custom_tutorial_done',
-  ];
-  keys.forEach(k => localStorage.removeItem(k));
-  showToast('チュートリアルをリセットしました！');
-}
+    function setFontPreset(val) {
+      applyFontScale(val);
+    }
 
-// --- 全リセット ---
-function resetAll() {
-  if (!confirm('すべての設定をリセットしますか？\n（ノートやお気に入りデータは消えません）')) return;
-  localStorage.removeItem(DARK_KEY);
-  localStorage.removeItem(SCALE_KEY);
-  localStorage.removeItem(ANIM_KEY);
-  loadSettings();
-  showToast('設定をリセットしました');
-}
+    function resetAll() {
+      if (!confirm('すべての設定を初期状態に戻しますか？\n（作成したノートや稽古ログは消えません）')) return;
+      localStorage.removeItem(DARK_KEY);
+      localStorage.removeItem(SCALE_KEY);
+      loadSettings();
+      showToast('設定をリセットしました');
+    }
 
-// --- 読み込み ---
-function loadSettings() {
-  const isDark  = localStorage.getItem(DARK_KEY) === '1';
-  const scale   = parseFloat(localStorage.getItem(SCALE_KEY) || '1.0');
-  const animOn  = localStorage.getItem(ANIM_KEY) !== '0';
+    function loadSettings() {
+      const isDark = localStorage.getItem(DARK_KEY) === '1';
+      const scale = parseFloat(localStorage.getItem(SCALE_KEY) || '1.0');
+      document.getElementById('darkToggle').checked = isDark;
+      applyDarkMode(isDark);
+      applyFontScale(scale);
+    }
 
-  document.getElementById('darkToggle').checked = isDark;
-  applyDarkMode(isDark);
-  applyFontScale(scale);
-  document.getElementById('animToggle').checked = animOn;
-}
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
 
-// --- トースト ---
-function showToast(msg) {
-  let t = document.getElementById('toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'toast';
-    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel);border:1px solid var(--accent-2);border-radius:10px;padding:10px 20px;font-size:13px;color:var(--text);box-shadow:var(--shadow);z-index:99999;opacity:0;transition:all 0.3s;white-space:nowrap;pointer-events:none;';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
-  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 2500);
-}
+    function toggleDrawer() {
+      const drawer = document.getElementById('sideDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      const isOpen = drawer.classList.contains('open');
+      if (isOpen) {
+        drawer.classList.remove('open');
+        overlay.classList.remove('show');
+      } else {
+        drawer.classList.add('open');
+        overlay.classList.add('show');
+      }
+    }
 
-// --- ドロワー ---
-function toggleDrawer() {
-  var sideNav = document.getElementById('sideNav');
-  var overlay = document.getElementById('overlayMenu');
-  var isOpen = sideNav.classList.contains('open');
-  if (isOpen) { sideNav.classList.remove('open'); overlay.classList.remove('show'); }
-  else { sideNav.classList.add('open'); overlay.classList.add('show'); }
-}
-
-// ============================================================
-// 他端末との同期（Google連携）
-// ============================================================
-function formatSyncTime(ms) {
-  if (!ms) return null;
-  const d = new Date(Number(ms));
-  const pad = n => String(n).padStart(2, '0');
-  return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function renderSyncUI(status) {
-  const root = document.getElementById('syncBody');
-  if (!root) return;
-
-  if (!status.configured) {
-    root.innerHTML = `
-      <div class="sync-note warn">
-        まだGoogle連携の設定が完了していません。<br>
-        sync.js 内の GOOGLE_CLIENT_ID を、Google Cloud Consoleで発行したOAuthクライアントIDに書き換えてください。
-      </div>`;
-    return;
-  }
-
-  if (!status.signedIn) {
-    root.innerHTML = `
-      <div class="sync-desc">Googleアカウントでログインすると、タグ・記録・お気に入り・ノート・表示設定を他の端末とも共有できます。（動画ファイル自体は対象外です）</div>
-      <button class="sync-btn" id="syncSignInBtn">
-        <span class="material-symbols-outlined" style="font-size:18px;">login</span>
-        Googleでログインして同期する
-      </button>`;
-    document.getElementById('syncSignInBtn').addEventListener('click', () => {
-      const btn = document.getElementById('syncSignInBtn');
-      btn.disabled = true;
-      kyudoSyncSignIn()
-        .then(() => showToast('Googleと連携しました'))
-        .catch(() => { showToast('ログインに失敗しました'); btn.disabled = false; });
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.getElementById('darkToggle').checked = !isDark;
+      applyDarkMode(!isDark);
     });
-    return;
-  }
 
-  const lastSynced = formatSyncTime(status.lastSyncedAt);
-  root.innerHTML = `
-    <div class="sync-status-row">
-      <div class="sync-avatar"><span class="material-symbols-outlined">account_circle</span></div>
-      <div class="sync-info">
-        <div class="sync-email">${status.email || '接続中'}</div>
-        <div class="sync-desc">${lastSynced ? '最終同期：' + lastSynced : 'まだ同期していません'}</div>
-      </div>
-    </div>
-    <div class="sync-btn-row">
-      <button class="sync-btn-secondary" id="syncNowBtn">
-        <span class="material-symbols-outlined" style="font-size:16px;">sync</span>
-        今すぐ同期
-      </button>
-      <button class="sync-btn-secondary" id="syncSignOutBtn">
-        <span class="material-symbols-outlined" style="font-size:16px;">logout</span>
-        連携を解除
-      </button>
-    </div>`;
+    // ============================================================
+    // 他端末との同期（Google連携）
+    // ============================================================
+    function formatSyncTime(ms) {
+      if (!ms) return null;
+      const d = new Date(Number(ms));
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
 
-  document.getElementById('syncNowBtn').addEventListener('click', () => {
-    const btn = document.getElementById('syncNowBtn');
-    btn.disabled = true;
-    kyudoSyncPush()
-      .then(() => showToast('同期しました'))
-      .catch(() => showToast('同期に失敗しました。もう一度お試しください'))
-      .finally(() => { btn.disabled = false; });
-  });
-  document.getElementById('syncSignOutBtn').addEventListener('click', () => {
-    if (!confirm('Googleとの連携を解除しますか？\n（保存済みのデータは削除されません）')) return;
-    kyudoSyncSignOut();
-    showToast('連携を解除しました');
-  });
-}
+    function renderSyncUI(status) {
+      const root = document.getElementById('syncBody');
+      if (!root) return;
 
-if (window.kyudoSyncOnChange) {
-  kyudoSyncOnChange(renderSyncUI);
-} else {
-  // sync.js が読み込めなかった場合のフォールバック表示
-  document.addEventListener('DOMContentLoaded', () => {
-    const root = document.getElementById('syncBody');
-    if (root) root.innerHTML = '<div class="sync-note warn">同期モジュールを読み込めませんでした。</div>';
-  });
-}
+      if (!status.configured) {
+        root.innerHTML = `
+          <div style="font-size:11.5px; color:var(--uq-red); line-height:1.5; background:var(--uq-red-light); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid rgba(230,0,18,0.2);">
+            まだGoogle連携の設定が完了していません。<br>
+            sync.js 内の GOOGLE_CLIENT_ID を、Google Cloud Consoleで発行したOAuthクライアントIDに書き換えてください。
+          </div>`;
+        return;
+      }
 
-// --- 初期化 ---
-loadSettings();
-</script>
+      if (!status.signedIn) {
+        root.innerHTML = `
+          <div style="font-size:12px; color:var(--text-sub); line-height:1.6;">
+            Googleアカウントでログインすると、タグ・記録・お気に入り・ノート・表示設定を他の端末とも共有できます。（動画ファイル自体は対象外です）
+          </div>
+          <button class="uq-btn primary" id="syncSignInBtn" style="margin-top:4px;">
+            <span class="material-symbols-outlined" style="font-size:18px;">login</span>
+            Googleでログインして同期する
+          </button>`;
+        document.getElementById('syncSignInBtn').addEventListener('click', () => {
+          const btn = document.getElementById('syncSignInBtn');
+          btn.disabled = true;
+          if (window.kyudoSyncSignIn) {
+            kyudoSyncSignIn()
+              .then(() => showToast('Googleと連携しました'))
+              .catch(() => { showToast('ログインに失敗しました'); btn.disabled = false; });
+          } else {
+            showToast('sync.jsが読み込まれていません');
+            btn.disabled = false;
+          }
+        });
+        return;
+      }
+
+      const lastSynced = formatSyncTime(status.lastSyncedAt);
+      root.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:var(--uq-red-light); color:var(--uq-red); display:flex; align-items:center; justify-content:center; font-size:20px;">
+            <span class="material-symbols-outlined">account_circle</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+            <div style="font-size:13.5px; font-weight:800; color:var(--text);">${status.email || '接続中'}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${lastSynced ? '最終同期：' + lastSynced : 'まだ同期していません'}</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <button class="uq-btn" id="syncNowBtn" style="flex:1;">
+            <span class="material-symbols-outlined" style="font-size:16px;">sync</span>
+            今すぐ同期
+          </button>
+          <button class="uq-btn danger" id="syncSignOutBtn" style="flex:1;">
+            <span class="material-symbols-outlined" style="font-size:16px;">logout</span>
+            連携を解除
+          </button>
+        </div>`;
+
+      document.getElementById('syncNowBtn').addEventListener('click', () => {
+        const btn = document.getElementById('syncNowBtn');
+        btn.disabled = true;
+        if (window.kyudoSyncPush) {
+          kyudoSyncPush()
+            .then(() => showToast('同期しました'))
+            .catch(() => showToast('同期に失敗しました'))
+            .finally(() => { btn.disabled = false; });
+        }
+      });
+      document.getElementById('syncSignOutBtn').addEventListener('click', () => {
+        if (!confirm('Googleとの連携を解除しますか？\n（保存済みのデータは削除されません）')) return;
+        if (window.kyudoSyncSignOut) kyudoSyncSignOut();
+        showToast('連携を解除しました');
+      });
+    }
+
+    if (window.kyudoSyncOnChange) {
+      kyudoSyncOnChange(renderSyncUI);
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        const root = document.getElementById('syncBody');
+        if (root && !window.kyudoSyncOnChange) {
+          root.innerHTML = '<div style="font-size:11px; color:var(--text-muted);">同期モジュール（sync.js）が配置されるとGoogle連携が有効になります。</div>';
+        }
+      });
+    }
+
+    loadSettings();
+  </script>
 </body>
 </html>
