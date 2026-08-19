@@ -53,7 +53,7 @@
   var GOOGLE_CLIENT_ID = '134964743683-sb7acs2lha9afcao2a4lo1p5jedaajlj.apps.googleusercontent.com';
   // ↑↑↑ ここまで ↑↑↑
 
-  var SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+  var SCOPES = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
   var SYNC_FILE_NAME = 'kyudo_sync_data.json';
   var LAST_SYNC_KEY = 'kyudo_sync_last_synced_at';
   var SIGNED_IN_KEY = 'kyudo_sync_signed_in';
