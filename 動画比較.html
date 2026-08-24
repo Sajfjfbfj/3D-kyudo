@@ -733,7 +733,7 @@
         </button>
       </div>
 
-      <input type="file" id="fileInput" accept="video/*" style="display:none;">
+      <input type="file" id="fileInput" accept="video/*" multiple style="display:none;">
       <div id="storageStatusBox" style="display:none; font-size:calc(11.5px * var(--font-scale)); border-radius:var(--radius-sm); padding:8px 12px; margin-bottom:10px;"></div>
       <div id="driveBackupStatusBox" style="display:none; font-size:calc(11.5px * var(--font-scale)); border-radius:var(--radius-sm); padding:8px 12px; margin-bottom:10px;"></div>
       <div id="library-root"></div>
@@ -1314,20 +1314,49 @@
     const addModal = document.getElementById('addModalOverlay');
     document.getElementById('addVideoBtn').addEventListener('click', () => fileInput.click());
 
-    fileInput.addEventListener('change', () => {
-      const f = fileInput.files[0];
-      if (!f) return;
-      pendingFile = f;
-      document.getElementById('mTitle').value = f.name.replace(/\.[^/.]+$/, '');
+    // 複数ファイルをまとめて選んだ場合、1件ずつ順番にタイトル等を入力してもらうためのキュー
+    let pendingQueue = [];
+    let pendingQueueTotal = 0;
+
+    function updateAddModalTitle() {
+      const modalTitleEl = document.querySelector('#addModalOverlay h3');
+      if (!modalTitleEl) return;
+      if (pendingQueueTotal > 1) {
+        const current = pendingQueueTotal - pendingQueue.length;
+        modalTitleEl.textContent = `📹 動画情報の入力 (${current}/${pendingQueueTotal}件目)`;
+      } else {
+        modalTitleEl.textContent = '📹 動画情報の入力';
+      }
+    }
+
+    function showNextPendingFile() {
+      if (!pendingQueue.length) {
+        pendingFile = null;
+        pendingQueueTotal = 0;
+        addModal.classList.remove('show');
+        return;
+      }
+      pendingFile = pendingQueue.shift();
+      document.getElementById('mTitle').value = pendingFile.name.replace(/\.[^/.]+$/, '');
       document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
       document.getElementById('mTag').value = '';
+      updateAddModalTitle();
       addModal.classList.add('show');
+    }
+
+    fileInput.addEventListener('change', () => {
+      const files = Array.from(fileInput.files || []);
       fileInput.value = '';
+      if (!files.length) return;
+      pendingQueue = files;
+      pendingQueueTotal = files.length;
+      showNextPendingFile();
     });
 
     document.getElementById('mCancelBtn').addEventListener('click', () => {
+      // このファイルだけスキップして、残りがあれば続けて次の入力画面を表示
       pendingFile = null;
-      addModal.classList.remove('show');
+      showNextPendingFile();
     });
 
     document.getElementById('mSaveBtn').addEventListener('click', async () => {
@@ -1344,14 +1373,16 @@
       meta.unshift({ id, title, date, tag, createdAt: Date.now(), driveFileId: null });
       saveMeta(meta);
 
-      pendingFile = null;
-      addModal.classList.remove('show');
       renderSelectOptions();
       renderLibrary();
       ensurePersistentStorage().then(renderStorageStatus);
 
       // ログイン中なら、保存直後にバックグラウンドでGoogleドライブへもアップロードしておく
       startBackgroundDriveUpload(id, fileToUpload);
+
+      // 続けて次のファイルがあれば、閉じずにそのまま次の入力画面へ
+      pendingFile = null;
+      showNextPendingFile();
     });
 
     // 動画id -> {uploading, percent} のアップロード進捗（画面表示用）
