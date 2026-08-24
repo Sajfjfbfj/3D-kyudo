@@ -4,27 +4,27 @@
   <meta charset="UTF-8" />
   <script>(function(){try{var s=localStorage.getItem("kyudo_font_scale");if(s)document.documentElement.style.setProperty("--font-scale",s);}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>リアル八節くん | 3Dカスタム射法八節エディタ</title>
-  <meta name="description" content="射法八節の解説や筋肉の意識ポイントを自分専用にカスタマイズ。リッチテキスト編集やURL共有、複数ノート保存に対応。" />
+  <title>リアル八節くん | 弓道 射法八節 3D解説</title>
+  <meta name="description" content="弓道・射法八節の動作と筋肉の動きを3Dで視覚的に学べる教材アプリです。全日本弓道連盟の資料に基づいた詳細な解説を掲載。" />
+  <meta name="keywords" content="弓道, 射法八節, 3D, 筋肉, 解剖学, 教材, PWA, UNIQLO UI" />
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Inter & Noto Sans JP -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Material Symbols -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
 
-  <!-- LZ-String (URL圧縮共有用) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
-
   <!-- 3Dモデルファイルの先行読み込み -->
   <link rel="preload" href="弓道基礎１.glb" as="fetch" crossorigin="anonymous">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="弓道 射法八節 3D解説 - リアル八節くん" />
+  <meta property="og:description" content="射法八節の動作を3Dモデルで全方位から確認。筋肉の動きを可視化した弓道学習ツール。" />
   <script src="sync.js"></script>
   <script src="tutorial.js"></script>
-  <script src="qrcode.js"></script>
-  <meta name="theme-color" content="#ffffff">
-  <!-- Web App Manifest -->
-  <link rel="manifest" href="manifest.json">
+
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -35,6 +35,7 @@
   <!-- Web App Manifest -->
   <link rel="manifest" href="manifest.json">
 
+  <meta name="theme-color" content="#ffffff">
 
   <style>
     /* ================================================================
@@ -64,13 +65,16 @@
       --panel: var(--uq-surface);
       
       --color-primary-muscle: #E60012;
+      --color-secondary-muscle: #D97706;
       --color-secondary-bright: #F59E0B;
+      --color-accent-gold: #C5A059;
       --color-success: #1E8E3E;
       --color-warning: #E37400;
 
       --radius-sm: 2px;
       --radius-md: 4px;
       --radius-lg: 6px;
+      --radius-pill: 9999px;
 
       --font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-scale: 1;
@@ -189,27 +193,11 @@
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .uq-app-title-text {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       min-width: 0;
-    }
-
-    .uq-tag-badge {
-      background: var(--uq-red);
-      color: #FFFFFF;
-      font-size:calc(9px * var(--font-scale));
-      font-weight: 800;
-      padding: 1px 5px;
-      border-radius: var(--radius-sm);
-      flex-shrink: 0;
+      display: block;
     }
 
     .uq-app-subtitle {
@@ -223,55 +211,12 @@
     .uq-header-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
-    }
-
-    .uq-header-btn {
-      display: inline-flex;
-      align-items: center;
       gap: 4px;
-      padding: 6px 12px;
-      border-radius: var(--radius-sm);
-      font-size:calc(12px * var(--font-scale));
-      font-weight: 700;
-      border: 1px solid var(--line);
-      background: var(--bg);
-      color: var(--text);
-      white-space: nowrap;
-    }
-
-    .uq-header-btn:hover {
-      background: var(--panel);
-      border-color: var(--uq-gray);
-    }
-
-    .uq-header-btn.primary {
-      background: var(--uq-red);
-      color: #FFFFFF;
-      border-color: var(--uq-red);
-    }
-
-    .uq-header-btn.primary:hover {
-      background: var(--uq-red-hover);
-    }
-
-    .uq-notebook-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 10px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--line);
-      background: var(--panel);
-      font-size:calc(12px * var(--font-scale));
-      font-weight: 700;
-      color: var(--text);
-      max-width: 140px;
     }
 
     .uq-icon-btn {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -399,40 +344,6 @@
       width: 100% !important;
       height: 100% !important;
       touch-action: none;
-    }
-
-    /* MOBILE PORTRAIT: ヘッダーのボタンが多く、幅412px前後だと
-       1行に収まりきらずステージタブと重なってしまうため、
-       ラベルを消してアイコンのみに圧縮する */
-    @media (max-width: 480px) {
-      .uq-header {
-        padding: 0 10px !important;
-        gap: 6px;
-      }
-      .uq-app-subtitle {
-        display: none !important;
-      }
-      .uq-header-actions {
-        gap: 4px !important;
-      }
-      .uq-header-btn {
-        padding: 6px 8px !important;
-        gap: 0 !important;
-      }
-      .uq-header-btn span:not(.material-symbols-outlined) {
-        display: none;
-      }
-      .uq-notebook-btn {
-        max-width: 60px !important;
-        padding: 5px 6px !important;
-      }
-      .uq-notebook-btn span:not(.material-symbols-outlined) {
-        display: none;
-      }
-      .uq-icon-btn {
-        width: 32px !important;
-        height: 32px !important;
-      }
     }
 
     /* DESKTOP SPLIT */
@@ -574,6 +485,39 @@
         flex: 1 1 0 !important;
         overflow-y: auto !important;
         padding: 8px 12px 24px !important;
+      }
+      .uq-spec-header {
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+      }
+      .uq-stage-main-title {
+        font-size:calc(16px * var(--font-scale)) !important;
+      }
+      .uq-stage-en-title {
+        font-size:calc(10.5px * var(--font-scale)) !important;
+      }
+      .uq-stage-desc {
+        font-size:calc(11px * var(--font-scale)) !important;
+        margin-top: 3px !important;
+        line-height: 1.45 !important;
+      }
+      .uq-callout-box {
+        padding: 5px 8px !important;
+        margin: 5px 0 !important;
+        font-size:calc(10px * var(--font-scale)) !important;
+        line-height: 1.4 !important;
+      }
+      .uq-section-title {
+        margin: 10px 0 4px !important;
+        font-size:calc(10px * var(--font-scale)) !important;
+      }
+      .uq-accordion-btn {
+        padding: 6px 2px !important;
+        font-size:calc(11px * var(--font-scale)) !important;
+      }
+      .uq-spec-row {
+        padding: 3px 0 !important;
+        font-size:calc(10px * var(--font-scale)) !important;
       }
     }
 
@@ -741,222 +685,374 @@
       border-color: var(--uq-red) !important;
     }
 
-    /* CONTENT / EDITOR COLUMN */
+    .uq-btn.danger {
+      color: var(--uq-red);
+      background: var(--uq-red-light);
+      border-color: rgba(230,0,18,0.2);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 74px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      opacity: 0;
+      background: var(--uq-black);
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-size:calc(12.5px * var(--font-scale));
+      font-weight: 700;
+      z-index: 4000;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.25s, opacity 0.25s;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* RIGHT CONTENT PANE */
     .uq-content-column {
       flex: 1;
       background: var(--bg);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 16px 20px 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+      padding: 20px 20px 40px;
     }
 
-    /* Sub-tabs for Edit / Preview */
-    .uq-mode-tabs {
+    @media (min-width: 1024px) {
+      .uq-content-column {
+        height: 100%;
+        padding: 28px 32px 60px;
+      }
+    }
+
+    .uq-spec-header {
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 16px;
+    }
+
+    .uq-stage-meta {
       display: flex;
       align-items: center;
-      gap: 6px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 8px;
+      gap: 8px;
+      margin-bottom: 6px;
     }
 
-    .uq-mode-tab {
-      padding: 6px 14px;
+    .uq-badge-step {
+      background: var(--uq-red);
+      color: #FFFFFF;
+      font-size:calc(10px * var(--font-scale));
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      padding: 3px 6px;
       border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .uq-stage-range {
+      font-size:calc(11px * var(--font-scale));
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: 'Inter', monospace;
+    }
+
+    .uq-stage-main-title {
+      font-size:calc(24px * var(--font-scale));
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .uq-stage-en-title {
+      font-size:calc(14px * var(--font-scale));
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .uq-stage-desc {
+      font-size:calc(13.5px * var(--font-scale));
+      line-height: 1.7;
+      color: var(--text-sub);
+      margin-top: 10px;
+    }
+
+    .uq-callout-box {
+      border-left: 3px solid var(--uq-red);
+      background: var(--panel);
+      padding: 12px 14px;
+      margin: 14px 0;
+      font-size:calc(12.5px * var(--font-scale));
+      line-height: 1.6;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .uq-callout-box strong {
+      color: var(--text);
+    }
+
+    .uq-callout-box.tip {
+      border-left-color: var(--color-success);
+    }
+
+    .uq-callout-box.science {
+      border-left-color: var(--uq-black);
+      background: var(--uq-surface-subtle);
+    }
+
+    .uq-section-title {
       font-size:calc(12px * var(--font-scale));
       font-weight: 800;
-      color: var(--text-sub);
-      background: var(--panel);
-      border: 1px solid var(--line);
-    }
-
-    .uq-mode-tab.active {
-      background: var(--uq-black);
-      color: #FFFFFF;
-      border-color: var(--uq-black);
-    }
-
-    [data-theme="dark"] .uq-mode-tab.active {
-      background: var(--uq-red);
-      border-color: var(--uq-red);
-    }
-
-    /* Rich Text Toolbar */
-    .uq-toolbar {
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin: 22px 0 10px;
       display: flex;
       align-items: center;
-      gap: 5px;
-      padding: 6px 10px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      flex-wrap: wrap;
-      margin-bottom: -1px;
+      gap: 8px;
     }
 
-    .uq-toolbar-btn {
-      padding: 5px 10px;
-      border-radius: var(--radius-sm);
-      font-size:calc(11.5px * var(--font-scale));
-      font-weight: 700;
-      background: var(--bg);
-      border: 1px solid var(--line);
-      color: var(--text);
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.12s ease;
+    .uq-section-title .uq-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
     }
 
-    .uq-toolbar-btn:hover {
-      background: var(--panel);
-      border-color: var(--uq-gray);
-      transform: translateY(-1px);
-    }
+    .uq-section-title .uq-dot.red { background: var(--uq-red); }
+    .uq-section-title .uq-dot.gold { background: var(--color-secondary-bright); }
 
-    .uq-toolbar-btn:active {
-      transform: translateY(0);
-    }
-
-    /* Wave Underline & Text Styles */
-    u, .wavy-underline {
-      text-decoration: underline wavy var(--uq-red) !important;
-      text-underline-offset: 3.5px !important;
-    }
-
-    [data-theme="dark"] .uq-toolbar-btn {
-      background: #20242C;
-      border-color: #353B47;
-      color: #E8E8E8;
-    }
-
-    [data-theme="dark"] .uq-toolbar-btn:hover {
-      background: #2C323D;
-      border-color: #555E6E;
-    }
-
-    /* Cards & Inputs */
-    .uq-card-group {
-      background: var(--bg);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      padding: 16px;
+    /* Muscle Chips with In-place Expansion */
+    .uq-tags-grid {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .uq-muscle-chip {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      user-select: none;
+    }
+
+    .uq-muscle-chip:hover {
+      border-color: var(--uq-gray);
+      background: var(--panel);
+    }
+
+    .uq-muscle-chip.primary {
+      border-left: 4px solid var(--uq-red);
+    }
+
+    .uq-muscle-chip.secondary {
+      border-left: 4px solid var(--color-secondary-bright);
+    }
+
+    .uq-muscle-chip.open, .uq-muscle-chip.solo {
+      background: var(--panel) !important;
+      border-color: var(--uq-red);
       box-shadow: var(--shadow-sm);
     }
 
-    .uq-card-title {
-      font-size:calc(12px * var(--font-scale));
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text);
+    .uq-chip-header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
     }
 
-    .uq-field-label {
-      font-size:calc(11px * var(--font-scale));
-      font-weight: 700;
-      color: var(--text-sub);
-      margin-bottom: 4px;
-    }
-
-    .uq-rich-editor {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--line);
-      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-      color: var(--text);
-      font-family: inherit;
-      font-size:calc(13.5px * var(--font-scale));
-      padding: 10px 12px;
-      min-height: 80px;
-      line-height: 1.6;
-      outline: none;
-    }
-
-    .uq-rich-editor:focus {
-      border-color: var(--uq-red);
-    }
-
-    .uq-input-text {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--line);
-      background: var(--bg);
-      color: var(--text);
-      font-family: inherit;
-      font-size:calc(13px * var(--font-scale));
-      outline: none;
-    }
-
-    .uq-input-text:focus {
-      border-color: var(--uq-red);
-    }
-
-    /* Muscle Selector */
-    .uq-chips-selector {
+    .uq-chip-title-wrap {
       display: flex;
-      flex-wrap: wrap;
+      align-items: baseline;
       gap: 6px;
     }
 
-    .uq-selector-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 5px 10px;
-      border-radius: var(--radius-sm);
-      font-size:calc(11.5px * var(--font-scale));
-      font-weight: 700;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: var(--text-sub);
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.15s;
-    }
-
-    .uq-selector-chip:hover {
-      border-color: var(--uq-gray);
+    .uq-chip-name {
+      font-size:calc(13.5px * var(--font-scale));
+      font-weight: 800;
       color: var(--text);
     }
 
-    .uq-selector-chip.primary-sel {
-      background: var(--uq-red);
-      color: #FFFFFF;
-      border-color: var(--uq-red);
+    .uq-chip-yomi {
+      font-size:calc(10.5px * var(--font-scale));
+      color: var(--text-muted);
     }
 
-    .uq-selector-chip.secondary-sel {
-      background: var(--color-secondary-bright);
-      color: #FFFFFF;
-      border-color: var(--color-secondary-bright);
-    }
-
-    .uq-checkpoint-row {
+    .uq-chip-meta-right {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
     }
 
-    .uq-checkpoint-del {
-      color: var(--uq-red);
+    .uq-chip-location-badge {
+      font-size:calc(10.5px * var(--font-scale));
+      font-weight: 700;
+      color: var(--text-sub);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+    }
+
+    .uq-chip-expand-icon {
       font-size:calc(18px * var(--font-scale));
-      padding: 4px;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
     }
 
-    /* DRAWER */
+    .uq-muscle-chip.open .uq-chip-expand-icon {
+      transform: rotate(180deg);
+      color: var(--uq-red);
+    }
+
+    .uq-chip-body {
+      display: none;
+      padding-top: 10px;
+      margin-top: 4px;
+      border-top: 1px dashed var(--line);
+      font-size:calc(12.5px * var(--font-scale));
+      line-height: 1.6;
+      color: var(--text-sub);
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .uq-muscle-chip.open .uq-chip-body {
+      display: flex;
+    }
+
+    .uq-chip-desc {
+      color: var(--text);
+      font-size:calc(12.5px * var(--font-scale));
+    }
+
+    .uq-chip-row {
+      font-size:calc(12px * var(--font-scale));
+      display: flex;
+      gap: 6px;
+    }
+
+    .uq-chip-row-label {
+      font-weight: 800;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .uq-chip-tip {
+      font-size:calc(12px * var(--font-scale));
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--color-success);
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      margin-top: 2px;
+    }
+
+    /* Accordions */
+    .uq-accordion-list {
+      border-top: 1px solid var(--line);
+      margin-top: 20px;
+    }
+
+    .uq-accordion-item {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .uq-accordion-btn {
+      width: 100%;
+      padding: 16px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size:calc(13.5px * var(--font-scale));
+      font-weight: 800;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .uq-accordion-btn-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .uq-accordion-arrow {
+      font-size:calc(18px * var(--font-scale));
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .uq-accordion-item.open .uq-accordion-arrow {
+      transform: rotate(180deg);
+    }
+
+    .uq-accordion-body {
+      display: none;
+      padding: 0 4px 16px;
+      font-size:calc(12.5px * var(--font-scale));
+      line-height: 1.7;
+      color: var(--text-sub);
+    }
+
+    .uq-accordion-item.open .uq-accordion-body {
+      display: block;
+    }
+
+    .uq-spec-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line-subtle);
+    }
+
+    .uq-spec-row:last-child {
+      border-bottom: none;
+    }
+
+    .uq-spec-icon {
+      font-size:calc(14px * var(--font-scale));
+      font-weight: 800;
+      color: var(--uq-red);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .uq-spec-text strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .uq-warning-banner {
+      background: var(--uq-red-light);
+      border: 1px solid rgba(230, 0, 18, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size:calc(12px * var(--font-scale));
+      color: var(--uq-red);
+      line-height: 1.5;
+    }
+
+    /* SIDE DRAWER */
     .uq-drawer-overlay {
       position: fixed;
       inset: 0;
@@ -1039,6 +1135,10 @@
       background: var(--uq-red-light);
     }
 
+    .uq-drawer-link .material-symbols-outlined {
+      font-size:calc(20px * var(--font-scale));
+    }
+
     /* MODAL */
     .uq-modal-overlay {
       position: fixed;
@@ -1046,12 +1146,18 @@
       background: rgba(0,0,0,0.6);
       z-index: 3000;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
-      padding: 20px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
+    }
+
+    @media (min-width: 640px) {
+      .uq-modal-overlay {
+        align-items: center;
+        padding: 20px;
+      }
     }
 
     .uq-modal-overlay.show {
@@ -1062,13 +1168,24 @@
     .uq-modal-card {
       background: var(--bg);
       width: 100%;
-      max-width: 480px;
-      max-height: 85vh;
-      overflow-y: auto;
-      border-radius: var(--radius-md);
+      max-width: 440px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
       padding: 24px;
       position: relative;
       box-shadow: var(--shadow-lg);
+      transform: translateY(20px);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @media (min-width: 640px) {
+      .uq-modal-card {
+        border-radius: var(--radius-md);
+        transform: translateY(0) scale(0.95);
+      }
+    }
+
+    .uq-modal-overlay.show .uq-modal-card {
+      transform: translateY(0) scale(1);
     }
 
     .uq-modal-close {
@@ -1078,73 +1195,11 @@
       color: var(--text-muted);
     }
 
-    /* SHARE MODAL */
-    .uq-share-qr-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 16px;
-      background: #FFFFFF;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--line);
-      margin-bottom: 16px;
-    }
-
-    .uq-share-qr-wrap svg {
-      width: 200px;
-      height: 200px;
-      display: block;
-    }
-
-    .uq-share-url-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .uq-share-url-input {
-      flex: 1;
-      min-width: 0;
-      padding: 9px 10px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--line);
-      background: var(--panel);
+    .uq-modal-close:hover {
       color: var(--text);
-      font-size:calc(11.5px * var(--font-scale));
-      font-family: inherit;
     }
 
-    .uq-share-hint {
-      font-size:calc(11.5px * var(--font-scale));
-      color: var(--text-sub);
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    /* Toast */
-    #toast {
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--uq-black);
-      color: #FFFFFF;
-      padding: 10px 18px;
-      border-radius: var(--radius-sm);
-      font-size:calc(12.5px * var(--font-scale));
-      font-weight: 700;
-      z-index: 9999;
-      opacity: 0;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      pointer-events: none;
-      box-shadow: var(--shadow-md);
-      white-space: nowrap;
-    }
-
-    #toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
+    /* Loading Overlay */
     #loading-screen {
       position: absolute;
       inset: 0;
@@ -1181,36 +1236,23 @@
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- TOP APP BAR -->
   <header class="uq-header">
     <div class="uq-brand">
-      <div class="uq-logo-box"><img src="favicon-96x96.png" alt="リアル八節くん" width="30" height="30"></div>
+      <div class="uq-logo-badge">
+        <div class="uq-logo-box"><img src="favicon-96x96.png" alt="リアル八節くん" width="30" height="30"></div>
+      </div>
       <div class="uq-app-title-wrap">
-        <span class="uq-app-title">
-          <span class="uq-app-title-text">リアル八節くん</span>
-          <span class="uq-tag-badge">3Dエディタ</span>
-        </span>
-        <span class="uq-app-subtitle">KYUDO 3D CUSTOM NOTE</span>
+        <span class="uq-app-title">リアル八節くん</span>
+        <span class="uq-app-subtitle">KYUDO 3D ANATOMY</span>
       </div>
     </div>
-
-    <!-- Actions -->
     <div class="uq-header-actions">
-      <button class="uq-notebook-btn" onclick="openNotebookModal()" title="ノートを切り替え">
-        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">book</span>
-        <span id="currentNotebookName">ノート1</span>
-      </button>
-      <button class="uq-header-btn" onclick="importData()" title="インポート">
-        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">download</span><span class="uq-btn-label">インポート</span>
-      </button>
-      <button class="uq-header-btn" onclick="openShare()" title="共有">
-        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">share</span><span class="uq-btn-label">共有</span>
-      </button>
-      <button class="uq-header-btn primary" onclick="saveAll()" title="保存">
-        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">save</span><span class="uq-btn-label">すべて保存</span>
-      </button>
       <button class="uq-icon-btn" id="themeToggleBtn" aria-label="テーマ切替" title="ダーク/ライト切替">
         <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+      </button>
+      <button class="uq-icon-btn" id="authHeaderBtn" onclick="handleAuthClick()" aria-label="アカウント">
+        <span class="material-symbols-outlined" id="authHeaderIcon">account_circle</span>
       </button>
       <button class="uq-icon-btn" id="menuToggleBtn" onclick="toggleDrawer()" aria-label="メニュー">
         <span class="material-symbols-outlined">menu</span>
@@ -1218,7 +1260,7 @@
     </div>
   </header>
 
-  <!-- STAGE SELECTOR TABS -->
+  <!-- STAGE SELECTOR -->
   <nav class="uq-stage-tabs-container" aria-label="射法八節ステップ">
     <div class="uq-stage-tabs" id="stageTabs"></div>
   </nav>
@@ -1230,7 +1272,7 @@
       <div class="uq-viewer-overlay-top">
         <div class="uq-chip-status">
           <span class="uq-live-dot"></span>
-          <span id="currentStageChip">第1節 足踏み</span>
+          <span id="currentStageChip">01 足踏み</span>
         </div>
         <div class="uq-viewer-hint">ドラッグ回転 / ピンチ拡大</div>
       </div>
@@ -1250,13 +1292,13 @@
         </div>
         <div class="uq-controls-btn-row">
           <div class="uq-btn-group">
-            <button class="uq-btn primary" id="playBtn" title="全体再生" aria-label="再生">
+            <button class="uq-btn primary" id="playBtn" title="再生" aria-label="再生">
               <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">play_arrow</span><span class="uq-btn-label">再生</span>
             </button>
             <button class="uq-btn" id="pauseBtn" title="停止" aria-label="停止">
               <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">pause</span><span class="uq-btn-label">停止</span>
             </button>
-            <button class="uq-btn" id="resetBtn" title="先頭に戻す" aria-label="リセット">
+            <button class="uq-btn" id="resetBtn" title="最初から再生" aria-label="リセット">
               <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">replay</span><span class="uq-btn-label">リセット</span>
             </button>
           </div>
@@ -1269,136 +1311,86 @@
       </div>
     </section>
 
-    <!-- RIGHT: EDITOR & PREVIEW -->
+    <!-- RIGHT: PRODUCT SPEC & ANATOMY CONTENT -->
     <article class="uq-content-column">
-      <!-- Mode Switcher -->
-      <div class="uq-mode-tabs">
-        <button class="uq-mode-tab active" id="tabBtnEdit" onclick="switchModeTab('edit')">✏️ 編集モード</button>
-        <button class="uq-mode-tab" id="tabBtnView" onclick="switchModeTab('view')">👁 プレビュー</button>
-        <span style="margin-left:auto; font-size:calc(11px * var(--font-scale)); color:var(--text-muted);" id="lastSavedLabel"></span>
+      <div class="uq-spec-header">
+        <div class="uq-stage-meta">
+          <span class="uq-badge-step" id="stageStepBadge">STEP 01</span>
+          <span class="uq-stage-range" id="stageRange">F1 - F9</span>
+        </div>
+        <h1 class="uq-stage-main-title">
+          <span id="stageName">足踏み</span>
+          <span class="uq-stage-en-title" id="stageEn">Ashibumi</span>
+        </h1>
+        <p class="uq-stage-desc" id="stageDesc">
+          すべての動作のスタート地点となる「立ち位置」を決めます。的（まと）に対して体を正しい向きに置き、安定した土台を作る大切な一歩です。
+        </p>
       </div>
 
-      <!-- EDIT PANE -->
-      <div id="paneEdit" style="display:flex; flex-direction:column; gap:16px;">
-        <!-- Card 1: 基本解説 -->
-        <div class="uq-card-group">
-          <div class="uq-card-title">📋 この節の基本解説</div>
-          
-          <!-- 1. 動作の説明・やること -->
-          <div>
-            <div class="uq-field-label">📖 動作の説明・やること</div>
-            <div class="uq-toolbar">
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('bold', null, event)" title="太字"><b>B 太字</b></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('wavy', null, event)" title="波線"><u>〰 波線</u></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#E60012', event)" title="赤字"><span style="color:#E60012; font-weight:800;">🔴 赤字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#0066CC', event)" title="青字"><span style="color:#0066CC; font-weight:800;">🔵 青字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('marker', null, event)" title="マーカー"><span style="background:#FFF3CD; color:#111; padding:0 3px; font-weight:700;">🖍 マーカー</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('reset', null, event)" title="標準（リセット）">↩ 標準</button>
-            </div>
-            <div class="uq-rich-editor" id="f-desc" contenteditable="true"></div>
-          </div>
+      <!-- KEY ANALOGY & TIPS -->
+      <div class="uq-callout-box" id="stageAnalogy"></div>
+      <div class="uq-callout-box tip" id="stageAdvice"></div>
+      <div class="uq-callout-box science" id="stageMuscleNote"></div>
 
-          <!-- 2. たとえ・アナロジー（イメージ） -->
-          <div>
-            <div class="uq-field-label">🎭 たとえ・アナロジー（イメージ）</div>
-            <div class="uq-toolbar">
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('bold', null, event)" title="太字"><b>B 太字</b></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('wavy', null, event)" title="波線"><u>〰 波線</u></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#E60012', event)" title="赤字"><span style="color:#E60012; font-weight:800;">🔴 赤字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#0066CC', event)" title="青字"><span style="color:#0066CC; font-weight:800;">🔵 青字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('marker', null, event)" title="マーカー"><span style="background:#FFF3CD; color:#111; padding:0 3px; font-weight:700;">🖍 マーカー</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('reset', null, event)" title="標準（リセット）">↩ 標準</button>
-            </div>
-            <div class="uq-rich-editor" id="f-analogy" contenteditable="true" style="min-height:60px;"></div>
-          </div>
-
-          <!-- 3. コツ・自分へのアドバイス -->
-          <div>
-            <div class="uq-field-label">💡 コツ・自分へのアドバイス</div>
-            <div class="uq-toolbar">
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('bold', null, event)" title="太字"><b>B 太字</b></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('wavy', null, event)" title="波線"><u>〰 波線</u></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#E60012', event)" title="赤字"><span style="color:#E60012; font-weight:800;">🔴 赤字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#0066CC', event)" title="青字"><span style="color:#0066CC; font-weight:800;">🔵 青字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('marker', null, event)" title="マーカー"><span style="background:#FFF3CD; color:#111; padding:0 3px; font-weight:700;">🖍 マーカー</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('reset', null, event)" title="標準（リセット）">↩ 標準</button>
-            </div>
-            <div class="uq-rich-editor" id="f-advice" contenteditable="true" style="min-height:60px;"></div>
-          </div>
-
-          <!-- 4. 自由メモ -->
-          <div>
-            <div class="uq-field-label">📝 自由メモ</div>
-            <div class="uq-toolbar">
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('bold', null, event)" title="太字"><b>B 太字</b></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('wavy', null, event)" title="波線"><u>〰 波線</u></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#E60012', event)" title="赤字"><span style="color:#E60012; font-weight:800;">🔴 赤字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#0066CC', event)" title="青字"><span style="color:#0066CC; font-weight:800;">🔵 青字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('marker', null, event)" title="マーカー"><span style="background:#FFF3CD; color:#111; padding:0 3px; font-weight:700;">🖍 マーカー</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('reset', null, event)" title="標準（リセット）">↩ 標準</button>
-            </div>
-            <div class="uq-rich-editor" id="f-memo" contenteditable="true" style="min-height:70px;"></div>
-          </div>
-        </div>
-
-        <!-- Card 2: 筋肉設定 -->
-        <div class="uq-card-group">
-          <div class="uq-card-title">💪 3D筋肉の選択と意識メモ</div>
-          <p style="font-size:calc(11px * var(--font-scale)); color:var(--text-muted); margin-top:-6px;">タップすると3Dモデル上の筋肉がリアルタイムに色分けされます。</p>
-
-          <div>
-            <div class="uq-field-label" style="color:var(--uq-red);">🔴 主動筋・メインで使う筋肉</div>
-            <div class="uq-chips-selector" id="primaryMuscleGrid"></div>
-          </div>
-
-          <div style="margin-top:6px;">
-            <div class="uq-field-label" style="color:var(--color-secondary-bright);">🟡 補助・安定筋（Secondary）</div>
-            <div class="uq-chips-selector" id="secondaryMuscleGrid"></div>
-          </div>
-
-          <div id="muscleMemoArea" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
-        </div>
-
-        <!-- Card 3: 手の内 -->
-        <div class="uq-card-group">
-          <div class="uq-card-title">🤚 手の内（てのうち）チェックポイント</div>
-          <div id="tenouchiList"></div>
-          <button class="uq-btn" onclick="addCheckpoint('tenouchi')" style="align-self:flex-start;">＋ チェックポイントを追加</button>
-          
-          <div style="margin-top:8px;">
-            <div class="uq-field-label">⚠ 手の内 注意メモ</div>
-            <div class="uq-toolbar">
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('bold', null, event)" title="太字"><b>B 太字</b></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('wavy', null, event)" title="波線"><u>〰 波線</u></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#E60012', event)" title="赤字"><span style="color:#E60012; font-weight:800;">🔴 赤字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('color', '#0066CC', event)" title="青字"><span style="color:#0066CC; font-weight:800;">🔵 青字</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('marker', null, event)" title="マーカー"><span style="background:#FFF3CD; color:#111; padding:0 3px; font-weight:700;">🖍 マーカー</span></button>
-              <button type="button" class="uq-toolbar-btn" onmousedown="applyFormat('reset', null, event)" title="標準（リセット）">↩ 標準</button>
-            </div>
-            <div class="uq-rich-editor" id="f-tenouchiWarning" contenteditable="true" style="min-height:50px;"></div>
-          </div>
-        </div>
-
-        <!-- Card 4: ミス・コツ -->
-        <div class="uq-card-group">
-          <div class="uq-card-title">⚠ やりがちなミス・注意点</div>
-          <div id="missList"></div>
-          <button class="uq-btn" onclick="addCheckpoint('miss')" style="align-self:flex-start;">＋ ミス/コツを追加</button>
-        </div>
-
-        <!-- Stage Actions -->
-        <div style="display:flex; gap:8px; padding-bottom:12px;">
-          <button class="uq-btn primary" onclick="saveCurrentStage()" style="flex:1;">💾 この節を保存</button>
-          <button class="uq-btn" onclick="resetCurrentStage()">↩ リセット</button>
-        </div>
+      <!-- PRIMARY MUSCLES -->
+      <div class="uq-section-title">
+        <span class="uq-dot red"></span>
+        <span>🔴 主動筋・メインで使用する筋肉（タップで詳細＆3D強調）</span>
       </div>
+      <div class="uq-tags-grid" id="primaryTags"></div>
 
-      <!-- PREVIEW PANE -->
-      <div id="paneView" style="display:none; flex-direction:column; gap:14px;">
-        <div class="uq-card-group" id="previewDesc"></div>
-        <div class="uq-card-group" id="previewMuscles"></div>
-        <div class="uq-card-group" id="previewTenouchi"></div>
-        <div class="uq-card-group" id="previewMiss"></div>
+      <!-- SECONDARY MUSCLES -->
+      <div class="uq-section-title">
+        <span class="uq-dot gold"></span>
+        <span>🟡 補助・安定筋（Secondary Muscles）</span>
+      </div>
+      <div class="uq-tags-grid" id="secondaryTags"></div>
+
+      <!-- ACCORDIONS -->
+      <div class="uq-accordion-list">
+        <!-- 手の内 -->
+        <div class="uq-accordion-item open" id="accordionTenouchi">
+          <button class="uq-accordion-btn" onclick="toggleAccordion('accordionTenouchi')">
+            <span class="uq-accordion-btn-label">
+              <span class="material-symbols-outlined" style="font-size:calc(18px * var(--font-scale)); color:var(--uq-red);">pan_tool</span>
+              <span>手の内（てのうち）チェックポイント</span>
+            </span>
+            <span class="material-symbols-outlined uq-accordion-arrow">expand_more</span>
+          </button>
+          <div class="uq-accordion-body" id="tenouchiBody">
+            <div id="tenouchiPoints"></div>
+            <div id="tenouchiWarning" class="uq-warning-banner" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- やりがちなミス・コツ -->
+        <div class="uq-accordion-item open" id="accordionMiss">
+          <button class="uq-accordion-btn" onclick="toggleAccordion('accordionMiss')">
+            <span class="uq-accordion-btn-label">
+              <span class="material-symbols-outlined" style="font-size:calc(18px * var(--font-scale)); color:var(--color-warning);">warning</span>
+              <span>やりがちなミス・注意点</span>
+            </span>
+            <span class="material-symbols-outlined uq-accordion-arrow">expand_more</span>
+          </button>
+          <div class="uq-accordion-body" id="missBody">
+            <div id="missPoints"></div>
+          </div>
+        </div>
+
+        <!-- 使い方 -->
+        <div class="uq-accordion-item" id="accordionGuide">
+          <button class="uq-accordion-btn" onclick="toggleAccordion('accordionGuide')">
+            <span class="uq-accordion-btn-label">
+              <span class="material-symbols-outlined" style="font-size:calc(18px * var(--font-scale));">help_outline</span>
+              <span>使い方・3Dモデルの操作凡例</span>
+            </span>
+            <span class="material-symbols-outlined uq-accordion-arrow">expand_more</span>
+          </button>
+          <div class="uq-accordion-body">
+            <p>🏹 <strong>操作方法</strong>：上部のステップタブで射法八節を切り替えます。3Dモデルは1本指/マウスでドラッグして360度回転、ピンチ/ホイールで拡大縮小が可能です。<br>
+            🔴 <strong>筋肉タグ</strong>：タップすると該当する筋肉の詳細が展開され、3Dモデル上で強調表示（ソロ表示）されます。もう一度タップすると元の表示に戻ります。</p>
+          </div>
+        </div>
       </div>
     </article>
   </main>
@@ -1415,7 +1407,7 @@
     </div>
     <div class="uq-drawer-body">
       <div class="uq-drawer-section-label">PAGE SELECT</div>
-      <a href="index.html" class="uq-drawer-link">
+      <a href="index.html" class="uq-drawer-link active">
         <span class="material-symbols-outlined">accessibility_new</span>
         <span>一般用（標準モード）</span>
       </a>
@@ -1423,7 +1415,7 @@
         <span class="material-symbols-outlined">school</span>
         <span>中高生用（やさしい解説）</span>
       </a>
-      <a href="カスタム.html" class="uq-drawer-link active">
+      <a href="カスタム.html" class="uq-drawer-link">
         <span class="material-symbols-outlined">edit_note</span>
         <span>3Dカスタマイズ</span>
       </a>
@@ -1450,48 +1442,25 @@
     </div>
   </aside>
 
-  <!-- NOTEBOOK MODAL -->
-  <div class="uq-modal-overlay" id="notebookModal" onclick="if(event.target===this) closeNotebookModal()">
+  <!-- ACCOUNT / SYNC MODAL -->
+  <div class="uq-modal-overlay" id="authModalOverlay" onclick="if(event.target===this) closeAuthModal()">
     <div class="uq-modal-card">
-      <button class="uq-icon-btn uq-modal-close" onclick="closeNotebookModal()">
+      <button class="uq-icon-btn uq-modal-close" onclick="closeAuthModal()" aria-label="閉じる">
         <span class="material-symbols-outlined">close</span>
       </button>
-      <h3 style="font-size:calc(16px * var(--font-scale)); font-weight:900; margin-bottom:12px;">📓 ノート切り替え・新規作成</h3>
-      
-      <div style="display:flex; gap:6px; margin-bottom:16px;">
-        <input type="text" id="newNotebookName" class="uq-input-text" placeholder="新しいノート名" style="flex:1;">
-        <button class="uq-btn primary" onclick="createNotebook()">作成</button>
+      <h2 style="font-size:calc(15px * var(--font-scale)); font-weight:900; color:var(--text); margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+        <span class="material-symbols-outlined" style="font-size:calc(18px * var(--font-scale));">cloud_sync</span>
+        アカウント連携・同期
+      </h2>
+      <div id="authModalBody" style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
+        <!-- JSで描画 -->
       </div>
-
-      <div style="font-size:calc(12px * var(--font-scale)); font-weight:700; color:var(--text-sub); margin-bottom:8px;">保存済みノート一覧</div>
-      <div id="notebookList" style="display:flex; flex-direction:column; gap:8px;"></div>
-    </div>
-  </div>
-
-  <!-- SHARE MODAL -->
-  <div class="uq-modal-overlay" id="shareModal" onclick="if(event.target===this) closeShareModal()">
-    <div class="uq-modal-card">
-      <button class="uq-icon-btn uq-modal-close" onclick="closeShareModal()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-      <h3 style="font-size:calc(16px * var(--font-scale)); font-weight:900; margin-bottom:12px;">🔗 ノートを共有</h3>
-
-      <div class="uq-share-qr-wrap" id="shareQrWrap"></div>
-
-      <div class="uq-share-url-row">
-        <input type="text" id="shareUrlInput" class="uq-share-url-input" readonly>
-        <button class="uq-header-btn primary" onclick="copyShareUrl()" style="flex-shrink:0;">
-          <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">content_copy</span>コピー
-        </button>
-      </div>
-
-      <p class="uq-share-hint">スマホのカメラでQRコードを読み取るか、URLをコピーして送ると、相手はこのノートを「閲覧用プレビュー」でそのまま開けます。</p>
     </div>
   </div>
 
   <div id="toast"></div>
 
-  <!-- THREE.JS -->
+  <!-- THREE.JS SCRIPT & LOGIC -->
   <script type="importmap">
     {
       "imports": {
@@ -1506,15 +1475,35 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // 筋肉リスト
-    const MUSCLES = [
-      '大腿四頭筋', 'ハムストリングス', '大殿筋', '内転筋', '腸腰筋',
-      '脊柱起立筋', '腹横筋', '腹直筋', '外腹斜筋', '多裂筋',
-      '僧帽筋上部', '僧帽筋中下部', '菱形筋', '広背筋', '大胸筋',
-      '前鋸筋', '三角筋', '大円筋', '小円筋', '棘上筋',
-      '棘下筋', '肩甲下筋', '上腕三頭筋', '上腕二頭筋', '腕橈骨筋',
-      '胸鎖乳突筋'
-    ];
+    // 筋肉詳細データ
+    const MUSCLE_READING = {
+      '大腿四頭筋': { yomi: 'だいたいしとうきん', icon: '🦵', desc: '太ももの前側にある体で一番大きな筋肉群。膝を力強く伸ばし足を踏みしめます。', location: '太もも前側（前面）', role: '膝を伸ばす・足を踏みしめる力', tip: '「地面をしっかり踏む」土台の力をここで作ります。' },
+      'ハムストリングス': { yomi: 'はむすとりんぐす', icon: '🦵', desc: '太ももの裏側にある筋肉のまとまり。立ち姿勢の前後バランスを保ちます。', location: '太もも裏側（後面）', role: '膝を曲げる・体を前に倒れないよう支える', tip: '大腿四頭筋と一緒に働き、姿勢の安定を作ります。' },
+      '大殿筋': { yomi: 'だいでんきん', icon: '🍑', desc: 'お尻の強大な筋肉。骨盤をまっすぐに保ち、体全体の安定を支えます。', location: 'お尻全体', role: '股関節を伸ばす・骨盤と姿勢を安定させる', tip: 'ここが抜けると腰が引けてしまいます。引き分け時の土台です。' },
+      '内転筋': { yomi: 'ないてんきん', icon: '🦵', desc: '太ももの内側にある筋肉。足を内側に引き寄せ、骨盤を安定させます。', location: '太もも内側', role: '足を内側に引き寄せる・足幅の維持', tip: '足踏みで足が外側に開きすぎないよう安定させます。' },
+      '腸腰筋': { yomi: 'ちょうようきん', icon: '💪', desc: '腰の奥から太ももへとつながる最重要インナーマッスル。', location: '腰の深部〜股関節', role: '股関節を安定させる・骨盤を立てる', tip: '上半身と下半身をつなぐ要。体軸のブレを防ぎます。' },
+      '脊柱起立筋': { yomi: 'せきちゅうきりつきん', icon: '🗼', desc: '背骨に沿って走る筋肉群。背すじをピンと伸ばす「胴造り」の主役。', location: '背骨の両脇（背中中央）', role: '背骨をまっすぐ保つ・上体を起こす', tip: '美しい縦の姿勢（三重十文字）を作る基礎です。' },
+      '腹横筋': { yomi: 'ふくおうきん', icon: '🎽', desc: 'お腹を天然のコルセットのように360度覆う深層インナーマッスル。', location: 'お腹の深層（腹部最内側）', role: '腹圧を高め腰椎を保護・体幹の安定', tip: '息を吐きながら下腹部を締める感覚で働きます。' },
+      '腹直筋': { yomi: 'ふくちょくきん', icon: '💪', desc: 'お腹の正面にある縦長の筋肉。腹横筋とともに体幹を支えます。', location: 'お腹の正面（前面）', role: '姿勢を安定させる・前屈力', tip: '反り腰にならないよう前後のバランスを取ります。' },
+      '外腹斜筋': { yomi: 'がいふくしゃきん', icon: '🔄', desc: '脇腹を斜めに走る筋肉。胴体のねじれを防ぎます。', location: '脇腹〜腰まわり', role: '体幹の回旋・側屈の制御', tip: '胴造りで左右均等に引き締めます。' },
+      '多裂筋': { yomi: 'たれつきん', icon: '🗼', desc: '背骨の骨と骨の間に密着する深層筋。背骨を細かく安定させます。', location: '背骨の深層', role: '背骨の各関節の安定化', tip: '腹横筋と連動して強固な体幹を作ります。' },
+      '僧帽筋上部': { yomi: 'そうぼうきんじょうぶ', icon: '🧍', desc: '肩から首にかかる筋肉。弓道ではここを過剰に力ませずリラックスさせます。', location: '首〜肩の上部', role: '肩甲骨の挙上', tip: '肩が上がらないよう、意識的に脱力して肩を沈めます。' },
+      '僧帽筋中下部': { yomi: 'そうぼうきんちゅうかぶ', icon: '🦅', desc: '背中の中央〜下方。肩甲骨を内側・下側に引き寄せる弓道の重要筋肉。', location: '肩甲骨〜背中中央', role: '肩甲骨の内転・下制', tip: '引き分けで肩甲骨を背骨に引き込む原動力です。' },
+      '菱形筋': { yomi: 'りょうけいきん', icon: '🔷', desc: '肩甲骨と背骨をつなぐひし形の筋肉。肩甲骨を寄せます。', location: '肩甲骨と背骨の間', role: '肩甲骨を引き寄せる', tip: '胸を開き、背中を大きく使う感覚を生み出します。' },
+      '広背筋': { yomi: 'こうはいきん', icon: '🦅', desc: '背中の下半分を覆う最大面積の筋肉。引き分けの主役！', location: '背中全体〜脇の下', role: '腕を後下方へ引き込む', tip: '「肘で引く」感覚でこの大筋肉をフル活用します。' },
+      '大胸筋': { yomi: 'だいきょうきん', icon: '💪', desc: '胸の正面の大きな筋肉。弓手を力強く押し開きます。', location: '胸部前面', role: '腕を前に押し出す・水平内転', tip: '離れの瞬間に弓手を的に向けて押し切る力となります。' },
+      '前鋸筋': { yomi: 'ぜんきょきん', icon: '⚙️', desc: '脇腹の肋骨沿いにある筋肉。肩甲骨を肋骨に密着させます。', location: '脇腹〜肋骨側面', role: '肩甲骨の前方突出・安定化', tip: '腕ではなく肩甲骨根元から弓を押し開く感覚を作ります。' },
+      '三角筋': { yomi: 'さんかくきん', icon: '🔺', desc: '肩を覆う筋肉。腕を全方向に持ち上げる働きをします。', location: '肩の外側', role: '腕の挙上（外転・屈曲）', tip: '打ち起こしで腕を持ち上げる際に働きます。' },
+      '大円筋': { yomi: 'だいえんきん', icon: '💪', desc: '広背筋と協力して腕を後ろ下に引く筋肉。', location: '肩甲骨下部〜上腕', role: '腕の内転・伸展', tip: '引き分けで弦を力強く引き込むサポートをします。' },
+      '小円筋': { yomi: 'しょうえんきん', icon: '🔩', desc: '肩のインナーマッスル（腱板）の1つ。肩関節を外旋させます。', location: '肩甲骨後面', role: '肩関節の外旋・保護', tip: '肩関節を正しい位置に保ちます。' },
+      '棘上筋': { yomi: 'きょくじょうきん', icon: '🔩', desc: '肩甲骨上部の腱板筋。腕の持ち上げ始めをサポート。', location: '肩甲骨上部', role: '腕の初動挙上・関節安定', tip: '弓構えで肩のポジションを正しくセットします。' },
+      '棘下筋': { yomi: 'きょくかきん', icon: '🔄', desc: '肩関節の後方安定を担う最重要インナーマッスル。', location: '肩甲骨後面', role: '肩関節の外旋・後方安定', tip: '肩が前に巻き込まれないよう防ぎます。' },
+      '肩甲下筋': { yomi: 'けんこうかきん', icon: '🔩', desc: '肩甲骨の裏側にある最大の腱板筋。', location: '肩甲骨の内面', role: '肩関節の内旋・関節包の補強', tip: '肩関節を中心位置にしっかりと保持します。' },
+      '上腕三頭筋': { yomi: 'じょうわんさんとうきん', icon: '💪', desc: '二の腕の裏側の筋肉。肘をまっすぐ伸ばします。', location: '上腕後面', role: '肘関節の伸展', tip: '弓手をまっすぐ押し通すために不可欠です。' },
+      '上腕二頭筋': { yomi: 'じょうわんにとうきん', icon: '💪', desc: '二の腕の表側（力こぶ）。弓道では過度な力みを避けます。', location: '上腕前面', role: '肘の屈曲', tip: '力みすぎると腕が縮むため適度にリラックスさせます。' },
+      '腕橈骨筋': { yomi: 'わんとうこつきん', icon: '🦾', desc: '前腕の外側の筋肉。手首と肘の安定に寄与。', location: '前腕外側', role: '前腕の回旋中間位維持', tip: '手の内の形を自然に保持します。' },
+      '胸鎖乳突筋': { yomi: 'きょうさにゅうとつきん', icon: '🧍', desc: '首の横を走る太い筋肉。物見で的を向くときに働きます。', location: '首の側面', role: '頭部の回旋・首の安定', tip: 'アゴが上がらないよう水平に的を見据えます。' },
+    };
 
     const MUSCLE_NODES = {
       大腿四頭筋:      ['筋_大腿四頭筋_L',    '筋_大腿四頭筋_R'],
@@ -1549,179 +1538,150 @@
     const MAX_FRAME = 80;
     const MAX_TIME = MAX_FRAME / FPS;
 
-    const STAGE_DEFAULTS = [
-      { step: "第1節", name: "足踏み", en: "Ashibumi", frame: 1, range: "F1 - F9",
+    const stages = [
+      {
+        step: "STEP 01", name: "足踏み", en: "Ashibumi", frame: 1, range: "F1 - F9",
         desc: "すべての動作のスタート地点となる「立ち位置」を決めます。的（まと）に対して体を正しい向きに置き、安定した土台を作る大切な一歩です。",
-        analogy: "💬 <strong>イメージ：根っこを張った大木</strong> — 地面にしっかり根を張るように、どっしりと立つイメージで！",
-        advice: "✅ <strong>コツ：足裏均等</strong> — 足の裏全体で地面を均等に踏みしめよう。体重は足の親指の付け根あたりを意識するといいよ。",
-        memo: "",
-        primaryMuscles: ['大腿四頭筋', 'ハムストリングス', '大殿筋', '脊柱起立筋'],
-        secondaryMuscles: ['内転筋', '腸腰筋', '腹横筋', '多裂筋'],
-        muscleMemos: {},
-        tenouchiCheckpoints: [
-          'この段階では弓を持つだけ！まだ手の形は作らなくてOK。',
-          '手の力を抜き、指が緊張していないことを確認する。'
+        analogy: "<strong>イメージ：根っこを張った大木</strong> — 地面にしっかり根を張るように、どっしりと立つイメージで構えます。",
+        advice: "<strong>コツ：足裏均等荷重</strong> — 足裏全体で地面を踏みしめ、親指の付け根（母指球）あたりを意識します。",
+        muscleNote: "<strong>バイオメカニクス：</strong>下肢と骨盤の安定筋が強固な基盤を作り、姿勢保持筋が体幹の軸を直立させます。",
+        primary: ['大腿四頭筋', 'ハムストリングス', '大殿筋', '脊柱起立筋'],
+        secondary: ['内転筋', '腸腰筋', '腹横筋', '多裂筋'],
+        tenouchi: [
+          { icon: '01', text: '<strong>この段階では弓を持つだけ</strong>：手の内（手の形）はまだ作らず、余計な力を入れないようにします。' },
+          { icon: '02', text: '<strong>手の力を抜く</strong>：弓をふんわり軽く持ち、指が緊張していないことを確認します。' },
         ],
-        tenouchiWarning: '',
-        missCheckpoints: [
-          '足を広げすぎてしまう（目安は自分の矢束の幅）',
-          '体重が前後に偏ってしまう'
+        tenouchiWarning: null,
+        missPoints: [
+          { icon: '!', text: '<strong>足幅の広げすぎ</strong>：広げすぎると前後に揺れやすくなります。目安は自分の「矢束（やづか）」の幅。' },
+          { icon: '!', text: '<strong>体重の偏り</strong>：つま先やカカトに偏ると離れでバランスを崩します。' },
         ]
       },
-      { step: "第2節", name: "胴作り", en: "Dozukuri", frame: 10, range: "F10 - F19",
-        desc: "腰を据えて背骨をまっすぐ伸ばし、上半身を安定させます。土台の上に柱を立てるイメージです。",
-        analogy: "💬 <strong>イメージ：五重の塔</strong> — 各階が正しく積み重なっているから倒れない。",
-        advice: "✅ <strong>コツ：頭頂からの吊り上げ</strong> — 頭のてっぺんから糸で引っ張られているイメージで。",
-        memo: "",
-        primaryMuscles: ['脊柱起立筋', '多裂筋'],
-        secondaryMuscles: ['腹横筋', '腹直筋', '外腹斜筋', '大腿四頭筋', 'ハムストリングス'],
-        muscleMemos: {},
-        tenouchiCheckpoints: ['弓は軽く持ち、手首を折ったり力まない。'],
-        tenouchiWarning: '',
-        missCheckpoints: ['アゴが上がって首が縮む', '反り腰になってしまう']
-      },
-      { step: "第3節", name: "弓構え", en: "Yugamae", frame: 20, range: "F20 - F29",
-        desc: "取懸け、手の内、物見を整えます。",
-        analogy: "💬 <strong>イメージ：嵐の前の静けさ</strong> — 静かに見えてエネルギーが満ちている。",
-        advice: "✅ <strong>コツ：肩を落として肘を張る</strong> — 両肩を下げて肘を外に張る。",
-        memo: "",
-        primaryMuscles: ['棘上筋', '棘下筋', '肩甲下筋'],
-        secondaryMuscles: ['僧帽筋上部', '菱形筋', '三角筋', '前鋸筋', '腕橈骨筋'],
-        muscleMemos: {},
-        tenouchiCheckpoints: [
-          '天文筋を弓の外角に当てる',
-          '虎口を巻き込み、下に空間を作る',
-          '親指を伸ばし角見を利かせる'
+      {
+        step: "STEP 02", name: "胴作り", en: "Dozukuri", frame: 10, range: "F10 - F19",
+        desc: "腰をしっかり据えて背骨をまっすぐ伸ばし、上半身を安定させます。土台（足踏み）の上に直立した「柱」を立てる局面です。",
+        analogy: "<strong>イメージ：五重の塔</strong> — 各階が垂直に正しく積み重なっているため、強風にも揺らぎません。",
+        advice: "<strong>コツ：頭頂からの吊り上げ</strong> — 頭のてっぺんから糸で引っ張られている意識で、背すじをスッと伸ばします。",
+        muscleNote: "<strong>バイオメカニクス：</strong>腹横筋と多裂筋が腰椎を取り囲む天然のコルセットとなり、腹圧を高めます。",
+        primary: ['脊柱起立筋', '多裂筋'],
+        secondary: ['腹横筋', '腹直筋', '外腹斜筋', '大腿四頭筋', 'ハムストリングス'],
+        tenouchi: [
+          { icon: '01', text: '<strong>弓は軽く保持</strong>：手首を曲げたり力んだりせず、自然にリラックスさせます。' }
         ],
-        tenouchiWarning: '⚠ べた握りは絶対NG！弓返りが起きなくなります。',
-        missCheckpoints: ['物見でアゴが上がる', '矢を強く押さえすぎる']
+        tenouchiWarning: null,
+        missPoints: [
+          { icon: '!', text: '<strong>アゴの上がり・反り腰</strong>：アゴを軽く引き、腰が反らないよう下腹部を意識します。' }
+        ]
       },
-      { step: "第4節", name: "打ち起こし", en: "Uchiokoshi", frame: 30, range: "F30 - F39",
-        desc: "両拳を約45度の高さまで均等に持ち上げます。",
-        analogy: "💬 <strong>イメージ：雲を押し上げる</strong> — 軽やかに、でも厳かに持ち上げる。",
-        advice: "✅ <strong>コツ：肩を浮かさない</strong> — 肩の根元を沈めたまま持ち上げる。",
-        memo: "",
-        primaryMuscles: ['三角筋', '前鋸筋', '脊柱起立筋'],
-        secondaryMuscles: ['僧帽筋上部', '棘上筋', '上腕三頭筋', '腹横筋', '多裂筋'],
-        muscleMemos: {},
-        tenouchiCheckpoints: ['手の内の形を崩さず手首を折らない。'],
-        tenouchiWarning: '',
-        missCheckpoints: ['左肩が浮き上がる', '胸が浮いて呼吸が浅くなる']
-      },
-      { step: "第5節", name: "引き分け", en: "Hikiwake", frame: 40, range: "F40 - F49",
-        desc: "左右均等に押し引きし、体全体で弓を引き込みます。",
-        analogy: "💬 <strong>イメージ：大河を押し分ける</strong> — 体幹の力で左右ダイナミックに開く。",
-        advice: "✅ <strong>コツ：肘主導で引く</strong> — 右肘で遠くを通るように引く。",
-        memo: "",
-        primaryMuscles: ['広背筋', '大円筋', '僧帽筋中下部', '上腕三頭筋'],
-        secondaryMuscles: ['三角筋', '棘下筋', '菱形筋', '大胸筋', '前鋸筋', '腕橈骨筋'],
-        muscleMemos: {},
-        tenouchiCheckpoints: [
-          '大三で手の皮を巻き込む感覚',
-          '角見で弓を押し始める',
-          '指先は握り込まず添えるだけ'
+      {
+        step: "STEP 03", name: "弓構え", en: "Yugamae", frame: 20, range: "F20 - F29",
+        desc: "弦に指をかける「取懸け」、左手の形を整える「手の内」、的を見る「物見」を整え、射の準備を完成させます。",
+        analogy: "<strong>イメージ：嵐の前の静けさ</strong> — 外見は静止していても、内面には強い集中力と気が満ちています。",
+        advice: "<strong>コツ：肩を落として肘を張る</strong> — 両肩を耳から遠ざけて下げ、両肘を軽く外に張ります。",
+        muscleNote: "<strong>バイオメカニクス：</strong>肩のインナーマッスル（腱板筋群）が肩関節を中心位置にしっかりと保持します。",
+        primary: ['棘上筋', '棘下筋', '肩甲下筋'],
+        secondary: ['僧帽筋上部', '菱形筋', '三角筋', '前鋸筋', '腕橈骨筋'],
+        tenouchi: [
+          { icon: '01', text: '<strong>天文筋（てんもんすじ）を弓の外角に当てる</strong>：感情線の位置を弓の左外角にしっかりと密着させます。' },
+          { icon: '02', text: '<strong>虎口（ここう）を巻き込む</strong>：親指と人差し指の股で弓を受け、下に適度な空間を作ります。' },
+          { icon: '03', text: '<strong>親指を伸ばす（角見）</strong>：親指の付け根（角見）を弓の右角に当て、押し出す準備をします。' }
         ],
-        tenouchiWarning: '⚠ 右手だけで引っ張らないこと。左手の押しと均等に。',
-        missCheckpoints: ['引き幅（矢束）が足りない', '右手だけで引っ張ってしまう']
+        tenouchiWarning: '⚠ べた握り（手のひら全体で強く握り込む）は厳禁です。角見が効かず弓返りが起きなくなります。',
+        missPoints: [
+          { icon: '!', text: '<strong>物見でアゴが上がる</strong>：顔を的に向ける際、目線と首筋を水平に保ちます。' }
+        ]
       },
-      { step: "第6節", name: "会", en: "Kai", frame: 50, range: "F50 - F59",
-        desc: "伸合いを継続し、内側から無限に膨らみ続ける最高潮の局面。",
-        analogy: "💬 <strong>イメージ：あふれる寸前の水</strong> — 表面張力で満ちている状態。",
-        advice: "✅ <strong>コツ：止まらず伸び続ける</strong> — 常に中心から外側へ伸び続ける。",
-        memo: "",
-        primaryMuscles: ['広背筋', '僧帽筋中下部', '大胸筋', '上腕三頭筋'],
-        secondaryMuscles: ['腹横筋', '多裂筋', '三角筋', '大円筋', '棘下筋', '前鋸筋'],
-        muscleMemos: {},
-        tenouchiCheckpoints: [
-          '五重十文字の完成',
-          '角見を的に向けて押し続ける'
+      {
+        step: "STEP 04", name: "打ち起こし", en: "Uchiokoshi", frame: 30, range: "F30 - F39",
+        desc: "弓構えの形を崩さず、両拳を均等に約45度の高さまで静かに持ち上げます。肩甲骨根元から動かします。",
+        analogy: "<strong>イメージ：雲を両手で押し上げる</strong> — 軽やかかつ厳かに、空へ向かって持ち上げます。",
+        advice: "<strong>コツ：肩を上げずに腕を持ち上げる</strong> — 腕の力だけで引き上げず、肩の根元を沈めたまま持ち上げます。",
+        muscleNote: "<strong>バイオメカニクス：</strong>三角筋と前鋸筋が肩甲骨を胸郭上で滑らかに上方回旋させます。",
+        primary: ['三角筋', '前鋸筋', '脊柱起立筋'],
+        secondary: ['僧帽筋上部', '棘上筋', '上腕三頭筋', '腹横筋', '多裂筋'],
+        tenouchi: [
+          { icon: '01', text: '<strong>手の内の形を完全保持</strong>：天文筋と角見の位置を保ったまま腕を上げ、手首を折らないようにします。' }
         ],
-        tenouchiWarning: '⚠ 会で手の形ばかり気にすると体が縮みます。',
-        missCheckpoints: ['ただ止まってしまう', '息を完全に止めて固まる']
+        tenouchiWarning: null,
+        missPoints: [
+          { icon: '!', text: '<strong>左肩の浮き上がり</strong>：弓を持ち上げる際に肩がすくんで上がらないよう注意します。' }
+        ]
       },
-      { step: "第7節", name: "離れ", en: "Hanare", frame: 60, range: "F60 - F69",
-        desc: "伸合いの極限で弦が自然に解け、矢が放たれる瞬間。",
-        analogy: "💬 <strong>イメージ：熟した果実の落下</strong> — 自然の力で放たれる。",
-        advice: "✅ <strong>コツ：弓手を押し切る</strong> — 放れた瞬間に左手を緩めず押し切る。",
-        memo: "",
-        primaryMuscles: ['大胸筋', '前鋸筋', '広背筋'],
-        secondaryMuscles: ['僧帽筋中下部', '上腕三頭筋', '腕橈骨筋', '三角筋', '腹横筋'],
-        muscleMemos: {},
-        tenouchiCheckpoints: [
-          '弓返りは自然に起きる',
-          '手首を意図的に捻らない'
+      {
+        step: "STEP 05", name: "引き分け", en: "Hikiwake", frame: 40, range: "F40 - F49",
+        desc: "左右均等に「押し」と「引き」を行い、体の中に弓を引き込みます。腕ではなく背中全体で大きく引き開きます。",
+        analogy: "<strong>イメージ：大河を左右に押し分ける</strong> — 体幹の力で左右ダイナミックに対称に開きます。",
+        advice: "<strong>コツ：肘主導で引く</strong> — 右肘で遠くを通って引く意識を持つと、手先の力みが抜けて背中が使えます。",
+        muscleNote: "<strong>バイオメカニクス：</strong>広背筋と大円筋、僧帽筋中下部が肩甲骨を背骨に向かって力強く引き込みます。",
+        primary: ['広背筋', '大円筋', '僧帽筋中下部', '上腕三頭筋'],
+        secondary: ['三角筋', '棘下筋', '菱形筋', '大胸筋', '前鋸筋', '腕橈骨筋'],
+        tenouchi: [
+          { icon: '01', text: '<strong>大三で手の皮を巻き込む</strong>：弓が手の奥へ吸い付き、角見（親指の付け根）の押しが効き始めます。' },
+          { icon: '02', text: '<strong>指先は添えるだけ</strong>：中指・薬指・小指を握り締めず、手首をまっすぐに保ちます。' }
         ],
-        tenouchiWarning: '⚠ 弓手を緩めると緩み離れになります。',
-        missCheckpoints: ['前離れになる', '左右の拳のスピードがバラバラ']
+        tenouchiWarning: '⚠ 右手だけで引っ張ると引き分けが小さくなります。左手の押しと右手の引きを1:1で均等に行います。',
+        missPoints: [
+          { icon: '!', text: '<strong>引き幅不足</strong>：矢束一杯まで十分に引き込み、右拳が右肩の上に来るようにします。' }
+        ]
       },
-      { step: "第8節", name: "残心", en: "Zanshin", frame: 70, range: "F70 - F80",
-        desc: "放った後の姿勢と精神をそのまま継続し、内省します。",
-        analogy: "💬 <strong>イメージ：水面に広がる波紋</strong> — 静かに心が広がり続ける余韻。",
-        advice: "✅ <strong>コツ：姿勢の自己点検</strong> — 自分の縦横の十文字を振り返る。",
-        memo: "",
-        primaryMuscles: ['脊柱起立筋', '多裂筋', '腹横筋'],
-        secondaryMuscles: ['僧帽筋中下部', '広背筋', '大腿四頭筋', 'ハムストリングス', '大殿筋'],
-        muscleMemos: {},
-        tenouchiCheckpoints: ['手の内の出来栄えを確認する。'],
-        tenouchiWarning: '',
-        missCheckpoints: ['放った瞬間に気が抜ける', '残心を形だけで作ってしまう']
+      {
+        step: "STEP 06", name: "会", en: "Kai", frame: 50, range: "F50 - F59",
+        desc: "引き分けが完了し、形を保ちながら内側から無限に伸び続ける「伸合い」を継続する最高潮の局面です。",
+        analogy: "<strong>イメージ：表面張力で満ちる水</strong> — コップからあふれる寸前のように、内圧が高まり続ける状態。",
+        advice: "<strong>コツ：静止ではなく伸合い</strong> — 見た目は静止していても、胸の中央から左右へ常に広がり続けます。",
+        muscleNote: "<strong>バイオメカニクス：</strong>腹圧（腹横筋・外腹斜筋）と背筋群の伸張反射が拮抗し、最大エネルギーを蓄えます。",
+        primary: ['広背筋', '僧帽筋中下部', '大胸筋', '上腕三頭筋'],
+        secondary: ['腹横筋', '多裂筋', '三角筋', '大円筋', '棘下筋', '前鋸筋'],
+        tenouchi: [
+          { icon: '01', text: '<strong>五重十文字の完成</strong>：角見・脈所・両肩が一直線になり、弓と手の内が直角十文字を保ちます。' },
+          { icon: '02', text: '<strong>角見を的に向けて押し続ける</strong>：静止せず、常に親指の付け根で弓を押し続けます。' }
+        ],
+        tenouchiWarning: null,
+        missPoints: [
+          { icon: '!', text: '<strong>息を完全に止める</strong>：息を詰めて固まらず、丹田に息を収めて充実させます。' }
+        ]
+      },
+      {
+        step: "STEP 07", name: "離れ", en: "Hanare", frame: 60, range: "F60 - F69",
+        desc: "伸合いの極限で、弦が自然に解けて矢が放たれる瞬間。意識して放すのではなく、自然に「放たれる」のが正解です。",
+        analogy: "<strong>イメージ：熟した果実の落下</strong> — 重みに耐えきれなくなった実が、自然の理で枝を離れる瞬間。",
+        advice: "<strong>コツ：弓手を押し切る</strong> — 放れた瞬間に左手を緩めず、的の中心へ親指を突き込むように押し切ります。",
+        muscleNote: "<strong>バイオメカニクス：</strong>大胸筋と前鋸筋が瞬発的に収縮し、前腕の脱力とともに弓返りを生み出します。",
+        primary: ['大胸筋', '前鋸筋', '広背筋'],
+        secondary: ['僧帽筋中下部', '上腕三頭筋', '腕橈骨筋', '三角筋', '腹横筋'],
+        tenouchi: [
+          { icon: '01', text: '<strong>自然な弓返り</strong>：手の内を握り込まなければ、弓は角見の力と反発で自然に180度回転します。' },
+          { icon: '02', text: '<strong>手首を意図的に捻らない</strong>：無理に回そうとせず、真っ直ぐな押しを維持します。' }
+        ],
+        tenouchiWarning: '⚠ 離れで弓手を緩めると「緩み離れ」になり矢勢が失われます。強く押し通します。',
+        missPoints: [
+          { icon: '!', text: '<strong>右手を前に送ってしまう（前離れ）</strong>：胸を開いて左右同時に鋭く離します。' }
+        ]
+      },
+      {
+        step: "STEP 08", name: "残心", en: "Zanshin", frame: 70, range: "F70 - F80",
+        desc: "矢を放った後の姿勢と精神をそのまま継続させます。射の総決算であり、内省と余韻の局面です。",
+        analogy: "<strong>イメージ：水面に広がる波紋</strong> — 矢が放たれた後も、静かに心が広がり続ける余韻。",
+        advice: "<strong>コツ：姿勢の自己点検</strong> — 当否にとらわれず、自分の縦横の十文字が保たれているかを静かに内省します。",
+        muscleNote: "<strong>バイオメカニクス：</strong>脊柱起立筋と多裂筋、下肢筋群が直立姿勢をブレずに完全に固定します。",
+        primary: ['脊柱起立筋', '多裂筋', '腹横筋'],
+        secondary: ['僧帽筋中下部', '広背筋', '大腿四頭筋', 'ハムストリングス', '大殿筋'],
+        tenouchi: [
+          { icon: '01', text: '<strong>手の内の出来栄えを確認</strong>：弓が約180度自然に返り、天文筋が崩れていないかを点検します。' }
+        ],
+        tenouchiWarning: null,
+        missPoints: [
+          { icon: '!', text: '<strong>放った瞬間に気合が抜ける</strong>：息を整え、弓を静かに下ろす（倒弓）まで集中を維持します。' }
+        ]
       }
     ];
-
-    // NOTEBOOK STORAGE
-    const STORAGE_KEY = 'kyudo_notebooks_v1';
-    const ACTIVE_KEY = 'kyudo_active_nb_v1';
-
-    function emptyNotebook(name = 'ノート1') {
-      return {
-        id: Date.now(),
-        name,
-        data: JSON.parse(JSON.stringify(STAGE_DEFAULTS)),
-        createdAt: new Date().toISOString()
-      };
-    }
-
-    function loadNotebooks() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const arr = JSON.parse(raw);
-          if (Array.isArray(arr) && arr.length > 0) return arr;
-        }
-      } catch (e) {}
-      return [emptyNotebook('基本ノート')];
-    }
-
-    function saveNotebooks() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(allNotebooks));
-      } catch (e) {}
-    }
-
-    function getActiveId() {
-      return parseInt(localStorage.getItem(ACTIVE_KEY), 10) || allNotebooks[0].id;
-    }
-
-    function setActiveId(id) {
-      localStorage.setItem(ACTIVE_KEY, id.toString());
-    }
-
-    let allNotebooks = loadNotebooks();
-    let activeNotebookId = getActiveId();
-    let currentNotebookObj = allNotebooks.find(n => n.id === activeNotebookId) || allNotebooks[0];
-    let userData = currentNotebookObj.data;
-
-    function currentNotebook() {
-      return allNotebooks.find(n => n.id === activeNotebookId) || allNotebooks[0];
-    }
-
-    document.getElementById('currentNotebookName').textContent = currentNotebook().name;
 
     // THREE.JS SETUP
     const COLOR_PRIMARY = new THREE.Color(0xE60012);
     const COLOR_SECONDARY = new THREE.Color(0xF59E0B);
 
-    let currentStage = 0;
+    let currentStageIdx = 0;
+    let currentSoloMuscle = null;
     let loadedModel = null;
     let mixer, animationAction;
     const clock = new THREE.Clock();
@@ -1754,11 +1714,9 @@
     const loadingScreen = document.getElementById('loading-screen');
     const loaderText = document.getElementById('loaderText');
 
-    let defaultCamPos, defaultTargetPos;
-
     const manager = new THREE.LoadingManager();
-    manager.onProgress = (url, loaded, total) => {
-      const p = Math.round((loaded / total) * 100);
+    manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      const p = Math.round((itemsLoaded / itemsTotal) * 100);
       loaderText.textContent = `3Dモデル読込中 ${p}%`;
     };
     manager.onLoad = () => {
@@ -1767,6 +1725,8 @@
         setTimeout(() => loadingScreen.style.display = 'none', 400);
       }, 200);
     };
+
+    let defaultCamPos, defaultTargetPos;
 
     const loader = new GLTFLoader(manager);
     loader.load('弓道基礎１.glb', (gltf) => {
@@ -1819,6 +1779,10 @@
         document.getElementById('timeline').max = MAX_TIME;
         selectStage(0);
       }
+    }, undefined, (err) => {
+      console.warn('GLB load notice:', err);
+      loadingScreen.style.display = 'none';
+      selectStage(0);
     });
 
     document.getElementById('fitBtn').addEventListener('click', () => {
@@ -1829,22 +1793,44 @@
       }
     });
 
-    function updateMuscles3D() {
-      if (!loadedModel) return;
-      const data = userData[currentStage];
-      const pri = new Set(data.primaryMuscles || []);
-      const sec = new Set(data.secondaryMuscles || []);
+    function setMeshColor(mesh, color, opacity) {
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      mats.forEach(mat => {
+        mat.color.set(color);
+        mat.transparent = true;
+        mat.opacity = opacity;
+        mat.depthWrite = opacity > 0.9;
+        mat.needsUpdate = true;
+      });
+    }
 
-      const NODE_TO_GROUP = new Map();
-      for (const [group, nodes] of Object.entries(MUSCLE_NODES)) {
-        for (const n of nodes) NODE_TO_GROUP.set(n, group);
+    function updateMuscles(stage, soloGroup = null) {
+      if (!loadedModel) return;
+
+      const soloNodes = new Set();
+      if (soloGroup && MUSCLE_NODES[soloGroup]) {
+        MUSCLE_NODES[soloGroup].forEach(n => soloNodes.add(n));
+      }
+
+      const primaryNodes = new Set();
+      const secondaryNodes = new Set();
+
+      for (const group of stage.primary) {
+        if (MUSCLE_NODES[group]) {
+          MUSCLE_NODES[group].forEach(n => primaryNodes.add(n));
+        }
+      }
+      for (const group of stage.secondary) {
+        if (MUSCLE_NODES[group]) {
+          MUSCLE_NODES[group].forEach(n => secondaryNodes.add(n));
+        }
       }
 
       loadedModel.traverse(obj => {
         if (!obj.isMesh) return;
-        const name = obj.name;
+        const nodeName = obj.name;
 
-        if (name.startsWith('骨_')) {
+        if (nodeName.startsWith('骨_')) {
           obj.visible = true;
           const orig = originalMaterials.get(obj.material.uuid);
           if (orig) {
@@ -1857,41 +1843,57 @@
           return;
         }
 
-        if (!name.startsWith('筋_')) {
+        if (!nodeName.startsWith('筋_')) {
           obj.visible = true;
           return;
         }
 
-        const group = NODE_TO_GROUP.get(name);
-        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        if (soloGroup) {
+          if (soloNodes.has(nodeName)) {
+            obj.visible = true;
+            const isPri = primaryNodes.has(nodeName);
+            setMeshColor(obj, isPri ? COLOR_PRIMARY : COLOR_SECONDARY, 0.95);
+          } else {
+            obj.visible = false;
+          }
+          return;
+        }
 
-        if (group && pri.has(group)) {
+        if (primaryNodes.has(nodeName)) {
           obj.visible = true;
-          mats.forEach(m => {
-            m.color.set(COLOR_PRIMARY);
-            m.transparent = true;
-            m.opacity = 0.92;
-            m.depthWrite = true;
-            m.needsUpdate = true;
-          });
-        } else if (group && sec.has(group)) {
+          setMeshColor(obj, COLOR_PRIMARY, 0.92);
+        } else if (secondaryNodes.has(nodeName)) {
           obj.visible = true;
-          mats.forEach(m => {
-            m.color.set(COLOR_SECONDARY);
-            m.transparent = true;
-            m.opacity = 0.85;
-            m.depthWrite = true;
-            m.needsUpdate = true;
-          });
+          setMeshColor(obj, COLOR_SECONDARY, 0.85);
         } else {
           obj.visible = false;
         }
       });
     }
 
-    // UI & STAGE TABS
-    const stageTabsContainer = document.getElementById('stageTabs');
-    STAGE_DEFAULTS.forEach((s, idx) => {
+    // UI POPULATION
+    const stageTabs = document.getElementById('stageTabs');
+    const stageName = document.getElementById('stageName');
+    const stageEn = document.getElementById('stageEn');
+    const stageStepBadge = document.getElementById('stageStepBadge');
+    const stageRange = document.getElementById('stageRange');
+    const stageDesc = document.getElementById('stageDesc');
+    const stageAnalogy = document.getElementById('stageAnalogy');
+    const stageAdvice = document.getElementById('stageAdvice');
+    const stageMuscleNote = document.getElementById('stageMuscleNote');
+    const primaryTags = document.getElementById('primaryTags');
+    const secondaryTags = document.getElementById('secondaryTags');
+    const tenouchiPoints = document.getElementById('tenouchiPoints');
+    const tenouchiWarning = document.getElementById('tenouchiWarning');
+    const missPoints = document.getElementById('missPoints');
+    const timeline = document.getElementById('timeline');
+    const timeLabel = document.getElementById('timeLabel');
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const currentStageChip = document.getElementById('currentStageChip');
+
+    stages.forEach((s, idx) => {
       const tab = document.createElement('div');
       tab.className = `uq-stage-tab ${idx === 0 ? 'active' : ''}`;
       tab.innerHTML = `
@@ -1899,270 +1901,148 @@
         <span class="uq-stage-tab-name">${s.name}</span>
       `;
       tab.addEventListener('click', () => {
-        collectEditorFields();
         selectStage(idx);
         tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
       });
-      stageTabsContainer.appendChild(tab);
+      stageTabs.appendChild(tab);
     });
 
+    function renderTags(container, list, type) {
+      container.innerHTML = '';
+      list.forEach(name => {
+        const info = MUSCLE_READING[name] || { yomi: '', icon: '💪', desc: '', location: '', role: '', tip: '' };
+        const isSolo = currentSoloMuscle === name;
+        const chip = document.createElement('div');
+        chip.className = `uq-muscle-chip ${type} ${isSolo ? 'open solo' : ''}`;
+        chip.innerHTML = `
+          <div class="uq-chip-header">
+            <div class="uq-chip-title-wrap">
+              <span class="uq-chip-name">${name}</span>
+              ${info.yomi ? `<span class="uq-chip-yomi">（${info.yomi}）</span>` : ''}
+            </div>
+            <div class="uq-chip-meta-right">
+              <span class="uq-chip-location-badge">${info.location || '部位'}</span>
+              <span style="font-size:calc(14px * var(--font-scale));">${info.icon || '💪'}</span>
+              <span class="material-symbols-outlined uq-chip-expand-icon">expand_more</span>
+            </div>
+          </div>
+          <div class="uq-chip-body">
+            <div class="uq-chip-desc">${info.desc}</div>
+            <div class="uq-chip-row">
+              <span class="uq-chip-row-label">🎯 役割:</span>
+              <span>${info.role}</span>
+            </div>
+            <div class="uq-chip-tip">
+              💡 <strong>コツ・意識:</strong> ${info.tip}
+            </div>
+          </div>
+        `;
+
+        chip.addEventListener('click', (e) => {
+          if (currentSoloMuscle === name) {
+            currentSoloMuscle = null;
+          } else {
+            currentSoloMuscle = name;
+          }
+          renderTags(primaryTags, stages[currentStageIdx].primary, 'primary');
+          renderTags(secondaryTags, stages[currentStageIdx].secondary, 'secondary');
+          updateMuscles(stages[currentStageIdx], currentSoloMuscle);
+        });
+
+        container.appendChild(chip);
+      });
+    }
+
+    function renderTenouchi(stage) {
+      tenouchiPoints.innerHTML = '';
+      if (!stage.tenouchi) return;
+      stage.tenouchi.forEach(pt => {
+        const row = document.createElement('div');
+        row.className = 'uq-spec-row';
+        row.innerHTML = `
+          <span class="uq-spec-icon">${pt.icon}</span>
+          <div class="uq-spec-text">${pt.text}</div>
+        `;
+        tenouchiPoints.appendChild(row);
+      });
+
+      if (stage.tenouchiWarning) {
+        tenouchiWarning.style.display = 'block';
+        tenouchiWarning.textContent = stage.tenouchiWarning;
+      } else {
+        tenouchiWarning.style.display = 'none';
+      }
+    }
+
+    function renderMissPoints(stage) {
+      missPoints.innerHTML = '';
+      if (!stage.missPoints) return;
+      stage.missPoints.forEach(pt => {
+        const row = document.createElement('div');
+        row.className = 'uq-spec-row';
+        row.innerHTML = `
+          <span class="uq-spec-icon" style="color:var(--color-warning);">${pt.icon}</span>
+          <div class="uq-spec-text">${pt.text}</div>
+        `;
+        missPoints.appendChild(row);
+      });
+    }
+
     function selectStage(idx) {
-      currentStage = idx;
-      const s = userData[idx];
-      const targetTime = (STAGE_DEFAULTS[idx].frame) / FPS;
+      currentStageIdx = idx;
+      currentSoloMuscle = null;
+      const s = stages[idx];
+      const targetTime = s.frame / FPS;
 
       if (animationAction && mixer) {
         animationAction.paused = false;
         animationAction.time = targetTime;
         mixer.update(0);
         animationAction.paused = true;
-        document.getElementById('timeline').value = targetTime;
-        document.getElementById('timeLabel').textContent = `${targetTime.toFixed(2)}s`;
       }
 
-      document.getElementById('currentStageChip').textContent = `${s.step || `第${idx+1}節`} ${s.name}`;
+      stageStepBadge.textContent = s.step;
+      stageRange.textContent = s.range;
+      stageName.textContent = s.name;
+      stageEn.textContent = s.en;
+      stageDesc.textContent = s.desc;
+      stageAnalogy.innerHTML = s.analogy;
+      stageAdvice.innerHTML = s.advice;
+      stageMuscleNote.innerHTML = s.muscleNote;
+      currentStageChip.textContent = `0${idx + 1} ${s.name}`;
+
+      renderTags(primaryTags, s.primary, 'primary');
+      renderTags(secondaryTags, s.secondary, 'secondary');
+      renderTenouchi(s);
+      renderMissPoints(s);
+
+      timeline.value = targetTime;
+      timeLabel.textContent = `${targetTime.toFixed(2)}s`;
 
       document.querySelectorAll('.uq-stage-tab').forEach((t, i) => {
         t.classList.toggle('active', i === idx);
       });
 
-      loadEditorFields();
-      buildMuscleGrid();
-      updateMuscles3D();
-      if (document.getElementById('paneView').style.display !== 'none') {
-        renderPreview();
-      }
+      updateMuscles(s);
     }
 
-    function buildMuscleGrid() {
-      const pGrid = document.getElementById('primaryMuscleGrid');
-      const sGrid = document.getElementById('secondaryMuscleGrid');
-      pGrid.innerHTML = '';
-      sGrid.innerHTML = '';
-
-      const stageData = userData[currentStage];
-      if (!stageData.primaryMuscles) stageData.primaryMuscles = [];
-      if (!stageData.secondaryMuscles) stageData.secondaryMuscles = [];
-      if (!stageData.muscleMemos) stageData.muscleMemos = {};
-
-      MUSCLES.forEach(m => {
-        const isPri = stageData.primaryMuscles.includes(m);
-        const isSec = stageData.secondaryMuscles.includes(m);
-
-        const pChip = document.createElement('div');
-        pChip.className = `uq-selector-chip ${isPri ? 'primary-sel' : ''}`;
-        pChip.innerHTML = `<span>${isPri ? '✓' : '+'}</span> <span>${m}</span>`;
-        pChip.addEventListener('click', () => {
-          if (isPri) {
-            stageData.primaryMuscles = stageData.primaryMuscles.filter(x => x !== m);
-          } else {
-            stageData.primaryMuscles.push(m);
-            stageData.secondaryMuscles = stageData.secondaryMuscles.filter(x => x !== m);
-          }
-          buildMuscleGrid();
-          updateMuscles3D();
-        });
-        pGrid.appendChild(pChip);
-
-        const sChip = document.createElement('div');
-        sChip.className = `uq-selector-chip ${isSec ? 'secondary-sel' : ''}`;
-        sChip.innerHTML = `<span>${isSec ? '✓' : '+'}</span> <span>${m}</span>`;
-        sChip.addEventListener('click', () => {
-          if (isSec) {
-            stageData.secondaryMuscles = stageData.secondaryMuscles.filter(x => x !== m);
-          } else {
-            stageData.secondaryMuscles.push(m);
-            stageData.primaryMuscles = stageData.primaryMuscles.filter(x => x !== m);
-          }
-          buildMuscleGrid();
-          updateMuscles3D();
-        });
-        sGrid.appendChild(sChip);
-      });
-
-      renderMuscleMemos();
-    }
-
-    function renderMuscleMemos() {
-      const area = document.getElementById('muscleMemoArea');
-      area.innerHTML = '';
-      const stageData = userData[currentStage];
-      const selected = [...(stageData.primaryMuscles || []), ...(stageData.secondaryMuscles || [])];
-
-      if (selected.length === 0) {
-        area.innerHTML = '<div style="font-size:calc(11.5px * var(--font-scale)); color:var(--text-muted);">筋肉が選択されていません。上から選択してください。</div>';
-        return;
-      }
-
-      selected.forEach(m => {
-        const isPri = (stageData.primaryMuscles || []).includes(m);
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex; align-items:center; gap:8px;';
-        row.innerHTML = `
-          <span style="font-size:calc(11.5px * var(--font-scale)); font-weight:800; min-width:90px; color:${isPri ? 'var(--uq-red)' : 'var(--color-secondary-bright)'};">
-            ${isPri ? '🔴' : '🟡'} ${m}
-          </span>
-          <input type="text" class="uq-input-text" placeholder="${m}の意識ポイント・メモ" value="${stageData.muscleMemos[m] || ''}" oninput="updateMuscleMemo('${m}', this.value)" style="flex:1;">
-        `;
-        area.appendChild(row);
-      });
-    }
-
-    window.updateMuscleMemo = function(muscle, val) {
-      if (!userData[currentStage].muscleMemos) userData[currentStage].muscleMemos = {};
-      userData[currentStage].muscleMemos[muscle] = val;
-    };
-
-    function renderCheckpoints(type) {
-      const stageData = userData[currentStage];
-      const listEl = document.getElementById(type === 'tenouchi' ? 'tenouchiList' : 'missList');
-      listEl.innerHTML = '';
-
-      const arr = type === 'tenouchi' ? (stageData.tenouchiCheckpoints || []) : (stageData.missCheckpoints || []);
-      arr.forEach((text, i) => {
-        const row = document.createElement('div');
-        row.className = 'uq-checkpoint-row';
-        row.innerHTML = `
-          <input type="text" class="uq-input-text" value="${text.replace(/"/g, '&quot;')}" oninput="updateCheckpoint('${type}', ${i}, this.value)" style="flex:1;">
-          <button type="button" class="uq-checkpoint-del" onclick="removeCheckpoint('${type}', ${i})" title="削除">
-            <span class="material-symbols-outlined">delete</span>
-          </button>
-        `;
-        listEl.appendChild(row);
-      });
-    }
-
-    window.updateCheckpoint = function(type, idx, val) {
-      const stageData = userData[currentStage];
-      if (type === 'tenouchi') {
-        stageData.tenouchiCheckpoints[idx] = val;
-      } else {
-        stageData.missCheckpoints[idx] = val;
-      }
-    };
-
-    window.addCheckpoint = function(type) {
-      const stageData = userData[currentStage];
-      if (type === 'tenouchi') {
-        if (!stageData.tenouchiCheckpoints) stageData.tenouchiCheckpoints = [];
-        stageData.tenouchiCheckpoints.push('新しいチェックポイント');
-      } else {
-        if (!stageData.missCheckpoints) stageData.missCheckpoints = [];
-        stageData.missCheckpoints.push('新しい注意点・ミス');
-      }
-      renderCheckpoints(type);
-    };
-
-    window.removeCheckpoint = function(type, idx) {
-      const stageData = userData[currentStage];
-      if (type === 'tenouchi') {
-        stageData.tenouchiCheckpoints.splice(idx, 1);
-      } else {
-        stageData.missCheckpoints.splice(idx, 1);
-      }
-      renderCheckpoints(type);
-    };
-
-    function loadEditorFields() {
-      const s = userData[currentStage];
-      document.getElementById('f-desc').innerHTML = s.desc || '';
-      document.getElementById('f-analogy').innerHTML = s.analogy || '';
-      document.getElementById('f-advice').innerHTML = s.advice || '';
-      document.getElementById('f-memo').innerHTML = s.memo || '';
-      document.getElementById('f-tenouchiWarning').innerHTML = s.tenouchiWarning || '';
-
-      renderCheckpoints('tenouchi');
-      renderCheckpoints('miss');
-    }
-
-    function collectEditorFields() {
-      const s = userData[currentStage];
-      s.desc = document.getElementById('f-desc').innerHTML;
-      s.analogy = document.getElementById('f-analogy').innerHTML;
-      s.advice = document.getElementById('f-advice').innerHTML;
-      s.memo = document.getElementById('f-memo').innerHTML;
-      s.tenouchiWarning = document.getElementById('f-tenouchiWarning').innerHTML;
-    }
-
-    window.switchModeTab = function(mode) {
-      collectEditorFields();
-      if (mode === 'edit') {
-        document.getElementById('paneEdit').style.display = 'flex';
-        document.getElementById('paneView').style.display = 'none';
-        document.getElementById('tabBtnEdit').classList.add('active');
-        document.getElementById('tabBtnView').classList.remove('active');
-      } else {
-        document.getElementById('paneEdit').style.display = 'none';
-        document.getElementById('paneView').style.display = 'flex';
-        document.getElementById('tabBtnView').classList.add('active');
-        document.getElementById('tabBtnEdit').classList.remove('active');
-        renderPreview();
-      }
-    };
-
-    function renderPreview() {
-      const s = userData[currentStage];
-      document.getElementById('previewDesc').innerHTML = `
-        <div class="uq-card-title">📖 ${s.step || `第${currentStage+1}節`} ${s.name}</div>
-        <p style="font-size:calc(13.5px * var(--font-scale)); line-height:1.7;">${s.desc || '（説明なし）'}</p>
-        ${s.analogy ? `<div class="uq-callout-box" style="margin:8px 0;">${s.analogy}</div>` : ''}
-        ${s.advice ? `<div class="uq-callout-box tip" style="margin:8px 0;">${s.advice}</div>` : ''}
-        ${s.memo ? `<div style="background:var(--panel); padding:10px; border-radius:4px; font-size:calc(12.5px * var(--font-scale)); margin-top:8px;"><strong>📝 自由メモ:</strong><br>${s.memo}</div>` : ''}
-      `;
-
-      const priList = (s.primaryMuscles || []).map(m => `
-        <div style="background:var(--uq-red-light); padding:8px 12px; border-radius:4px; border-left:3px solid var(--uq-red);">
-          <strong style="color:var(--uq-red); font-size:calc(12.5px * var(--font-scale));">🔴 ${m}</strong>
-          ${s.muscleMemos && s.muscleMemos[m] ? `<div style="font-size:calc(11.5px * var(--font-scale)); margin-top:2px;">${s.muscleMemos[m]}</div>` : ''}
-        </div>
-      `).join('');
-
-      const secList = (s.secondaryMuscles || []).map(m => `
-        <div style="background:rgba(245,158,11,0.08); padding:8px 12px; border-radius:4px; border-left:3px solid var(--color-secondary-bright);">
-          <strong style="color:var(--color-secondary-bright); font-size:calc(12.5px * var(--font-scale));">🟡 ${m}</strong>
-          ${s.muscleMemos && s.muscleMemos[m] ? `<div style="font-size:calc(11.5px * var(--font-scale)); margin-top:2px;">${s.muscleMemos[m]}</div>` : ''}
-        </div>
-      `).join('');
-
-      document.getElementById('previewMuscles').innerHTML = `
-        <div class="uq-card-title">💪 意識する筋肉</div>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
-          ${priList || '<span style="font-size:calc(12px * var(--font-scale)); color:var(--text-muted);">主動筋の選択なし</span>'}
-          ${secList}
-        </div>
-      `;
-
-      const tc = (s.tenouchiCheckpoints || []).map(t => `<div style="font-size:calc(12.5px * var(--font-scale)); padding:4px 0;">✓ ${t}</div>`).join('');
-      document.getElementById('previewTenouchi').innerHTML = `
-        <div class="uq-card-title">🤚 手の内</div>
-        ${tc || '<span style="font-size:calc(12px * var(--font-scale)); color:var(--text-muted);">チェックポイントなし</span>'}
-        ${s.tenouchiWarning ? `<div style="background:var(--uq-red-light); padding:8px 10px; border-radius:4px; color:var(--uq-red); font-size:calc(12px * var(--font-scale)); margin-top:8px;">${s.tenouchiWarning}</div>` : ''}
-      `;
-
-      const mc = (s.missCheckpoints || []).map(t => `<div style="font-size:calc(12.5px * var(--font-scale)); padding:4px 0;">⚠ ${t}</div>`).join('');
-      document.getElementById('previewMiss').innerHTML = `
-        <div class="uq-card-title">⚠ やりがちなミス</div>
-        ${mc || '<span style="font-size:calc(12px * var(--font-scale)); color:var(--text-muted);">ミス項目なし</span>'}
-      `;
-    }
-
-    // Playback Controls
-    document.getElementById('playBtn').addEventListener('click', () => {
+    // Controls
+    playBtn.addEventListener('click', () => {
       if (animationAction) {
         animationAction.timeScale = 0.25;
         animationAction.paused = false;
       }
-      document.getElementById('playBtn').classList.add('active-red');
-      document.getElementById('pauseBtn').classList.remove('active-red');
+      playBtn.classList.add('active-red');
+      pauseBtn.classList.remove('active-red');
     });
 
-    document.getElementById('pauseBtn').addEventListener('click', () => {
+    pauseBtn.addEventListener('click', () => {
       if (animationAction) animationAction.paused = true;
-      document.getElementById('pauseBtn').classList.add('active-red');
-      document.getElementById('playBtn').classList.remove('active-red');
+      pauseBtn.classList.add('active-red');
+      playBtn.classList.remove('active-red');
     });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
+    resetBtn.addEventListener('click', () => {
       if (animationAction) {
         animationAction.stop();
         animationAction.setLoop(THREE.LoopOnce, 1);
@@ -2170,20 +2050,20 @@
         animationAction.timeScale = 0.25;
         animationAction.play();
         animationAction.paused = false;
-        document.getElementById('timeline').value = 0;
-        document.getElementById('timeLabel').textContent = '0.00s';
-        document.getElementById('playBtn').classList.add('active-red');
-        document.getElementById('pauseBtn').classList.remove('active-red');
+        timeline.value = 0;
+        timeLabel.textContent = '0.00s';
+        playBtn.classList.add('active-red');
+        pauseBtn.classList.remove('active-red');
       }
     });
 
-    document.getElementById('timeline').addEventListener('input', (e) => {
+    timeline.addEventListener('input', (e) => {
       if (animationAction && mixer) {
         animationAction.paused = false;
         animationAction.time = parseFloat(e.target.value);
         mixer.update(0);
         animationAction.paused = true;
-        document.getElementById('timeLabel').textContent = `${animationAction.time.toFixed(2)}s`;
+        timeLabel.textContent = `${animationAction.time.toFixed(2)}s`;
       }
     });
 
@@ -2197,12 +2077,12 @@
           animationAction.time = MAX_TIME;
           mixer.update(0);
           animationAction.paused = true;
-          document.getElementById('playBtn').classList.remove('active-red');
-          document.getElementById('pauseBtn').classList.add('active-red');
+          playBtn.classList.remove('active-red');
+          pauseBtn.classList.add('active-red');
         }
         const t = Math.min(animationAction.time, MAX_TIME);
-        document.getElementById('timeline').value = t;
-        document.getElementById('timeLabel').textContent = `${t.toFixed(2)}s`;
+        timeline.value = t;
+        timeLabel.textContent = `${t.toFixed(2)}s`;
       }
       controls.update();
       renderer.render(scene, camera);
@@ -2228,329 +2108,15 @@
 
     setTimeout(handleResize, 100);
     animate();
-
-    // FORMAT DOC & RICH TEXT HELPERS (入力前スタイル指定対応)
-    let activeEditor = null;
-
-    document.addEventListener('selectionchange', () => {
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount > 0) {
-        const node = sel.anchorNode;
-        const editor = node ? (node.nodeType === 1 ? node.closest('.uq-rich-editor') : node.parentElement ? node.parentElement.closest('.uq-rich-editor') : null) : null;
-        if (editor) activeEditor = editor;
-      }
-    });
-
-    document.querySelectorAll('.uq-rich-editor').forEach(ed => {
-      ed.addEventListener('focus', () => { activeEditor = ed; });
-      ed.addEventListener('click', () => { activeEditor = ed; });
-    });
-
-    window.applyFormat = function(type, val, event) {
-      if (event) event.preventDefault();
-      
-      const editor = activeEditor || document.getElementById('f-desc');
-      if (!editor) return;
-      editor.focus();
-
-      const sel = window.getSelection();
-      if (!sel || !sel.rangeCount) {
-        const r = document.createRange();
-        r.selectNodeContents(editor);
-        r.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(r);
-      }
-      const range = sel.getRangeAt(0);
-
-      if (!sel.isCollapsed) {
-        // 選択中のテキストがある場合
-        if (type === 'bold') {
-          document.execCommand('bold', false, null);
-        } else if (type === 'wavy') {
-          wrapSelection(range, 'u', 'text-decoration: underline wavy var(--uq-red) !important; text-underline-offset: 3.5px !important;');
-        } else if (type === 'color') {
-          wrapSelection(range, 'span', `color: ${val}; font-weight: 800;`);
-        } else if (type === 'marker') {
-          wrapSelection(range, 'mark', 'background: #FFF3CD; color: #111111; padding: 0 3px; border-radius: 2px; font-weight: 700;');
-        } else if (type === 'reset') {
-          document.execCommand('removeFormat', false, null);
-        }
-      } else {
-        // 選択がない（入力前）場合：スタイル付きタグとゼロ幅スペースを挿入してカーソルを内側に配置
-        if (type === 'bold') {
-          document.execCommand('bold', false, null);
-        } else if (type === 'wavy') {
-          insertStyledPlaceholder(range, 'u', 'text-decoration: underline wavy var(--uq-red) !important; text-underline-offset: 3.5px !important;');
-        } else if (type === 'color') {
-          insertStyledPlaceholder(range, 'span', `color: ${val}; font-weight: 800;`);
-        } else if (type === 'marker') {
-          insertStyledPlaceholder(range, 'mark', 'background: #FFF3CD; color: #111111; padding: 0 3px; border-radius: 2px; font-weight: 700;');
-        } else if (type === 'reset') {
-          document.execCommand('removeFormat', false, null);
-        }
-      }
-    };
-
-    function wrapSelection(range, tag, style) {
-      const el = document.createElement(tag);
-      if (style) el.style.cssText = style;
-      try {
-        el.appendChild(range.extractContents());
-        range.insertNode(el);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        const newR = document.createRange();
-        newR.selectNodeContents(el);
-        sel.addRange(newR);
-      } catch (e) {
-        document.execCommand(tag === 'u' ? 'underline' : 'bold');
-      }
-    }
-
-    function insertStyledPlaceholder(range, tag, style) {
-      const el = document.createElement(tag);
-      if (style) el.style.cssText = style;
-      const zws = document.createTextNode('\u200B');
-      el.appendChild(zws);
-      range.insertNode(el);
-      range.setStart(zws, 1);
-      range.setEnd(zws, 1);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-
-    // SAVE & TOAST
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2500);
-    }
-
-    function saveUserData() {
-      currentNotebook().data = userData;
-      saveNotebooks();
-      const now = new Date();
-      const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-      document.getElementById('lastSavedLabel').textContent = `保存済 ${timeStr}`;
-    }
-
-    window.saveCurrentStage = function() {
-      collectEditorFields();
-      saveUserData();
-      showToast(`💾 第${currentStage + 1}節を保存しました`);
-    };
-
-    window.saveAll = function() {
-      collectEditorFields();
-      saveUserData();
-      showToast('💾 すべてのデータを保存しました');
-    };
-
-    window.resetCurrentStage = function() {
-      if (!confirm('この節を初期状態にリセットしますか？')) return;
-      userData[currentStage] = JSON.parse(JSON.stringify(STAGE_DEFAULTS[currentStage]));
-      loadEditorFields();
-      buildMuscleGrid();
-      updateMuscles3D();
-      showToast('↩ リセットしました');
-    };
-
-    function renderShareQr(url) {
-      const qrWrap = document.getElementById('shareQrWrap');
-      qrWrap.innerHTML = '';
-      if (typeof qrcode === 'function') {
-        try {
-          // typeNumber 0 = 自動判定。誤り訂正レベルは容量優先の 'L'
-          const qr = qrcode(0, 'L');
-          qr.addData(url);
-          qr.make();
-          qrWrap.innerHTML = qr.createSvgTag(4, 0);
-        } catch (qrErr) {
-          // データが長すぎてQRコード化できない場合はURLのみ表示
-          qrWrap.innerHTML = '<div style="font-size:calc(11.5px * var(--font-scale)); color:var(--text-sub); padding:20px; text-align:center;">内容が多いため、QRコードは生成できませんでした。<br>下のURLをコピーしてご利用ください。</div>';
-        }
-      }
-    }
-
-    window.openShare = async function() {
-      collectEditorFields();
-      saveUserData();
-
-      const shareInput = document.getElementById('shareUrlInput');
-      const qrWrap = document.getElementById('shareQrWrap');
-
-      try {
-        const json = JSON.stringify(userData);
-        const compressed = LZString.compressToEncodedURIComponent(json);
-        const previewBase = `${location.origin}${location.pathname.replace('カスタム.html', 'プレビュー.html')}`;
-        const longUrl = `${previewBase}#custom=${compressed}`;
-
-        // 先に長いURLで即表示 → 短縮リンクAPIが使えれば差し替える
-        shareInput.value = longUrl;
-        qrWrap.innerHTML = '<div style="font-size:calc(11.5px * var(--font-scale)); color:var(--text-sub); padding:20px; text-align:center;">リンクを準備しています…</div>';
-        document.getElementById('shareModal').classList.add('show');
-
-        let finalUrl = longUrl;
-        try {
-          const res = await fetch('/api/share', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: compressed })
-          });
-          if (res.ok) {
-            const j = await res.json();
-            if (j && j.id) {
-              finalUrl = `${previewBase}?s=${j.id}`;
-            }
-          }
-        } catch (apiErr) {
-          // 短縮リンクAPIが未設定・オフラインなどの場合は長いURLのままフォールバック
-        }
-
-        shareInput.value = finalUrl;
-        renderShareQr(finalUrl);
-      } catch (e) {
-        alert('共有URLの生成に失敗しました。');
-      }
-    };
-
-    window.closeShareModal = function() {
-      document.getElementById('shareModal').classList.remove('show');
-    };
-
-    window.copyShareUrl = function() {
-      const input = document.getElementById('shareUrlInput');
-      const url = input.value;
-      navigator.clipboard.writeText(url).then(() => {
-        showToast('🔗 共有用URLをコピーしました！');
-      }).catch(() => {
-        input.select();
-        document.execCommand('copy');
-        showToast('🔗 共有用URLをコピーしました！');
-      });
-    };
-
-    window.importData = function() {
-      const str = prompt('共有されたデータ文字列またはURLを貼り付けてください：');
-      if (!str) return;
-      try {
-        let compressed = str.trim();
-        if (compressed.includes('#custom=')) {
-          compressed = compressed.split('#custom=')[1];
-        }
-        const json = LZString.decompressFromEncodedURIComponent(compressed);
-        if (json) {
-          const parsed = JSON.parse(json);
-          if (Array.isArray(parsed) && parsed.length >= 8) {
-            userData = parsed;
-            currentStage = 0;
-            saveUserData();
-            loadEditorFields();
-            buildMuscleGrid();
-            updateMuscles3D();
-            showToast('📥 データをインポートしました');
-            return;
-          }
-        }
-        throw new Error();
-      } catch (e) {
-        alert('データの解析に失敗しました。形式を確認してください。');
-      }
-    };
-
-    // NOTEBOOK MODAL
-    window.openNotebookModal = function() {
-      renderNotebookList();
-      document.getElementById('notebookModal').classList.add('show');
-    };
-
-    window.closeNotebookModal = function() {
-      document.getElementById('notebookModal').classList.remove('show');
-    };
-
-    function renderNotebookList() {
-      const list = document.getElementById('notebookList');
-      list.innerHTML = '';
-      allNotebooks.forEach(nb => {
-        const isActive = nb.id === activeNotebookId;
-        const div = document.createElement('div');
-        div.style.cssText = `display:flex; align-items:center; justify-content:space-between; padding:10px; border-radius:4px; border:1px solid var(--line); background:${isActive ? 'var(--uq-red-light)' : 'var(--bg)'};`;
-        div.innerHTML = `
-          <div>
-            <strong style="font-size:calc(13px * var(--font-scale)); color:${isActive ? 'var(--uq-red)' : 'var(--text)'};">${nb.name}</strong>
-          </div>
-          <div style="display:flex; gap:4px;">
-            ${!isActive ? `<button class="uq-btn" onclick="switchNotebook(${nb.id})">開く</button>` : '<span style="font-size:calc(11px * var(--font-scale)); font-weight:800; color:var(--uq-red); padding:4px 8px;">編集中</span>'}
-            ${allNotebooks.length > 1 ? `<button class="uq-btn" onclick="deleteNotebook(${nb.id})">削除</button>` : ''}
-          </div>
-        `;
-        list.appendChild(div);
-      });
-    }
-
-    window.createNotebook = function() {
-      const input = document.getElementById('newNotebookName');
-      const name = input.value.trim() || `ノート${allNotebooks.length + 1}`;
-      collectEditorFields();
-      saveUserData();
-      const nb = emptyNotebook(name);
-      allNotebooks.push(nb);
-      activeNotebookId = nb.id;
-      setActiveId(activeNotebookId);
-      userData = nb.data;
-      saveNotebooks();
-      currentStage = 0;
-      loadEditorFields();
-      buildMuscleGrid();
-      updateMuscles3D();
-      document.getElementById('currentNotebookName').textContent = name;
-      input.value = '';
-      closeNotebookModal();
-      showToast(`📓 「${name}」を作成しました`);
-    };
-
-    window.switchNotebook = function(id) {
-      collectEditorFields();
-      saveUserData();
-      activeNotebookId = id;
-      setActiveId(id);
-      userData = currentNotebook().data;
-      currentStage = 0;
-      loadEditorFields();
-      buildMuscleGrid();
-      updateMuscles3D();
-      document.getElementById('currentNotebookName').textContent = currentNotebook().name;
-      closeNotebookModal();
-      showToast(`📓 「${currentNotebook().name}」に切り替えました`);
-    };
-
-    window.deleteNotebook = function(id) {
-      if (allNotebooks.length <= 1) return;
-      if (!confirm('このノートを削除しますか？')) return;
-      allNotebooks = allNotebooks.filter(n => n.id !== id);
-      if (activeNotebookId === id) {
-        activeNotebookId = allNotebooks[0].id;
-        setActiveId(activeNotebookId);
-        userData = currentNotebook().data;
-        currentStage = 0;
-        loadEditorFields();
-        buildMuscleGrid();
-        updateMuscles3D();
-        document.getElementById('currentNotebookName').textContent = currentNotebook().name;
-      }
-      saveNotebooks();
-      renderNotebookList();
-    };
-
-    loadEditorFields();
-    buildMuscleGrid();
   </script>
 
   <!-- Global UI Helpers -->
   <script>
+    function toggleAccordion(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('open');
+    }
+
     function toggleDrawer() {
       const drawer = document.getElementById('sideDrawer');
       const overlay = document.getElementById('drawerOverlay');
@@ -2587,6 +2153,136 @@
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       updateTheme(!isDark);
     });
+
+    // ============================================================
+    // アカウント連携・同期モーダル
+    // ============================================================
+    function openAuthModal() {
+      document.getElementById('authModalOverlay').classList.add('show');
+    }
+    function closeAuthModal() {
+      document.getElementById('authModalOverlay').classList.remove('show');
+    }
+    function handleAuthClick() {
+      openAuthModal();
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function formatSyncTime(ms) {
+      if (!ms) return null;
+      const d = new Date(Number(ms));
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function updateAuthHeaderIcon(status) {
+      const icon = document.getElementById('authHeaderIcon');
+      if (!icon) return;
+      if (status.signedIn && status.photoUrl) {
+        icon.innerHTML = `<img src="${status.photoUrl}" alt="" referrerpolicy="no-referrer" style="width:22px; height:22px; border-radius:50%; object-fit:cover; display:block;">`;
+      } else {
+        icon.textContent = 'account_circle';
+      }
+      icon.style.color = status.signedIn ? 'var(--uq-red)' : '';
+    }
+
+    function renderAuthModal(status) {
+      updateAuthHeaderIcon(status);
+      const root = document.getElementById('authModalBody');
+      if (!root) return;
+
+      if (!status.configured) {
+        root.innerHTML = `
+          <div style="font-size:calc(11.5px * var(--font-scale)); color:var(--uq-red); line-height:1.5; background:var(--uq-red-light); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid rgba(230,0,18,0.2);">
+            まだGoogle連携の設定が完了していません。<br>
+            sync.js 内の GOOGLE_CLIENT_ID を、Google Cloud Consoleで発行したOAuthクライアントIDに書き換えてください。
+          </div>`;
+        return;
+      }
+
+      if (!status.signedIn) {
+        root.innerHTML = `
+          <div style="font-size:calc(12px * var(--font-scale)); color:var(--text-sub); line-height:1.6;">
+            Googleアカウントでログインすると、タグ・記録・お気に入り・ノート・表示設定を他の端末とも共有できます。（動画ファイル自体は対象外です）
+          </div>
+          <button class="uq-btn primary" id="authSignInBtn" style="margin-top:4px;">
+            <span class="material-symbols-outlined" style="font-size:calc(18px * var(--font-scale));">login</span>
+            Googleでログインして同期する
+          </button>`;
+        document.getElementById('authSignInBtn').addEventListener('click', () => {
+          const btn = document.getElementById('authSignInBtn');
+          btn.disabled = true;
+          if (window.kyudoSyncSignIn) {
+            kyudoSyncSignIn()
+              .then(() => showToast('Googleと連携しました'))
+              .catch(() => { showToast('ログインに失敗しました'); btn.disabled = false; });
+          } else {
+            showToast('sync.jsが読み込まれていません');
+            btn.disabled = false;
+          }
+        });
+        return;
+      }
+
+      const lastSynced = formatSyncTime(status.lastSyncedAt);
+      const avatarHtml = status.photoUrl
+        ? `<img src="${status.photoUrl}" alt="" referrerpolicy="no-referrer" style="width:100%; height:100%; object-fit:cover;">`
+        : `<span class="material-symbols-outlined">account_circle</span>`;
+      root.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:var(--uq-red-light); color:var(--uq-red); display:flex; align-items:center; justify-content:center; font-size:calc(20px * var(--font-scale)); overflow:hidden; flex-shrink:0;">
+            ${avatarHtml}
+          </div>
+          <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+            <div style="font-size:calc(13.5px * var(--font-scale)); font-weight:800; color:var(--text);">${status.email || '接続中'}</div>
+            <div style="font-size:calc(11px * var(--font-scale)); color:var(--text-muted);">${lastSynced ? '最終同期：' + lastSynced : 'まだ同期していません'}</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <button class="uq-btn" id="authSyncNowBtn" style="flex:1;">
+            <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">sync</span>
+            今すぐ同期
+          </button>
+          <button class="uq-btn danger" id="authSignOutBtn" style="flex:1;">
+            <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">logout</span>
+            連携を解除
+          </button>
+        </div>`;
+
+      document.getElementById('authSyncNowBtn').addEventListener('click', () => {
+        const btn = document.getElementById('authSyncNowBtn');
+        btn.disabled = true;
+        if (window.kyudoSyncPush) {
+          kyudoSyncPush()
+            .then(() => showToast('同期しました'))
+            .catch(() => showToast('同期に失敗しました'))
+            .finally(() => { btn.disabled = false; });
+        }
+      });
+      document.getElementById('authSignOutBtn').addEventListener('click', () => {
+        if (!confirm('Googleとの連携を解除しますか？\n（保存済みのデータは削除されません）')) return;
+        if (window.kyudoSyncSignOut) kyudoSyncSignOut();
+        showToast('連携を解除しました');
+      });
+    }
+
+    if (window.kyudoSyncOnChange) {
+      kyudoSyncOnChange(renderAuthModal);
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        const root = document.getElementById('authModalBody');
+        if (root && !window.kyudoSyncOnChange) {
+          root.innerHTML = '<div style="font-size:calc(11px * var(--font-scale)); color:var(--text-muted);">同期モジュール（sync.js）が配置されるとGoogle連携が有効になります。</div>';
+        }
+      });
+    }
   </script>
 </body>
 </html>
