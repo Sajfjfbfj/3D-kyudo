@@ -73,6 +73,10 @@
   var LAST_SYNC_KEY = 'kyudo_sync_last_synced_at';
   var SIGNED_IN_KEY = 'kyudo_sync_signed_in';
   var RELOAD_GUARD_PREFIX = 'kyudo_sync_reload_guard:';
+  // この端末でSYNC_KEYSのいずれかを最後に変更した時刻。ドライブへの送信が
+  // 完了しているかどうかに関わらず、変更した瞬間に記録する（ページ遷移をまた
+  // いで保持されるようlocalStorageに保存し、SYNC_KEYSには含めない＝pull対象外）。
+  var LOCAL_UPDATED_KEY = 'kyudo_sync_local_updated_at';
 
   // ---- トークンキャッシュ用（アプリ再起動をまたいで保持するため localStorage を使用） ----
   var TOKEN_KEY = 'kyudo_sync_access_token';
@@ -269,7 +273,11 @@
       var v = localStorage.getItem(k);
       if (v !== null) data[k] = v;
     });
-    return { updatedAt: Date.now(), data: data };
+    // updatedAtは「送信した時刻」ではなく「実際にローカルでデータを変更した時刻」。
+    // こうすることで、他端末はこの値を見て「自分の未送信の変更の方が新しいか」
+    // を正しく判定できる。
+    var localUpdatedAt = Number(localStorage.getItem(LOCAL_UPDATED_KEY) || 0) || Date.now();
+    return { updatedAt: localUpdatedAt, data: data };
   }
 
   function findSyncFileId() {
@@ -334,6 +342,17 @@
       });
     }).then(function (remote) {
       if (!remote || !remote.data) return false;
+
+      // ローカルの方が新しい変更を持っている場合（例：文字サイズを変更した直後に
+      // 別ページへ移動し、まだドライブへの送信が完了していない場合）は、リモート
+      // の古いデータで上書きしない。代わりにローカルを正としてドライブへ送り直す。
+      var localUpdatedAt = Number(localStorage.getItem(LOCAL_UPDATED_KEY) || 0);
+      var remoteUpdatedAt = Number(remote.updatedAt || 0);
+      if (localUpdatedAt && localUpdatedAt > remoteUpdatedAt) {
+        window.kyudoSyncPush().catch(function () {});
+        return false;
+      }
+
       var changed = false;
       SYNC_KEYS.forEach(function (k) {
         var remoteVal = remote.data[k];
@@ -354,13 +373,18 @@
   var pushPending = false;
   Storage.prototype.setItem = function (key, value) {
     rawSetItem.call(this, key, value);
-    if (SYNC_KEYS.indexOf(key) !== -1 && accessToken) {
-      pushPending = true;
-      clearTimeout(pushTimer);
-      pushTimer = setTimeout(function () {
-        pushPending = false;
-        window.kyudoSyncPush().catch(function () {});
-      }, 3000);
+    if (SYNC_KEYS.indexOf(key) !== -1) {
+      // 「ローカルで変更した時刻」を必ず記録する（サインイン状態や送信の成否に
+      // 関わらず）。これが後から届く古いpull結果からこの変更を守る土台になる。
+      rawSetItem.call(localStorage, LOCAL_UPDATED_KEY, String(Date.now()));
+      if (accessToken) {
+        pushPending = true;
+        clearTimeout(pushTimer);
+        pushTimer = setTimeout(function () {
+          pushPending = false;
+          window.kyudoSyncPush().catch(function () {});
+        }, 3000);
+      }
     }
   };
 
