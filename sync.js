@@ -155,6 +155,13 @@
     };
   };
 
+  // ---- 他のスクリプト(動画比較.html の動画アップロード等)が、有効な
+  //      アクセストークンを取得するための公開関数。期限切れなら自動更新を試みる。
+  //      サインインしていない/更新に失敗した場合は null を返す。
+  window.kyudoGetAccessToken = function () {
+    return ensureFreshToken();
+  };
+
   function loadGis() {
     if (gisLoadPromise) return gisLoadPromise;
     gisLoadPromise = new Promise(function (resolve, reject) {
