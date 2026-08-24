@@ -310,7 +310,10 @@
             Authorization: 'Bearer ' + token,
             'Content-Type': 'multipart/related; boundary=' + boundary
           },
-          body: body
+          body: body,
+          // ページ遷移の直前にアップロードを開始した場合でも、リクエストが
+          // 途中で打ち切られず完了できるようにする（keepalive）。
+          keepalive: true
         });
       }).then(function (r) {
         if (!r.ok) throw new Error('upload-failed');
@@ -348,15 +351,37 @@
 
   // ---- 保存を検知したら自動でアップロード（3秒デバウンス） ----
   var rawSetItem = Storage.prototype.setItem;
+  var pushPending = false;
   Storage.prototype.setItem = function (key, value) {
     rawSetItem.call(this, key, value);
     if (SYNC_KEYS.indexOf(key) !== -1 && accessToken) {
+      pushPending = true;
       clearTimeout(pushTimer);
       pushTimer = setTimeout(function () {
+        pushPending = false;
         window.kyudoSyncPush().catch(function () {});
       }, 3000);
     }
   };
+
+  // ---- 3秒のデバウンス待ちの間にページを離れる（別ページへ移動する／
+  //      タブを閉じる／バックグラウンドに回る）と、予約していたアップロード
+  //      (setTimeout) がそのまま消えてしまい、変更が一度もドライブへ送られない
+  //      ままになる。その状態で次のページを開くと、ドライブ側にまだ残っている
+  //      「変更前の古い設定」で上書き＆自動リロードされてしまい、文字サイズ等の
+  //      変更が反映されずに戻ってしまう不具合があった。
+  //      → ページを離れる直前に、待機中のアップロードがあれば3秒待たずに
+  //        即座に送信する。
+  function flushPendingPush() {
+    if (!pushPending) return;
+    pushPending = false;
+    clearTimeout(pushTimer);
+    window.kyudoSyncPush().catch(function () {});
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') flushPendingPush();
+  });
+  window.addEventListener('pagehide', flushPendingPush);
 
   // ---- 同期で新しいデータが見つかった時のリロード ----
   // tutorial.js が案内表示中（window.kyudoTutorialActive === true）は
