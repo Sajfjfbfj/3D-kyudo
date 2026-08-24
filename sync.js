@@ -49,6 +49,21 @@
 (function () {
   'use strict';
 
+  // ---- 文字サイズ設定を、ページ読み込み直後に最速で反映 ----
+  // （これまでは 設定.html の中でしか --font-scale を反映しておらず、
+  //   設定ページを経由せず他のページを直接開いた／再読み込みした場合に
+  //   文字サイズが標準(1.0x)に戻ってしまう不具合があったため追加）
+  (function applySavedFontScaleEarly() {
+    try {
+      var savedScale = localStorage.getItem('kyudo_font_scale');
+      if (savedScale) {
+        document.documentElement.style.setProperty('--font-scale', savedScale);
+      }
+    } catch (e) {
+      // localStorageが使えない環境では何もしない
+    }
+  })();
+
   // ↓↓↓ ここにGoogle CloudのOAuthクライアントIDを貼り付けてください ↓↓↓
   var GOOGLE_CLIENT_ID = '134964743683-sb7acs2lha9afcao2a4lo1p5jedaajlj.apps.googleusercontent.com';
   // ↑↑↑ ここまで ↑↑↑
