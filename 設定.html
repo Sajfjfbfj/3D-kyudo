@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <script>(function(){try{var s=localStorage.getItem("kyudo_font_scale");if(s)document.documentElement.style.setProperty("--font-scale",s);}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>リアル八節くん ─ 設定</title>
   <meta name="description" content="リアル八節くんのテーマカラーや文字サイズ、各種設定をカスタマイズできます。" />
@@ -165,7 +166,7 @@
     }
 
     .uq-app-title {
-      font-size: 15px;
+      font-size:calc(15px * var(--font-scale));
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--text);
@@ -177,7 +178,7 @@
     .uq-tag-badge {
       background: var(--uq-black);
       color: #FFFFFF;
-      font-size: 9px;
+      font-size:calc(9px * var(--font-scale));
       font-weight: 800;
       padding: 1px 5px;
       border-radius: var(--radius-sm);
@@ -220,7 +221,7 @@
     }
 
     .uq-section-title {
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -265,7 +266,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size:calc(20px * var(--font-scale));
       flex-shrink: 0;
       background: var(--panel);
       color: var(--uq-red);
@@ -279,13 +280,13 @@
     }
 
     .uq-row-title {
-      font-size: 14px;
+      font-size:calc(14px * var(--font-scale));
       font-weight: 800;
       color: var(--text);
     }
 
     .uq-row-desc {
-      font-size: 11.5px;
+      font-size:calc(11.5px * var(--font-scale));
       color: var(--text-muted);
     }
 
@@ -362,12 +363,12 @@
     }
 
     .uq-slider-label {
-      font-size: 13px;
+      font-size:calc(13px * var(--font-scale));
       font-weight: 700;
     }
 
     .uq-slider-badge {
-      font-size: 11.5px;
+      font-size:calc(11.5px * var(--font-scale));
       font-weight: 800;
       background: var(--uq-red-light);
       color: var(--uq-red);
@@ -408,7 +409,7 @@
       border-radius: var(--radius-sm);
       border: 1px solid var(--line);
       background: var(--bg);
-      font-size: 11.5px;
+      font-size:calc(11.5px * var(--font-scale));
       font-weight: 700;
       display: flex;
       flex-direction: column;
@@ -429,7 +430,7 @@
       gap: 6px;
       padding: 10px 16px;
       border-radius: var(--radius-sm);
-      font-size: 13px;
+      font-size:calc(13px * var(--font-scale));
       font-weight: 700;
       border: 1px solid var(--line);
       background: var(--bg);
@@ -501,7 +502,7 @@
     }
 
     .uq-drawer-title {
-      font-size: 16px;
+      font-size:calc(16px * var(--font-scale));
       font-weight: 900;
       color: var(--text);
     }
@@ -513,7 +514,7 @@
     }
 
     .uq-drawer-section-label {
-      font-size: 10px;
+      font-size:calc(10px * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -526,7 +527,7 @@
       align-items: center;
       gap: 14px;
       padding: 12px 20px;
-      font-size: 13.5px;
+      font-size:calc(13.5px * var(--font-scale));
       font-weight: 700;
       color: var(--text);
       transition: background 0.15s;
@@ -551,7 +552,7 @@
       color: #FFFFFF;
       padding: 10px 18px;
       border-radius: var(--radius-sm);
-      font-size: 12.5px;
+      font-size:calc(12.5px * var(--font-scale));
       font-weight: 700;
       z-index: 4000;
       box-shadow: var(--shadow-md);
@@ -593,7 +594,7 @@
     <!-- SECTION 1: 表示テーマ -->
     <section>
       <h2 class="uq-section-title">
-        <span class="material-symbols-outlined" style="font-size:16px;">palette</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">palette</span>
         表示テーマ
       </h2>
       <div class="uq-card-group">
@@ -619,13 +620,13 @@
     <!-- SECTION 2: 文字サイズ -->
     <section>
       <h2 class="uq-section-title">
-        <span class="material-symbols-outlined" style="font-size:16px;">format_size</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">format_size</span>
         文字サイズ
       </h2>
       <div class="uq-card-group">
         <div class="uq-font-area">
           <div class="uq-font-preview">
-            <div style="font-size:11px; font-weight:800; color:var(--text-muted);">プレビュー表示</div>
+            <div style="font-size:calc(11px * var(--font-scale)); font-weight:800; color:var(--text-muted);">プレビュー表示</div>
             <div style="font-size:calc(17px * var(--font-scale)); font-weight:900;">射法八節（しゃほうはっせつ）</div>
             <div style="font-size:calc(13.5px * var(--font-scale)); color:var(--text-sub); line-height:1.6;">
               弓道の基本となる8つの動作です。正しい姿勢と呼吸を身につけることが上達への近道です。
@@ -641,11 +642,11 @@
           </div>
 
           <div class="uq-presets-row">
-            <button class="uq-preset-btn" onclick="setFontPreset(0.8)" id="preset-0.8">小<br><span style="font-size:9px; opacity:0.7;">0.8x</span></button>
-            <button class="uq-preset-btn" onclick="setFontPreset(0.9)" id="preset-0.9">やや小<br><span style="font-size:9px; opacity:0.7;">0.9x</span></button>
-            <button class="uq-preset-btn active" onclick="setFontPreset(1.0)" id="preset-1.0">標準<br><span style="font-size:9px; opacity:0.7;">1.0x</span></button>
-            <button class="uq-preset-btn" onclick="setFontPreset(1.2)" id="preset-1.2">大<br><span style="font-size:9px; opacity:0.7;">1.2x</span></button>
-            <button class="uq-preset-btn" onclick="setFontPreset(1.4)" id="preset-1.4">特大<br><span style="font-size:9px; opacity:0.7;">1.4x</span></button>
+            <button class="uq-preset-btn" onclick="setFontPreset(0.8)" id="preset-0.8">小<br><span style="font-size:calc(9px * var(--font-scale)); opacity:0.7;">0.8x</span></button>
+            <button class="uq-preset-btn" onclick="setFontPreset(0.9)" id="preset-0.9">やや小<br><span style="font-size:calc(9px * var(--font-scale)); opacity:0.7;">0.9x</span></button>
+            <button class="uq-preset-btn active" onclick="setFontPreset(1.0)" id="preset-1.0">標準<br><span style="font-size:calc(9px * var(--font-scale)); opacity:0.7;">1.0x</span></button>
+            <button class="uq-preset-btn" onclick="setFontPreset(1.2)" id="preset-1.2">大<br><span style="font-size:calc(9px * var(--font-scale)); opacity:0.7;">1.2x</span></button>
+            <button class="uq-preset-btn" onclick="setFontPreset(1.4)" id="preset-1.4">特大<br><span style="font-size:calc(9px * var(--font-scale)); opacity:0.7;">1.4x</span></button>
           </div>
         </div>
       </div>
@@ -654,7 +655,7 @@
     <!-- SECTION 3: 他端末との同期（Google連携） -->
     <section>
       <h2 class="uq-section-title">
-        <span class="material-symbols-outlined" style="font-size:16px;">cloud_sync</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">cloud_sync</span>
         他端末との同期
       </h2>
       <div class="uq-card-group" style="padding:16px 18px;">
@@ -667,16 +668,16 @@
     <!-- SECTION 4: データ管理 -->
     <section>
       <h2 class="uq-section-title">
-        <span class="material-symbols-outlined" style="font-size:16px;">manage_accounts</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">manage_accounts</span>
         リセット
       </h2>
       <button class="uq-btn" onclick="resetAll()">
-        <span class="material-symbols-outlined" style="font-size:18px;">restart_alt</span>
+        <span class="material-symbols-outlined" style="font-size:calc(18px * var(--font-scale));">restart_alt</span>
         設定を初期状態に戻す
       </button>
     </section>
 
-    <div style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:12px;">
+    <div style="text-align:center; font-size:calc(11px * var(--font-scale)); color:var(--text-muted); margin-top:12px;">
       リアル八節くん v2.0 ─弓道学習教材
     </div>
   </main>
@@ -835,7 +836,7 @@
 
       if (!status.configured) {
         root.innerHTML = `
-          <div style="font-size:11.5px; color:var(--uq-red); line-height:1.5; background:var(--uq-red-light); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid rgba(230,0,18,0.2);">
+          <div style="font-size:calc(11.5px * var(--font-scale)); color:var(--uq-red); line-height:1.5; background:var(--uq-red-light); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid rgba(230,0,18,0.2);">
             まだGoogle連携の設定が完了していません。<br>
             sync.js 内の GOOGLE_CLIENT_ID を、Google Cloud Consoleで発行したOAuthクライアントIDに書き換えてください。
           </div>`;
@@ -844,11 +845,11 @@
 
       if (!status.signedIn) {
         root.innerHTML = `
-          <div style="font-size:12px; color:var(--text-sub); line-height:1.6;">
+          <div style="font-size:calc(12px * var(--font-scale)); color:var(--text-sub); line-height:1.6;">
             Googleアカウントでログインすると、タグ・記録・お気に入り・ノート・表示設定を他の端末とも共有できます。（動画ファイル自体は対象外です）
           </div>
           <button class="uq-btn primary" id="syncSignInBtn" style="margin-top:4px;">
-            <span class="material-symbols-outlined" style="font-size:18px;">login</span>
+            <span class="material-symbols-outlined" style="font-size:calc(18px * var(--font-scale));">login</span>
             Googleでログインして同期する
           </button>`;
         document.getElementById('syncSignInBtn').addEventListener('click', () => {
@@ -872,21 +873,21 @@
         : `<span class="material-symbols-outlined">account_circle</span>`;
       root.innerHTML = `
         <div style="display:flex; align-items:center; gap:12px;">
-          <div style="width:38px; height:38px; border-radius:50%; background:var(--uq-red-light); color:var(--uq-red); display:flex; align-items:center; justify-content:center; font-size:20px; overflow:hidden; flex-shrink:0;">
+          <div style="width:38px; height:38px; border-radius:50%; background:var(--uq-red-light); color:var(--uq-red); display:flex; align-items:center; justify-content:center; font-size:calc(20px * var(--font-scale)); overflow:hidden; flex-shrink:0;">
             ${avatarHtml}
           </div>
           <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
-            <div style="font-size:13.5px; font-weight:800; color:var(--text);">${status.email || '接続中'}</div>
-            <div style="font-size:11px; color:var(--text-muted);">${lastSynced ? '最終同期：' + lastSynced : 'まだ同期していません'}</div>
+            <div style="font-size:calc(13.5px * var(--font-scale)); font-weight:800; color:var(--text);">${status.email || '接続中'}</div>
+            <div style="font-size:calc(11px * var(--font-scale)); color:var(--text-muted);">${lastSynced ? '最終同期：' + lastSynced : 'まだ同期していません'}</div>
           </div>
         </div>
         <div style="display:flex; gap:8px; margin-top:4px;">
           <button class="uq-btn" id="syncNowBtn" style="flex:1;">
-            <span class="material-symbols-outlined" style="font-size:16px;">sync</span>
+            <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">sync</span>
             今すぐ同期
           </button>
           <button class="uq-btn danger" id="syncSignOutBtn" style="flex:1;">
-            <span class="material-symbols-outlined" style="font-size:16px;">logout</span>
+            <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">logout</span>
             連携を解除
           </button>
         </div>`;
@@ -914,7 +915,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         const root = document.getElementById('syncBody');
         if (root && !window.kyudoSyncOnChange) {
-          root.innerHTML = '<div style="font-size:11px; color:var(--text-muted);">同期モジュール（sync.js）が配置されるとGoogle連携が有効になります。</div>';
+          root.innerHTML = '<div style="font-size:calc(11px * var(--font-scale)); color:var(--text-muted);">同期モジュール（sync.js）が配置されるとGoogle連携が有効になります。</div>';
         }
       });
     }
