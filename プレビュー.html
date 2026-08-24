@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <script>(function(){try{var s=localStorage.getItem("kyudo_font_scale");if(s)document.documentElement.style.setProperty("--font-scale",s);}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>リアル八節くん ─ 閲覧用プレビュー</title>
   <meta name="description" content="作成・共有された弓道・射法八節のカスタムノートと3Dモデルを閲覧・確認できるビューア。" />
@@ -176,7 +177,7 @@
     }
 
     .uq-app-title {
-      font-size: 15px;
+      font-size:calc(15px * var(--font-scale));
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--uq-black);
@@ -192,7 +193,7 @@
     .uq-tag-badge {
       background: var(--uq-black);
       color: #FFFFFF;
-      font-size: 9px;
+      font-size:calc(9px * var(--font-scale));
       font-weight: 800;
       padding: 1px 5px;
       border-radius: var(--radius-sm);
@@ -228,7 +229,7 @@
         padding: 7px 8px;
       }
       .uq-app-title {
-        font-size: 13.5px;
+        font-size:calc(13.5px * var(--font-scale));
       }
     }
 
@@ -316,7 +317,7 @@
       border: 1px solid var(--uq-border);
       border-radius: var(--radius-sm);
       padding: 4px 10px;
-      font-size: 11px;
+      font-size:calc(11px * var(--font-scale));
       font-weight: 800;
       color: var(--uq-black);
       box-shadow: var(--shadow-sm);
@@ -345,7 +346,7 @@
       gap: 4px;
       padding: 6px 12px;
       border-radius: var(--radius-sm);
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 700;
       border: 1px solid var(--uq-border);
       background: var(--uq-bg);
@@ -441,14 +442,14 @@
     }
 
     .uq-stage-tab-num {
-      font-size: 8px;
+      font-size:calc(8px * var(--font-scale));
       font-weight: 800;
       color: var(--uq-light-gray);
       letter-spacing: 0.05em;
     }
 
     .uq-stage-tab-name {
-      font-size: 11px;
+      font-size:calc(11px * var(--font-scale));
       font-weight: 800;
       color: var(--uq-black);
     }
@@ -492,7 +493,7 @@
     }
 
     .uq-card-title {
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 900;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -509,7 +510,7 @@
       gap: 4px;
       padding: 3px 8px;
       border-radius: var(--radius-sm);
-      font-size: 11px;
+      font-size:calc(11px * var(--font-scale));
       font-weight: 700;
       border: 1px solid var(--uq-border);
       background: var(--uq-surface);
@@ -533,7 +534,7 @@
       border-left: 3px solid var(--uq-black);
       padding: 10px 14px;
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      font-size: 12.5px;
+      font-size:calc(12.5px * var(--font-scale));
       color: var(--uq-dark-gray);
       line-height: 1.6;
     }
@@ -549,7 +550,7 @@
       border: 1px solid rgba(230, 0, 18, 0.2);
       border-radius: var(--radius-sm);
       padding: 10px 12px;
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       color: var(--uq-red);
       line-height: 1.5;
     }
@@ -612,7 +613,7 @@
     }
 
     #qrStatus {
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       color: var(--uq-gray);
       margin: 10px 0 14px;
       text-align: center;
@@ -662,7 +663,7 @@
     }
 
     .uq-drawer-title {
-      font-size: 16px;
+      font-size:calc(16px * var(--font-scale));
       font-weight: 900;
       color: var(--uq-black);
     }
@@ -674,7 +675,7 @@
     }
 
     .uq-drawer-section-label {
-      font-size: 10px;
+      font-size:calc(10px * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -687,7 +688,7 @@
       align-items: center;
       gap: 14px;
       padding: 12px 20px;
-      font-size: 13.5px;
+      font-size:calc(13.5px * var(--font-scale));
       font-weight: 700;
       color: var(--uq-black);
       transition: background 0.15s;
@@ -724,7 +725,7 @@
       color: #FFFFFF;
       padding: 10px 18px;
       border-radius: var(--radius-sm);
-      font-size: 12.5px;
+      font-size:calc(12.5px * var(--font-scale));
       font-weight: 700;
       z-index: 4000;
       box-shadow: var(--shadow-md);
@@ -774,23 +775,23 @@
     </div>
     <div class="uq-header-actions">
       <button class="uq-btn" onclick="document.getElementById('fileInput').click()" title="JSONファイルをインポート">
-        <span class="material-symbols-outlined" style="font-size:16px;">upload_file</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">upload_file</span>
         <span class="uq-ctrl-btn-label">ファイル</span>
       </button>
       <input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="loadFromFile(this)">
       
       <button class="uq-btn" onclick="openUrlModal()" title="共有URLを開く">
-        <span class="material-symbols-outlined" style="font-size:16px;">link</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">link</span>
         <span class="uq-ctrl-btn-label">URL</span>
       </button>
 
       <button class="uq-btn" onclick="openQrModal()" title="QRコードを読み取る">
-        <span class="material-symbols-outlined" style="font-size:16px;">qr_code_scanner</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">qr_code_scanner</span>
         <span class="uq-ctrl-btn-label">QR</span>
       </button>
 
       <button class="uq-btn" onclick="saveToFavorites()" title="お気に入りに保存">
-        <span class="material-symbols-outlined" style="font-size:16px; color:#F59E0B;">star</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale)); color:#F59E0B;">star</span>
         <span class="uq-ctrl-btn-label">保存</span>
       </button>
 
@@ -814,30 +815,30 @@
 
       <div id="viewer">
         <div id="loading-screen">
-          <div style="font-size: 13px; font-weight: 800; color: var(--uq-red); margin-bottom: 12px;">3Dモデル読み込み中...</div>
+          <div style="font-size:calc(13px * var(--font-scale)); font-weight: 800; color: var(--uq-red); margin-bottom: 12px;">3Dモデル読み込み中...</div>
           <div style="width: 180px; height: 3px; background: var(--uq-border); border-radius: 2px; overflow: hidden;">
             <div id="loader-bar" style="width: 0%; height: 100%; background: var(--uq-red); transition: width 0.2s;"></div>
           </div>
-          <div id="loader-text" style="font-size: 10px; color: var(--uq-light-gray); margin-top: 6px;">0%</div>
+          <div id="loader-text" style="font-size:calc(10px * var(--font-scale)); color: var(--uq-light-gray); margin-top: 6px;">0%</div>
         </div>
       </div>
 
       <div class="uq-viewer-controls">
         <div class="uq-ctrl-row">
           <button class="uq-btn active-red" id="playBtn">
-            <span class="material-symbols-outlined" style="font-size:16px;">play_arrow</span>
+            <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">play_arrow</span>
             <span class="uq-ctrl-btn-label">再生</span>
           </button>
           <button class="uq-btn" id="pauseBtn">
-            <span class="material-symbols-outlined" style="font-size:16px;">pause</span>
+            <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">pause</span>
             <span class="uq-ctrl-btn-label">停止</span>
           </button>
           <button class="uq-btn" id="resetBtn">
-            <span class="material-symbols-outlined" style="font-size:16px;">replay</span>
+            <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">replay</span>
             <span class="uq-ctrl-btn-label">先頭</span>
           </button>
           <button class="uq-btn" id="fitBtn">
-            <span class="material-symbols-outlined" style="font-size:16px;">center_focus_strong</span>
+            <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">center_focus_strong</span>
             <span class="uq-ctrl-btn-label">中央</span>
           </button>
         </div>
@@ -856,9 +857,9 @@
       <div class="uq-view-scroll" id="viewScroll">
         <!-- Welcome empty state -->
         <div id="welcomeBox" class="uq-card-group" style="text-align:center; padding:32px 16px;">
-          <div style="font-size:36px; margin-bottom:8px;">🏹</div>
-          <div style="font-size:16px; font-weight:800; margin-bottom:4px;">弓道ノート ビューア</div>
-          <div style="font-size:12px; color:var(--uq-gray); line-height:1.6; margin-bottom:16px;">
+          <div style="font-size:calc(36px * var(--font-scale)); margin-bottom:8px;">🏹</div>
+          <div style="font-size:calc(16px * var(--font-scale)); font-weight:800; margin-bottom:4px;">弓道ノート ビューア</div>
+          <div style="font-size:calc(12px * var(--font-scale)); color:var(--uq-gray); line-height:1.6; margin-bottom:16px;">
             右上の「ファイル」または「URL」からノートを読み込むと、カスタム解説と3Dモデルを連動して確認できます。
           </div>
           <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
@@ -882,9 +883,9 @@
   <!-- URL IMPORT MODAL -->
   <div class="uq-modal-overlay" id="urlModal">
     <div class="uq-modal-card">
-      <h3 style="font-size:16px; font-weight:900; margin-bottom:8px;">🔗 共有URLから読み込む</h3>
-      <p style="font-size:12px; color:var(--uq-gray); margin-bottom:12px;">3Dカスタムエディタで発行された共有リンクを貼り付けてください。</p>
-      <textarea id="urlInput" class="uq-input-text" style="width:100%; height:80px; padding:10px; font-size:12px; margin-bottom:14px;" placeholder="https://..."></textarea>
+      <h3 style="font-size:calc(16px * var(--font-scale)); font-weight:900; margin-bottom:8px;">🔗 共有URLから読み込む</h3>
+      <p style="font-size:calc(12px * var(--font-scale)); color:var(--uq-gray); margin-bottom:12px;">3Dカスタムエディタで発行された共有リンクを貼り付けてください。</p>
+      <textarea id="urlInput" class="uq-input-text" style="width:100%; height:80px; padding:10px; font-size:calc(12px * var(--font-scale)); margin-bottom:14px;" placeholder="https://..."></textarea>
       <div style="display:flex; justify-content:flex-end; gap:8px;">
         <button class="uq-btn" onclick="closeUrlModal()">キャンセル</button>
         <button class="uq-btn primary" onclick="loadFromUrl()">読み込む</button>
@@ -896,8 +897,8 @@
   <!-- QR SCAN MODAL -->
   <div class="uq-modal-overlay" id="qrModal">
     <div class="uq-modal-card">
-      <h3 style="font-size:16px; font-weight:900; margin-bottom:8px;">📷 QRコードを読み取る</h3>
-      <p style="font-size:12px; color:var(--uq-gray); margin-bottom:12px;">3Dカスタムエディタで発行されたQRコードをカメラにかざしてください。</p>
+      <h3 style="font-size:calc(16px * var(--font-scale)); font-weight:900; margin-bottom:8px;">📷 QRコードを読み取る</h3>
+      <p style="font-size:calc(12px * var(--font-scale)); color:var(--uq-gray); margin-bottom:12px;">3Dカスタムエディタで発行されたQRコードをカメラにかざしてください。</p>
       <div class="uq-qr-scan-frame">
         <video id="qrVideo" playsinline autoplay muted></video>
         <div class="uq-qr-scan-box"></div>
@@ -1247,7 +1248,7 @@
 
       document.getElementById('viewDesc').innerHTML = `
         <div class="uq-card-title">📋 ${s.name} (${s.en}) の解説</div>
-        <div style="font-size:13.5px; line-height:1.6;">${d.desc || '<span style="color:var(--text-muted)">未記入</span>'}</div>
+        <div style="font-size:calc(13.5px * var(--font-scale)); line-height:1.6;">${d.desc || '<span style="color:var(--text-muted)">未記入</span>'}</div>
         ${d.analogy ? `<div class="uq-callout-box" style="margin-top:6px;">🎭 <strong>たとえ：</strong>${d.analogy}</div>` : ''}
         ${d.advice ? `<div class="uq-callout-box tip" style="margin-top:6px;">💡 <strong>アドバイス：</strong>${d.advice}</div>` : ''}
         ${d.memo ? `<div class="uq-callout-box science" style="margin-top:6px;">📝 <strong>自由メモ：</strong>${d.memo}</div>` : ''}
@@ -1255,12 +1256,12 @@
 
       const priTags = (d.primaryMuscles || []).map(m => {
         const memo = d.muscleMemos && d.muscleMemos[m] ? d.muscleMemos[m] : '';
-        return `<div style="margin-bottom:6px;"><span class="uq-chip primary">🔴 ${m}</span>${memo ? `<div style="font-size:11.5px; color:var(--uq-red); margin-top:2px;">🎯 意識：${memo}</div>` : ''}</div>`;
+        return `<div style="margin-bottom:6px;"><span class="uq-chip primary">🔴 ${m}</span>${memo ? `<div style="font-size:calc(11.5px * var(--font-scale)); color:var(--uq-red); margin-top:2px;">🎯 意識：${memo}</div>` : ''}</div>`;
       }).join('');
 
       const secTags = (d.secondaryMuscles || []).map(m => {
         const memo = d.muscleMemos && d.muscleMemos[m] ? d.muscleMemos[m] : '';
-        return `<div style="margin-bottom:6px;"><span class="uq-chip secondary">🟡 ${m}</span>${memo ? `<div style="font-size:11.5px; color:var(--color-secondary-bright); margin-top:2px;">🎯 意識：${memo}</div>` : ''}</div>`;
+        return `<div style="margin-bottom:6px;"><span class="uq-chip secondary">🟡 ${m}</span>${memo ? `<div style="font-size:calc(11.5px * var(--font-scale)); color:var(--color-secondary-bright); margin-top:2px;">🎯 意識：${memo}</div>` : ''}</div>`;
       }).join('');
 
       document.getElementById('viewMuscles').innerHTML = `
@@ -1268,14 +1269,14 @@
         ${(priTags + secTags) || '<span style="color:var(--text-muted)">未選択</span>'}
       `;
 
-      const tenItems = (d.tenouchi || []).map(t => `<div style="font-size:12.5px; padding:3px 0;"><strong>${t.icon || '✓'}</strong> ${t.text || ''}</div>`).join('');
+      const tenItems = (d.tenouchi || []).map(t => `<div style="font-size:calc(12.5px * var(--font-scale)); padding:3px 0;"><strong>${t.icon || '✓'}</strong> ${t.text || ''}</div>`).join('');
       document.getElementById('viewTenouchi').innerHTML = `
         <div class="uq-card-title">🤚 手の内チェック</div>
         ${tenItems || '<span style="color:var(--text-muted)">未記入</span>'}
         ${d.tenouchiWarning ? `<div class="uq-warning-banner" style="margin-top:6px;">${d.tenouchiWarning}</div>` : ''}
       `;
 
-      const missItems = (d.miss || []).map(m => `<div style="font-size:12.5px; padding:3px 0;">${m.type === 'warn' ? '⚠' : '💡'} ${m.text || ''}</div>`).join('');
+      const missItems = (d.miss || []).map(m => `<div style="font-size:calc(12.5px * var(--font-scale)); padding:3px 0;">${m.type === 'warn' ? '⚠' : '💡'} ${m.text || ''}</div>`).join('');
       document.getElementById('viewMiss').innerHTML = `
         <div class="uq-card-title">⚠ ミス・注意点</div>
         ${missItems || '<span style="color:var(--text-muted)">未記入</span>'}
