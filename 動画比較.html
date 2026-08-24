@@ -250,6 +250,15 @@
       grid-template-columns: 1fr;
     }
 
+    /* スマホ縦画面では、文字サイズを大きくした時に2列比較だと
+       各カードの最小幅(select等)が確保できず右にはみ出すため、
+       手動で切り替えなくても自動で1列表示に切り替える */
+    @media (max-width: 480px) {
+      .uq-compare-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .uq-slot-card {
       background: var(--bg);
       border: 1px solid var(--line);
@@ -260,6 +269,7 @@
       gap: 8px;
       box-shadow: var(--shadow-sm);
       position: relative;
+      min-width: 0; /* グリッドアイテムが内容(select等)に押されて列幅を超えないように */
     }
 
     .uq-slot-header {
@@ -284,6 +294,7 @@
 
     .uq-slot-select {
       flex: 1;
+      min-width: 0; /* 文字サイズを上げてもselectがはみ出して縮まなくなるのを防ぐ */
       padding: 6px 10px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--line);
@@ -422,9 +433,11 @@
       border-radius: var(--radius-md);
       padding: 14px 16px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
       justify-content: space-between;
       gap: 12px;
+      row-gap: 10px;
       margin-bottom: 8px;
     }
 
@@ -465,6 +478,11 @@
       align-items: center;
       gap: 6px;
       flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .uq-lib-actions .uq-btn {
+      white-space: nowrap; /* ボタン内で文字が折り返して高さが伸び、隣の行と近づくのを防ぐ */
     }
 
     /* Modal */
@@ -705,17 +723,19 @@
 
     <!-- SECTION 2: 動画ライブラリ -->
     <section>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div style="display:flex; flex-wrap:wrap; row-gap:8px; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h2 class="uq-section-title" style="margin-bottom:0; border:none; padding:0;">
           <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">video_library</span>
           保存済み動画ライブラリ
         </h2>
-        <button class="uq-btn primary" id="addVideoBtn" style="padding:5px 10px; font-size:calc(11.5px * var(--font-scale)); width:auto;">
+        <button class="uq-btn primary" id="addVideoBtn" style="padding:5px 10px; font-size:calc(11.5px * var(--font-scale)); width:auto; white-space:nowrap;">
           ＋ 動画を追加
         </button>
       </div>
 
       <input type="file" id="fileInput" accept="video/*" style="display:none;">
+      <div id="storageStatusBox" style="display:none; font-size:calc(11.5px * var(--font-scale)); border-radius:var(--radius-sm); padding:8px 12px; margin-bottom:10px;"></div>
+      <div id="driveBackupStatusBox" style="display:none; font-size:calc(11.5px * var(--font-scale)); border-radius:var(--radius-sm); padding:8px 12px; margin-bottom:10px;"></div>
       <div id="library-root"></div>
     </section>
   </main>
@@ -833,6 +853,95 @@
       });
     }
 
+    // ---- 永続化ストレージ ----
+    // IndexedDBは「ベストエフォート型」で保存されるため、端末の空き容量が
+    // 少なくなった場合などにブラウザが確認なしで自動削除することがある。
+    // navigator.storage.persist() を許可してもらえれば、この端末の
+    // ストレージデータは自動削除の対象から除外される（ユーザー自身が
+    // ブラウザの「サイトデータを削除」を行った場合は防げない）。
+    async function ensurePersistentStorage() {
+      if (!(navigator.storage && navigator.storage.persist && navigator.storage.persisted)) {
+        return 'unsupported';
+      }
+      try {
+        const already = await navigator.storage.persisted();
+        if (already) return true;
+        const granted = await navigator.storage.persist();
+        return granted;
+      } catch (e) {
+        return 'unsupported';
+      }
+    }
+
+    function renderStorageStatus(result) {
+      const box = document.getElementById('storageStatusBox');
+      if (result === 'unsupported') {
+        box.style.display = 'none';
+        return;
+      }
+      box.style.display = 'block';
+      if (result === true) {
+        box.style.background = 'var(--panel)';
+        box.style.color = 'var(--text-sub)';
+        box.style.border = '1px solid var(--line)';
+        box.innerHTML = '💾 このブラウザで保存した動画は、自動削除の対象外になっています。';
+      } else {
+        box.style.background = 'var(--uq-red-light)';
+        box.style.color = 'var(--uq-red)';
+        box.style.border = '1px solid rgba(230,0,18,0.2)';
+        box.innerHTML = '⚠ 保存データの永続化が許可されませんでした。端末の空き容量が少なくなると、保存した動画が自動的に削除される場合があります。ホーム画面に追加して開くと許可されやすくなります。';
+      }
+    }
+
+    ensurePersistentStorage().then(renderStorageStatus);
+
+    // ---- Googleドライブ動画バックアップの状態表示 ----
+    // ログイン状態はページ内のsync.jsが管理しているため、その変化を購読して
+    // 「バックアップが有効かどうか」をこのページ上部にも分かりやすく表示する。
+    // （ログイン自体は設定ページで行う想定）
+    function renderDriveBackupStatus(status) {
+      const box = document.getElementById('driveBackupStatusBox');
+      if (!box) return;
+      if (!status || !status.configured) {
+        box.style.display = 'none';
+        return;
+      }
+      box.style.display = 'block';
+      if (status.signedIn) {
+        box.style.background = 'var(--panel)';
+        box.style.color = 'var(--text-sub)';
+        box.style.border = '1px solid var(--line)';
+        box.innerHTML = '☁ Googleドライブへの動画バックアップ: 有効です。新しく追加した動画は自動でバックアップされます。';
+      } else {
+        box.style.background = 'var(--uq-red-light)';
+        box.style.color = 'var(--uq-red)';
+        box.style.border = '1px solid rgba(230,0,18,0.2)';
+        box.innerHTML = '☁ Googleドライブへの動画バックアップは無効です（未ログイン）。<a href="設定.html" style="color:inherit; text-decoration:underline; font-weight:800;">設定ページ</a>でログインすると、動画も自動でバックアップされ、この端末で消えても復元できるようになります。';
+      }
+    }
+
+    if (window.kyudoSyncOnChange) {
+      window.kyudoSyncOnChange(function (status) {
+        renderDriveBackupStatus(status);
+        renderLibrary();
+      });
+    } else {
+      renderDriveBackupStatus(null);
+    }
+
+    // メタ情報(タイトル等)はGoogleドライブ同期の対象だが、動画本体(IndexedDB)は
+    // 同期対象外なので、別端末やデータ消去後は「一覧には出るが実体が無い」状態になりうる。
+    // そのケースを事前に検出してライブラリ表示・選択時にわかるようにする。
+    async function idbVideoExists(id) {
+      const db = await openVideoDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).count(id);
+        req.onsuccess = () => resolve(req.result > 0);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
     async function idbDeleteVideo(id) {
       const db = await openVideoDB();
       return new Promise((resolve, reject) => {
@@ -854,6 +963,167 @@
       localStorage.setItem(META_KEY, JSON.stringify(list));
     }
 
+    function updateMetaItem(id, patch) {
+      const meta = loadMeta();
+      const item = meta.find(m => String(m.id) === String(id));
+      if (!item) return;
+      Object.assign(item, patch);
+      saveMeta(meta);
+    }
+
+    // ================================================================
+    // Googleドライブへの動画本体バックアップ（任意・ログイン時のみ）
+    // ------------------------------------------------------------
+    // sync.js は「タイトル等の軽い情報」しか同期しないため、動画ファイル
+    // そのものは常にこの端末のIndexedDBにしか無かった。ここでは、動画
+    // ファイル自体もユーザー自身のGoogleドライブ（アプリ専用の隠し領域
+    // = appDataFolder、他のファイルとは分離されており本人にも一覧表示
+    // されない）へアップロードし、他端末や消去後でもダウンロードし直せる
+    // ようにする。
+    //
+    // ・容量はユーザー自身のGoogleアカウントの無料枠(15GB)を使うので、
+    //   運営側の費用は発生しない。
+    // ・ファイルが大きいため、途中で切れても続きから再送できる
+    //   「レジューム可能アップロード」を使う。アップロード状況(URL)は
+    //   localStorageに保存しておき、ページを閉じても次回続きから送れる。
+    // ================================================================
+    const DRIVE_UPLOAD_CHUNK = 8 * 1024 * 1024; // 8MB単位で送る
+    const DRIVE_SESSION_KEY_PREFIX = 'kyudo_drive_upload_session:';
+
+    function driveSyncAvailable() {
+      return !!(window.kyudoGetAccessToken && window.kyudoSyncStatus);
+    }
+
+    function getStoredUploadSession(id) {
+      try {
+        const raw = localStorage.getItem(DRIVE_SESSION_KEY_PREFIX + id);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) { return null; }
+    }
+
+    function storeUploadSession(id, sessionUrl, size) {
+      localStorage.setItem(DRIVE_SESSION_KEY_PREFIX + id, JSON.stringify({ url: sessionUrl, size }));
+    }
+
+    function clearUploadSession(id) {
+      localStorage.removeItem(DRIVE_SESSION_KEY_PREFIX + id);
+    }
+
+    async function driveCreateResumableSession(token, fileName, mimeType, fileSize) {
+      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json; charset=UTF-8',
+          'X-Upload-Content-Type': mimeType || 'application/octet-stream',
+          'X-Upload-Content-Length': String(fileSize)
+        },
+        body: JSON.stringify({ name: fileName, parents: ['appDataFolder'] })
+      });
+      if (!res.ok) throw new Error('resumable_session_failed:' + res.status);
+      const location = res.headers.get('Location');
+      if (!location) throw new Error('resumable_session_no_location');
+      return location;
+    }
+
+    // 中断later再開のため、サーバーに「どこまで受信済みか」を問い合わせる
+    async function driveCheckUploadedOffset(sessionUrl, totalSize) {
+      const res = await fetch(sessionUrl, {
+        method: 'PUT',
+        headers: { 'Content-Range': `bytes */${totalSize}` }
+      });
+      if (res.status === 200 || res.status === 201) {
+        const json = await res.json().catch(() => null);
+        return { done: true, fileId: json && json.id };
+      }
+      if (res.status === 308) {
+        const range = res.headers.get('Range');
+        if (range) {
+          const m = /bytes=0-(\d+)/.exec(range);
+          if (m) return { done: false, offset: parseInt(m[1], 10) + 1 };
+        }
+        return { done: false, offset: 0 };
+      }
+      // セッション自体が失効(404等)している場合は最初からやり直す
+      throw new Error('session_invalid:' + res.status);
+    }
+
+    async function driveUploadFromOffset(sessionUrl, blob, offset, onProgress) {
+      const total = blob.size;
+      while (offset < total) {
+        const end = Math.min(offset + DRIVE_UPLOAD_CHUNK, total);
+        const chunk = blob.slice(offset, end);
+        const res = await fetch(sessionUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Range': `bytes ${offset}-${end - 1}/${total}`
+          },
+          body: chunk
+        });
+        if (res.status === 200 || res.status === 201) {
+          const json = await res.json();
+          if (onProgress) onProgress(total, total);
+          return json.id;
+        } else if (res.status === 308) {
+          offset = end;
+          if (onProgress) onProgress(offset, total);
+        } else {
+          throw new Error('chunk_upload_failed:' + res.status);
+        }
+      }
+    }
+
+    // 動画1本をGoogleドライブへアップロード（失敗しても他の機能には影響しない）
+    async function uploadVideoToDrive(id, blob, onProgress) {
+      if (!driveSyncAvailable()) return null;
+      const status = window.kyudoSyncStatus();
+      if (!status.signedIn) return null;
+
+      const token = await window.kyudoGetAccessToken();
+      if (!token) return null;
+
+      const fileName = 'kyudo_video_' + id;
+      let sessionUrl = null;
+      let offset = 0;
+
+      const stored = getStoredUploadSession(id);
+      if (stored && stored.size === blob.size) {
+        try {
+          const check = await driveCheckUploadedOffset(stored.url, stored.size);
+          if (check.done) {
+            clearUploadSession(id);
+            return check.fileId;
+          }
+          sessionUrl = stored.url;
+          offset = check.offset;
+        } catch (e) {
+          // セッションが失効していたら新規作成し直す
+          clearUploadSession(id);
+        }
+      }
+
+      if (!sessionUrl) {
+        sessionUrl = await driveCreateResumableSession(token, fileName, blob.type, blob.size);
+        storeUploadSession(id, sessionUrl, blob.size);
+        offset = 0;
+      }
+
+      const fileId = await driveUploadFromOffset(sessionUrl, blob, offset, onProgress);
+      clearUploadSession(id);
+      return fileId;
+    }
+
+    async function downloadVideoFromDrive(driveFileId) {
+      if (!driveSyncAvailable()) return null;
+      const token = await window.kyudoGetAccessToken();
+      if (!token) return null;
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) return null;
+      return await res.blob();
+    }
+
     const videoA = document.getElementById('videoA');
     const videoB = document.getElementById('videoB');
     const selectA = document.getElementById('selectA');
@@ -872,22 +1142,63 @@
       });
     }
 
-    async function loadIntoSlot(videoEl, id) {
+    async function loadIntoSlot(videoEl, id, selectEl) {
       if (!id) {
         videoEl.removeAttribute('src');
         videoEl.load();
         updateSeekRange();
         return;
       }
-      const blob = await idbGetVideo(Number(id));
-      if (!blob) return;
+      let blob = await idbGetVideo(Number(id));
+
+      if (!blob) {
+        // この端末には無いが、Googleドライブにバックアップ済みなら
+        // そこからダウンロードして復元を試みる。
+        const meta = loadMeta();
+        const item = meta.find(m => String(m.id) === String(id));
+        const status = driveSyncAvailable() ? window.kyudoSyncStatus() : null;
+
+        if (item && item.driveFileId && status && status.signedIn) {
+          if (selectEl) selectEl.disabled = true;
+          try {
+            blob = await downloadVideoFromDrive(item.driveFileId);
+            if (blob) {
+              await idbPutVideo(Number(id), blob);
+            }
+          } catch (e) {
+            blob = null;
+          } finally {
+            if (selectEl) selectEl.disabled = false;
+          }
+        }
+      }
+
+      if (!blob) {
+        // タイトル一覧(メタ情報)はGoogleドライブ経由で他端末にも同期されるが、
+        // 動画データ本体はこの端末のIndexedDBにしか無いため、
+        // ・別の端末で保存した動画をこの端末で選んだ場合
+        // ・ブラウザのデータ消去やストレージ容量整理で消えてしまった場合
+        // などに実体が見つからず、何も起きないように見えてしまっていた。
+        // ここでは無反応にせず、理由をはっきり伝えてUIも選択前の状態に戻す。
+        const meta = loadMeta();
+        const item = meta.find(m => String(m.id) === String(id));
+        const msg = (item && item.driveFileId)
+          ? 'この動画をGoogleドライブから取得できませんでした。\nログイン状態やネットワーク接続を確認して、もう一度お試しください。'
+          : 'この動画のデータが見つかりませんでした。\nこの端末に保存されておらず、Googleドライブへのバックアップもまだ無いようです。\nお手数ですが、この端末でもう一度動画を追加してください。';
+        alert(msg);
+        if (selectEl) selectEl.value = '';
+        videoEl.removeAttribute('src');
+        videoEl.load();
+        updateSeekRange();
+        return;
+      }
       const url = URL.createObjectURL(blob);
       objectUrls.push(url);
       videoEl.src = url;
     }
 
-    selectA.addEventListener('change', () => loadIntoSlot(videoA, selectA.value));
-    selectB.addEventListener('change', () => loadIntoSlot(videoB, selectB.value));
+    selectA.addEventListener('change', () => loadIntoSlot(videoA, selectA.value, selectA));
+    selectB.addEventListener('change', () => loadIntoSlot(videoB, selectB.value, selectB));
 
     document.getElementById('layoutToggleBtn').addEventListener('click', () => {
       compareGrid.classList.toggle('vertical');
@@ -1024,21 +1335,61 @@
       const title = document.getElementById('mTitle').value.trim() || '(無題)';
       const date = document.getElementById('mDate').value || new Date().toISOString().split('T')[0];
       const tag = document.getElementById('mTag').value.trim();
+      const fileToUpload = pendingFile;
 
       const id = Date.now() + Math.floor(Math.random() * 1000);
-      await idbPutVideo(id, pendingFile);
+      await idbPutVideo(id, fileToUpload);
 
       const meta = loadMeta();
-      meta.unshift({ id, title, date, tag, createdAt: Date.now() });
+      meta.unshift({ id, title, date, tag, createdAt: Date.now(), driveFileId: null });
       saveMeta(meta);
 
       pendingFile = null;
       addModal.classList.remove('show');
       renderSelectOptions();
       renderLibrary();
+      ensurePersistentStorage().then(renderStorageStatus);
+
+      // ログイン中なら、保存直後にバックグラウンドでGoogleドライブへもアップロードしておく
+      startBackgroundDriveUpload(id, fileToUpload);
     });
 
-    function renderLibrary() {
+    // 動画id -> {uploading, percent} のアップロード進捗（画面表示用）
+    const driveUploadProgress = {};
+
+    function startBackgroundDriveUpload(id, blob) {
+      if (!driveSyncAvailable()) return;
+      if (!window.kyudoSyncStatus().signedIn) return;
+
+      driveUploadProgress[id] = { uploading: true, percent: 0 };
+      renderLibrary();
+
+      uploadVideoToDrive(id, blob, (sent, total) => {
+        driveUploadProgress[id] = { uploading: true, percent: total ? Math.round((sent / total) * 100) : 0 };
+        renderLibrary();
+      }).then(fileId => {
+        delete driveUploadProgress[id];
+        if (fileId) updateMetaItem(id, { driveFileId: fileId });
+        renderLibrary();
+      }).catch(() => {
+        // アップロード失敗時は静かに諦める（ローカル再生には影響しないため）。
+        // ライブラリの「☁ アップロード」ボタンから手動で再試行できる。
+        delete driveUploadProgress[id];
+        renderLibrary();
+      });
+    }
+
+    window.manualUploadToDrive = function (id) {
+      idbGetVideo(Number(id)).then(blob => {
+        if (!blob) {
+          alert('この動画データがこの端末に見つかりません。');
+          return;
+        }
+        startBackgroundDriveUpload(id, blob);
+      });
+    };
+
+    async function renderLibrary() {
       const meta = loadMeta();
       const root = document.getElementById('library-root');
       if (!meta.length) {
@@ -1046,35 +1397,78 @@
         return;
       }
 
-      root.innerHTML = meta.map(m => `
-        <div class="uq-library-item">
+      // タイトル一覧(メタ情報)はGoogleドライブ経由で端末間で同期されるが、
+      // 動画データ本体はこの端末のIndexedDBにしか存在しないため、
+      // 「一覧には出るが、この端末には実体が無い」項目があり得る。
+      // 事前に判定して、選んでも何も起きないように見える状態を防ぐ。
+      const existsList = await Promise.all(
+        meta.map(m => idbVideoExists(Number(m.id)).catch(() => false))
+      );
+      const syncStatus = driveSyncAvailable() ? window.kyudoSyncStatus() : { signedIn: false };
+
+      root.innerHTML = meta.map((m, i) => {
+        const available = existsList[i];
+        const progress = driveUploadProgress[m.id];
+        const hasDriveBackup = !!m.driveFileId;
+
+        let statusNote = '';
+        if (!available && hasDriveBackup) {
+          statusNote = `<div class="uq-lib-meta">☁ ドライブに保存済み（選択すると自動でダウンロードします）</div>`;
+        } else if (!available && !hasDriveBackup) {
+          statusNote = `<div class="uq-lib-meta" style="color:var(--uq-red);">⚠ この端末にデータがありません（他端末で保存した動画の可能性）</div>`;
+        } else if (progress && progress.uploading) {
+          statusNote = `<div class="uq-lib-meta">☁ アップロード中… ${progress.percent}%</div>`;
+        } else if (hasDriveBackup) {
+          statusNote = `<div class="uq-lib-meta">☁ バックアップ済み</div>`;
+        }
+
+        const showUploadBtn = available && !hasDriveBackup && !(progress && progress.uploading) && syncStatus.signedIn;
+
+        return `
+        <div class="uq-library-item"${available ? '' : ' style="opacity:0.6;"'}>
           <div class="uq-lib-info">
             <div class="uq-lib-title">${m.title || '(無題)'}</div>
             <div class="uq-lib-meta">${m.date || '─'}</div>
             ${m.tag ? `<span class="uq-lib-tag">🏷 ${m.tag}</span>` : ''}
+            ${statusNote}
           </div>
           <div class="uq-lib-actions">
             <button class="uq-btn primary" onclick="useInSlot(${m.id}, 'A')">Aに設定</button>
             <button class="uq-btn" onclick="useInSlot(${m.id}, 'B')">Bに設定</button>
+            ${showUploadBtn ? `<button class="uq-btn" onclick="manualUploadToDrive(${m.id})">☁ アップロード</button>` : ''}
             <button class="uq-btn danger" onclick="deleteVideo(${m.id})">削除</button>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     window.useInSlot = function(id, slot) {
       const sel = slot === 'A' ? selectA : selectB;
       const vid = slot === 'A' ? videoA : videoB;
       sel.value = String(id);
-      loadIntoSlot(vid, String(id));
+      loadIntoSlot(vid, String(id), sel);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.deleteVideo = async function(id) {
-      if (!confirm('この動画をライブラリから削除しますか？')) return;
+      if (!confirm('この動画をライブラリから削除しますか？\n（Googleドライブにバックアップ済みの場合は、そちらからも削除されます）')) return;
+      const meta = loadMeta();
+      const item = meta.find(m => m.id === id);
       await idbDeleteVideo(id);
-      const meta = loadMeta().filter(m => m.id !== id);
-      saveMeta(meta);
+
+      if (item && item.driveFileId && driveSyncAvailable()) {
+        window.kyudoGetAccessToken().then(token => {
+          if (!token) return;
+          fetch(`https://www.googleapis.com/drive/v3/files/${item.driveFileId}`, {
+            method: 'DELETE',
+            headers: { Authorization: 'Bearer ' + token }
+          }).catch(() => {});
+        }).catch(() => {});
+      }
+
+      const newMeta = meta.filter(m => m.id !== id);
+      saveMeta(newMeta);
       renderSelectOptions();
       renderLibrary();
     };
