@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <script>(function(){try{var s=localStorage.getItem("kyudo_font_scale");if(s)document.documentElement.style.setProperty("--font-scale",s);}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>リアル八節くん | 3Dカスタム射法八節エディタ</title>
   <meta name="description" content="射法八節の解説や筋肉の意識ポイントを自分専用にカスタマイズ。リッチテキスト編集やURL共有、複数ノート保存に対応。" />
@@ -140,8 +141,8 @@
 
     /* HEADER */
     .uq-header {
-      flex: 0 0 52px;
-      height: 52px;
+      flex: 0 0 calc(52px * var(--font-scale));
+      height: calc(52px * var(--font-scale));
       z-index: 1000;
       background: var(--bg);
       border-bottom: 1px solid var(--line);
@@ -149,12 +150,16 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 16px;
+      overflow: hidden;
     }
 
     .uq-brand {
       display: flex;
       align-items: center;
       gap: 12px;
+      min-width: 0;
+      overflow: hidden;
+      flex: 1 1 auto;
     }
 
     .uq-logo-box {
@@ -175,29 +180,40 @@
     .uq-app-title-wrap {
       display: flex;
       flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .uq-app-title {
-      font-size: 15px;
+      font-size:calc(15px * var(--font-scale));
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--text);
       display: flex;
       align-items: center;
       gap: 6px;
+      min-width: 0;
+    }
+
+    .uq-app-title-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
 
     .uq-tag-badge {
       background: var(--uq-red);
       color: #FFFFFF;
-      font-size: 9px;
+      font-size:calc(9px * var(--font-scale));
       font-weight: 800;
       padding: 1px 5px;
       border-radius: var(--radius-sm);
+      flex-shrink: 0;
     }
 
     .uq-app-subtitle {
-      font-size: 9.5px;
+      font-size:calc(9.5px * var(--font-scale));
       font-weight: 600;
       letter-spacing: 0.04em;
       color: var(--text-sub);
@@ -216,7 +232,7 @@
       gap: 4px;
       padding: 6px 12px;
       border-radius: var(--radius-sm);
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 700;
       border: 1px solid var(--line);
       background: var(--bg);
@@ -247,7 +263,7 @@
       border-radius: var(--radius-sm);
       border: 1px solid var(--line);
       background: var(--panel);
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 700;
       color: var(--text);
       max-width: 140px;
@@ -269,8 +285,8 @@
 
     /* STAGE SELECTOR */
     .uq-stage-tabs-container {
-      flex: 0 0 44px;
-      height: 44px;
+      flex: 0 0 calc(44px * var(--font-scale));
+      height: calc(44px * var(--font-scale));
       z-index: 990;
       background: var(--bg);
       border-bottom: 1px solid var(--line);
@@ -310,7 +326,7 @@
     }
 
     .uq-stage-tab-num {
-      font-size: 9.5px;
+      font-size:calc(9.5px * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.06em;
       color: var(--text-muted);
@@ -319,7 +335,7 @@
     }
 
     .uq-stage-tab-name {
-      font-size: 12.5px;
+      font-size:calc(12.5px * var(--font-scale));
       font-weight: 700;
       color: var(--text-sub);
     }
@@ -446,8 +462,8 @@
     /* LANDSCAPE MOBILE OPTIMIZATION */
     @media (orientation: landscape) and (max-height: 600px) {
       .uq-header {
-        flex: 0 0 38px !important;
-        height: 38px !important;
+        flex: 0 0 calc(38px * var(--font-scale)) !important;
+        height: calc(38px * var(--font-scale)) !important;
         padding: 0 12px !important;
       }
       .uq-logo-box {
@@ -455,7 +471,7 @@
         height: 22px !important;
     }
       .uq-app-title {
-        font-size: 13px !important;
+        font-size:calc(13px * var(--font-scale)) !important;
       }
       .uq-app-subtitle {
         display: none !important;
@@ -466,17 +482,17 @@
       }
 
       .uq-stage-tabs-container {
-        flex: 0 0 34px !important;
-        height: 34px !important;
+        flex: 0 0 calc(34px * var(--font-scale)) !important;
+        height: calc(34px * var(--font-scale)) !important;
       }
       .uq-stage-tab {
         padding: 2px 10px !important;
       }
       .uq-stage-tab-name {
-        font-size: 11px !important;
+        font-size:calc(11px * var(--font-scale)) !important;
       }
       .uq-stage-tab-num {
-        font-size: 8px !important;
+        font-size:calc(8px * var(--font-scale)) !important;
       }
 
       .uq-main-layout {
@@ -538,17 +554,17 @@
         padding: 3px 8px !important;
         min-width: 32px !important;
         height: 26px !important;
-        font-size: 11px !important;
+        font-size:calc(11px * var(--font-scale)) !important;
         gap: 3px !important;
       }
       .uq-btn-label {
         display: none !important;
       }
       .uq-btn .material-symbols-outlined {
-        font-size: 16px !important;
+        font-size:calc(16px * var(--font-scale)) !important;
       }
       .uq-time-display {
-        font-size: 10px !important;
+        font-size:calc(10px * var(--font-scale)) !important;
         min-width: 36px !important;
       }
 
@@ -579,7 +595,7 @@
       background: rgba(17, 17, 17, 0.85);
       backdrop-filter: blur(8px);
       color: #FFFFFF;
-      font-size: 11px;
+      font-size:calc(11px * var(--font-scale));
       font-weight: 700;
       padding: 5px 10px;
       border-radius: var(--radius-sm);
@@ -602,7 +618,7 @@
       background: rgba(17, 17, 17, 0.7);
       backdrop-filter: blur(6px);
       color: #CCCCCC;
-      font-size: 10px;
+      font-size:calc(10px * var(--font-scale));
       padding: 4px 8px;
       border-radius: var(--radius-sm);
     }
@@ -626,7 +642,7 @@
 
     .uq-time-display {
       font-family: 'Inter', monospace;
-      font-size: 11px;
+      font-size:calc(11px * var(--font-scale));
       font-weight: 700;
       color: var(--text-sub);
       min-width: 44px;
@@ -678,7 +694,7 @@
       gap: 6px;
       padding: 7px 14px;
       border-radius: var(--radius-sm);
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 700;
       letter-spacing: 0.02em;
       border: 1px solid var(--line);
@@ -749,7 +765,7 @@
     .uq-mode-tab {
       padding: 6px 14px;
       border-radius: var(--radius-sm);
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 800;
       color: var(--text-sub);
       background: var(--panel);
@@ -783,7 +799,7 @@
     .uq-toolbar-btn {
       padding: 5px 10px;
       border-radius: var(--radius-sm);
-      font-size: 11.5px;
+      font-size:calc(11.5px * var(--font-scale));
       font-weight: 700;
       background: var(--bg);
       border: 1px solid var(--line);
@@ -836,7 +852,7 @@
     }
 
     .uq-card-title {
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -847,7 +863,7 @@
     }
 
     .uq-field-label {
-      font-size: 11px;
+      font-size:calc(11px * var(--font-scale));
       font-weight: 700;
       color: var(--text-sub);
       margin-bottom: 4px;
@@ -860,7 +876,7 @@
       border-radius: 0 0 var(--radius-sm) var(--radius-sm);
       color: var(--text);
       font-family: inherit;
-      font-size: 13.5px;
+      font-size:calc(13.5px * var(--font-scale));
       padding: 10px 12px;
       min-height: 80px;
       line-height: 1.6;
@@ -879,7 +895,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: inherit;
-      font-size: 13px;
+      font-size:calc(13px * var(--font-scale));
       outline: none;
     }
 
@@ -900,7 +916,7 @@
       gap: 4px;
       padding: 5px 10px;
       border-radius: var(--radius-sm);
-      font-size: 11.5px;
+      font-size:calc(11.5px * var(--font-scale));
       font-weight: 700;
       border: 1px solid var(--line);
       background: var(--panel);
@@ -936,7 +952,7 @@
 
     .uq-checkpoint-del {
       color: var(--uq-red);
-      font-size: 18px;
+      font-size:calc(18px * var(--font-scale));
       padding: 4px;
     }
 
@@ -983,7 +999,7 @@
     }
 
     .uq-drawer-title {
-      font-size: 16px;
+      font-size:calc(16px * var(--font-scale));
       font-weight: 900;
       color: var(--text);
     }
@@ -995,7 +1011,7 @@
     }
 
     .uq-drawer-section-label {
-      font-size: 10px;
+      font-size:calc(10px * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -1008,7 +1024,7 @@
       align-items: center;
       gap: 14px;
       padding: 12px 20px;
-      font-size: 13.5px;
+      font-size:calc(13.5px * var(--font-scale));
       font-weight: 700;
       color: var(--text);
       transition: background 0.15s;
@@ -1093,12 +1109,12 @@
       border: 1px solid var(--line);
       background: var(--panel);
       color: var(--text);
-      font-size: 11.5px;
+      font-size:calc(11.5px * var(--font-scale));
       font-family: inherit;
     }
 
     .uq-share-hint {
-      font-size: 11.5px;
+      font-size:calc(11.5px * var(--font-scale));
       color: var(--text-sub);
       line-height: 1.6;
       text-align: center;
@@ -1114,7 +1130,7 @@
       color: #FFFFFF;
       padding: 10px 18px;
       border-radius: var(--radius-sm);
-      font-size: 12.5px;
+      font-size:calc(12.5px * var(--font-scale));
       font-weight: 700;
       z-index: 9999;
       opacity: 0;
@@ -1157,7 +1173,7 @@
 
     .uq-loader-text {
       color: #FFFFFF;
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 700;
       letter-spacing: 0.04em;
     }
@@ -1171,7 +1187,7 @@
       <div class="uq-logo-box"><img src="favicon-96x96.png" alt="リアル八節くん" width="30" height="30"></div>
       <div class="uq-app-title-wrap">
         <span class="uq-app-title">
-          リアル八節くん
+          <span class="uq-app-title-text">リアル八節くん</span>
           <span class="uq-tag-badge">3Dエディタ</span>
         </span>
         <span class="uq-app-subtitle">KYUDO 3D CUSTOM NOTE</span>
@@ -1181,17 +1197,17 @@
     <!-- Actions -->
     <div class="uq-header-actions">
       <button class="uq-notebook-btn" onclick="openNotebookModal()" title="ノートを切り替え">
-        <span class="material-symbols-outlined" style="font-size:16px;">book</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">book</span>
         <span id="currentNotebookName">ノート1</span>
       </button>
       <button class="uq-header-btn" onclick="importData()" title="インポート">
-        <span class="material-symbols-outlined" style="font-size:16px;">download</span><span class="uq-btn-label">インポート</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">download</span><span class="uq-btn-label">インポート</span>
       </button>
       <button class="uq-header-btn" onclick="openShare()" title="共有">
-        <span class="material-symbols-outlined" style="font-size:16px;">share</span><span class="uq-btn-label">共有</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">share</span><span class="uq-btn-label">共有</span>
       </button>
       <button class="uq-header-btn primary" onclick="saveAll()" title="保存">
-        <span class="material-symbols-outlined" style="font-size:16px;">save</span><span class="uq-btn-label">すべて保存</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">save</span><span class="uq-btn-label">すべて保存</span>
       </button>
       <button class="uq-icon-btn" id="themeToggleBtn" aria-label="テーマ切替" title="ダーク/ライト切替">
         <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
@@ -1235,18 +1251,18 @@
         <div class="uq-controls-btn-row">
           <div class="uq-btn-group">
             <button class="uq-btn primary" id="playBtn" title="全体再生" aria-label="再生">
-              <span class="material-symbols-outlined" style="font-size:16px;">play_arrow</span><span class="uq-btn-label">再生</span>
+              <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">play_arrow</span><span class="uq-btn-label">再生</span>
             </button>
             <button class="uq-btn" id="pauseBtn" title="停止" aria-label="停止">
-              <span class="material-symbols-outlined" style="font-size:16px;">pause</span><span class="uq-btn-label">停止</span>
+              <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">pause</span><span class="uq-btn-label">停止</span>
             </button>
             <button class="uq-btn" id="resetBtn" title="先頭に戻す" aria-label="リセット">
-              <span class="material-symbols-outlined" style="font-size:16px;">replay</span><span class="uq-btn-label">リセット</span>
+              <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">replay</span><span class="uq-btn-label">リセット</span>
             </button>
           </div>
           <div class="uq-btn-group">
             <button class="uq-btn" id="fitBtn" title="視点を中央に戻す" aria-label="視点を中央に戻す">
-              <span class="material-symbols-outlined" style="font-size:16px;">center_focus_strong</span><span class="uq-btn-label">中央</span>
+              <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">center_focus_strong</span><span class="uq-btn-label">中央</span>
             </button>
           </div>
         </div>
@@ -1259,7 +1275,7 @@
       <div class="uq-mode-tabs">
         <button class="uq-mode-tab active" id="tabBtnEdit" onclick="switchModeTab('edit')">✏️ 編集モード</button>
         <button class="uq-mode-tab" id="tabBtnView" onclick="switchModeTab('view')">👁 プレビュー</button>
-        <span style="margin-left:auto; font-size:11px; color:var(--text-muted);" id="lastSavedLabel"></span>
+        <span style="margin-left:auto; font-size:calc(11px * var(--font-scale)); color:var(--text-muted);" id="lastSavedLabel"></span>
       </div>
 
       <!-- EDIT PANE -->
@@ -1328,7 +1344,7 @@
         <!-- Card 2: 筋肉設定 -->
         <div class="uq-card-group">
           <div class="uq-card-title">💪 3D筋肉の選択と意識メモ</div>
-          <p style="font-size:11px; color:var(--text-muted); margin-top:-6px;">タップすると3Dモデル上の筋肉がリアルタイムに色分けされます。</p>
+          <p style="font-size:calc(11px * var(--font-scale)); color:var(--text-muted); margin-top:-6px;">タップすると3Dモデル上の筋肉がリアルタイムに色分けされます。</p>
 
           <div>
             <div class="uq-field-label" style="color:var(--uq-red);">🔴 主動筋・メインで使う筋肉</div>
@@ -1440,14 +1456,14 @@
       <button class="uq-icon-btn uq-modal-close" onclick="closeNotebookModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
-      <h3 style="font-size:16px; font-weight:900; margin-bottom:12px;">📓 ノート切り替え・新規作成</h3>
+      <h3 style="font-size:calc(16px * var(--font-scale)); font-weight:900; margin-bottom:12px;">📓 ノート切り替え・新規作成</h3>
       
       <div style="display:flex; gap:6px; margin-bottom:16px;">
         <input type="text" id="newNotebookName" class="uq-input-text" placeholder="新しいノート名" style="flex:1;">
         <button class="uq-btn primary" onclick="createNotebook()">作成</button>
       </div>
 
-      <div style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:8px;">保存済みノート一覧</div>
+      <div style="font-size:calc(12px * var(--font-scale)); font-weight:700; color:var(--text-sub); margin-bottom:8px;">保存済みノート一覧</div>
       <div id="notebookList" style="display:flex; flex-direction:column; gap:8px;"></div>
     </div>
   </div>
@@ -1458,14 +1474,14 @@
       <button class="uq-icon-btn uq-modal-close" onclick="closeShareModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
-      <h3 style="font-size:16px; font-weight:900; margin-bottom:12px;">🔗 ノートを共有</h3>
+      <h3 style="font-size:calc(16px * var(--font-scale)); font-weight:900; margin-bottom:12px;">🔗 ノートを共有</h3>
 
       <div class="uq-share-qr-wrap" id="shareQrWrap"></div>
 
       <div class="uq-share-url-row">
         <input type="text" id="shareUrlInput" class="uq-share-url-input" readonly>
         <button class="uq-header-btn primary" onclick="copyShareUrl()" style="flex-shrink:0;">
-          <span class="material-symbols-outlined" style="font-size:16px;">content_copy</span>コピー
+          <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">content_copy</span>コピー
         </button>
       </div>
 
@@ -1974,7 +1990,7 @@
       const selected = [...(stageData.primaryMuscles || []), ...(stageData.secondaryMuscles || [])];
 
       if (selected.length === 0) {
-        area.innerHTML = '<div style="font-size:11.5px; color:var(--text-muted);">筋肉が選択されていません。上から選択してください。</div>';
+        area.innerHTML = '<div style="font-size:calc(11.5px * var(--font-scale)); color:var(--text-muted);">筋肉が選択されていません。上から選択してください。</div>';
         return;
       }
 
@@ -1983,7 +1999,7 @@
         const row = document.createElement('div');
         row.style.cssText = 'display:flex; align-items:center; gap:8px;';
         row.innerHTML = `
-          <span style="font-size:11.5px; font-weight:800; min-width:90px; color:${isPri ? 'var(--uq-red)' : 'var(--color-secondary-bright)'};">
+          <span style="font-size:calc(11.5px * var(--font-scale)); font-weight:800; min-width:90px; color:${isPri ? 'var(--uq-red)' : 'var(--color-secondary-bright)'};">
             ${isPri ? '🔴' : '🟡'} ${m}
           </span>
           <input type="text" class="uq-input-text" placeholder="${m}の意識ポイント・メモ" value="${stageData.muscleMemos[m] || ''}" oninput="updateMuscleMemo('${m}', this.value)" style="flex:1;">
@@ -2088,45 +2104,45 @@
       const s = userData[currentStage];
       document.getElementById('previewDesc').innerHTML = `
         <div class="uq-card-title">📖 ${s.step || `第${currentStage+1}節`} ${s.name}</div>
-        <p style="font-size:13.5px; line-height:1.7;">${s.desc || '（説明なし）'}</p>
+        <p style="font-size:calc(13.5px * var(--font-scale)); line-height:1.7;">${s.desc || '（説明なし）'}</p>
         ${s.analogy ? `<div class="uq-callout-box" style="margin:8px 0;">${s.analogy}</div>` : ''}
         ${s.advice ? `<div class="uq-callout-box tip" style="margin:8px 0;">${s.advice}</div>` : ''}
-        ${s.memo ? `<div style="background:var(--panel); padding:10px; border-radius:4px; font-size:12.5px; margin-top:8px;"><strong>📝 自由メモ:</strong><br>${s.memo}</div>` : ''}
+        ${s.memo ? `<div style="background:var(--panel); padding:10px; border-radius:4px; font-size:calc(12.5px * var(--font-scale)); margin-top:8px;"><strong>📝 自由メモ:</strong><br>${s.memo}</div>` : ''}
       `;
 
       const priList = (s.primaryMuscles || []).map(m => `
         <div style="background:var(--uq-red-light); padding:8px 12px; border-radius:4px; border-left:3px solid var(--uq-red);">
-          <strong style="color:var(--uq-red); font-size:12.5px;">🔴 ${m}</strong>
-          ${s.muscleMemos && s.muscleMemos[m] ? `<div style="font-size:11.5px; margin-top:2px;">${s.muscleMemos[m]}</div>` : ''}
+          <strong style="color:var(--uq-red); font-size:calc(12.5px * var(--font-scale));">🔴 ${m}</strong>
+          ${s.muscleMemos && s.muscleMemos[m] ? `<div style="font-size:calc(11.5px * var(--font-scale)); margin-top:2px;">${s.muscleMemos[m]}</div>` : ''}
         </div>
       `).join('');
 
       const secList = (s.secondaryMuscles || []).map(m => `
         <div style="background:rgba(245,158,11,0.08); padding:8px 12px; border-radius:4px; border-left:3px solid var(--color-secondary-bright);">
-          <strong style="color:var(--color-secondary-bright); font-size:12.5px;">🟡 ${m}</strong>
-          ${s.muscleMemos && s.muscleMemos[m] ? `<div style="font-size:11.5px; margin-top:2px;">${s.muscleMemos[m]}</div>` : ''}
+          <strong style="color:var(--color-secondary-bright); font-size:calc(12.5px * var(--font-scale));">🟡 ${m}</strong>
+          ${s.muscleMemos && s.muscleMemos[m] ? `<div style="font-size:calc(11.5px * var(--font-scale)); margin-top:2px;">${s.muscleMemos[m]}</div>` : ''}
         </div>
       `).join('');
 
       document.getElementById('previewMuscles').innerHTML = `
         <div class="uq-card-title">💪 意識する筋肉</div>
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
-          ${priList || '<span style="font-size:12px; color:var(--text-muted);">主動筋の選択なし</span>'}
+          ${priList || '<span style="font-size:calc(12px * var(--font-scale)); color:var(--text-muted);">主動筋の選択なし</span>'}
           ${secList}
         </div>
       `;
 
-      const tc = (s.tenouchiCheckpoints || []).map(t => `<div style="font-size:12.5px; padding:4px 0;">✓ ${t}</div>`).join('');
+      const tc = (s.tenouchiCheckpoints || []).map(t => `<div style="font-size:calc(12.5px * var(--font-scale)); padding:4px 0;">✓ ${t}</div>`).join('');
       document.getElementById('previewTenouchi').innerHTML = `
         <div class="uq-card-title">🤚 手の内</div>
-        ${tc || '<span style="font-size:12px; color:var(--text-muted);">チェックポイントなし</span>'}
-        ${s.tenouchiWarning ? `<div style="background:var(--uq-red-light); padding:8px 10px; border-radius:4px; color:var(--uq-red); font-size:12px; margin-top:8px;">${s.tenouchiWarning}</div>` : ''}
+        ${tc || '<span style="font-size:calc(12px * var(--font-scale)); color:var(--text-muted);">チェックポイントなし</span>'}
+        ${s.tenouchiWarning ? `<div style="background:var(--uq-red-light); padding:8px 10px; border-radius:4px; color:var(--uq-red); font-size:calc(12px * var(--font-scale)); margin-top:8px;">${s.tenouchiWarning}</div>` : ''}
       `;
 
-      const mc = (s.missCheckpoints || []).map(t => `<div style="font-size:12.5px; padding:4px 0;">⚠ ${t}</div>`).join('');
+      const mc = (s.missCheckpoints || []).map(t => `<div style="font-size:calc(12.5px * var(--font-scale)); padding:4px 0;">⚠ ${t}</div>`).join('');
       document.getElementById('previewMiss').innerHTML = `
         <div class="uq-card-title">⚠ やりがちなミス</div>
-        ${mc || '<span style="font-size:12px; color:var(--text-muted);">ミス項目なし</span>'}
+        ${mc || '<span style="font-size:calc(12px * var(--font-scale)); color:var(--text-muted);">ミス項目なし</span>'}
       `;
     }
 
@@ -2354,7 +2370,7 @@
           qrWrap.innerHTML = qr.createSvgTag(4, 0);
         } catch (qrErr) {
           // データが長すぎてQRコード化できない場合はURLのみ表示
-          qrWrap.innerHTML = '<div style="font-size:11.5px; color:var(--text-sub); padding:20px; text-align:center;">内容が多いため、QRコードは生成できませんでした。<br>下のURLをコピーしてご利用ください。</div>';
+          qrWrap.innerHTML = '<div style="font-size:calc(11.5px * var(--font-scale)); color:var(--text-sub); padding:20px; text-align:center;">内容が多いため、QRコードは生成できませんでした。<br>下のURLをコピーしてご利用ください。</div>';
         }
       }
     }
@@ -2374,7 +2390,7 @@
 
         // 先に長いURLで即表示 → 短縮リンクAPIが使えれば差し替える
         shareInput.value = longUrl;
-        qrWrap.innerHTML = '<div style="font-size:11.5px; color:var(--text-sub); padding:20px; text-align:center;">リンクを準備しています…</div>';
+        qrWrap.innerHTML = '<div style="font-size:calc(11.5px * var(--font-scale)); color:var(--text-sub); padding:20px; text-align:center;">リンクを準備しています…</div>';
         document.getElementById('shareModal').classList.add('show');
 
         let finalUrl = longUrl;
@@ -2464,10 +2480,10 @@
         div.style.cssText = `display:flex; align-items:center; justify-content:space-between; padding:10px; border-radius:4px; border:1px solid var(--line); background:${isActive ? 'var(--uq-red-light)' : 'var(--bg)'};`;
         div.innerHTML = `
           <div>
-            <strong style="font-size:13px; color:${isActive ? 'var(--uq-red)' : 'var(--text)'};">${nb.name}</strong>
+            <strong style="font-size:calc(13px * var(--font-scale)); color:${isActive ? 'var(--uq-red)' : 'var(--text)'};">${nb.name}</strong>
           </div>
           <div style="display:flex; gap:4px;">
-            ${!isActive ? `<button class="uq-btn" onclick="switchNotebook(${nb.id})">開く</button>` : '<span style="font-size:11px; font-weight:800; color:var(--uq-red); padding:4px 8px;">編集中</span>'}
+            ${!isActive ? `<button class="uq-btn" onclick="switchNotebook(${nb.id})">開く</button>` : '<span style="font-size:calc(11px * var(--font-scale)); font-weight:800; color:var(--uq-red); padding:4px 8px;">編集中</span>'}
             ${allNotebooks.length > 1 ? `<button class="uq-btn" onclick="deleteNotebook(${nb.id})">削除</button>` : ''}
           </div>
         `;
