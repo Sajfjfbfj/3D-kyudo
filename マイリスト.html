@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <script>(function(){try{var s=localStorage.getItem("kyudo_font_scale");if(s)document.documentElement.style.setProperty("--font-scale",s);}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>リアル八節くん ─ マイリスト</title>
   <meta name="description" content="保存した弓道カスタムノートやお気に入りを一覧管理できるマイリストページ。" />
@@ -166,7 +167,7 @@
     }
 
     .uq-app-title {
-      font-size: 15px;
+      font-size:calc(15px * var(--font-scale));
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--text);
@@ -178,7 +179,7 @@
     .uq-tag-badge {
       background: var(--uq-black);
       color: #FFFFFF;
-      font-size: 9px;
+      font-size:calc(9px * var(--font-scale));
       font-weight: 800;
       padding: 1px 5px;
       border-radius: var(--radius-sm);
@@ -221,7 +222,7 @@
     }
 
     .uq-section-title {
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -255,7 +256,7 @@
     }
 
     .uq-card-title {
-      font-size: 14.5px;
+      font-size:calc(14.5px * var(--font-scale));
       font-weight: 800;
       color: var(--text);
       display: flex;
@@ -264,7 +265,7 @@
     }
 
     .uq-card-meta {
-      font-size: 11px;
+      font-size:calc(11px * var(--font-scale));
       color: var(--text-muted);
       font-family: 'Inter', monospace;
     }
@@ -283,7 +284,7 @@
       gap: 6px;
       padding: 8px 14px;
       border-radius: var(--radius-sm);
-      font-size: 12px;
+      font-size:calc(12px * var(--font-scale));
       font-weight: 700;
       border: 1px solid var(--line);
       background: var(--bg);
@@ -318,7 +319,7 @@
       padding: 32px 20px;
       text-align: center;
       color: var(--text-muted);
-      font-size: 13px;
+      font-size:calc(13px * var(--font-scale));
       background: var(--panel);
     }
 
@@ -365,7 +366,7 @@
     }
 
     .uq-drawer-title {
-      font-size: 16px;
+      font-size:calc(16px * var(--font-scale));
       font-weight: 900;
       color: var(--text);
     }
@@ -377,7 +378,7 @@
     }
 
     .uq-drawer-section-label {
-      font-size: 10px;
+      font-size:calc(10px * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -390,7 +391,7 @@
       align-items: center;
       gap: 14px;
       padding: 12px 20px;
-      font-size: 13.5px;
+      font-size:calc(13.5px * var(--font-scale));
       font-weight: 700;
       color: var(--text);
       transition: background 0.15s;
@@ -434,7 +435,7 @@
     <!-- SECTION 1: 編集中ノート -->
     <section>
       <h2 class="uq-section-title">
-        <span class="material-symbols-outlined" style="font-size:16px;">edit_document</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">edit_document</span>
         現在編集中のノート
       </h2>
       <div id="editing-root"></div>
@@ -443,7 +444,7 @@
     <!-- SECTION 2: お気に入り保存済み -->
     <section>
       <h2 class="uq-section-title">
-        <span class="material-symbols-outlined" style="font-size:16px;">star</span>
+        <span class="material-symbols-outlined" style="font-size:calc(16px * var(--font-scale));">star</span>
         お気に入り保存済みノート
       </h2>
       <div id="favorites-root"></div>
